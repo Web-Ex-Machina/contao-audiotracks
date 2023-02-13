@@ -127,9 +127,10 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'pictureText' => [
             'exclude' => true,
             'search' => true,
-            'inputType' => 'text',
-            'eval' => ['tl_class' => 'w50', 'maxlength' => 255],
-            'sql' => "varchar(255) NOT NULL default ''",
+            'inputType' => 'textarea',
+            'eval' => ['mandatory' => true, 'rte' => 'tinyMCE', 'helpwizard' => true, 'tl_class' => 'clr'],
+            'explanation' => 'insertTags',
+            'sql' => 'mediumtext NULL',
         ],
         'published' => [
             'exclude' => true,
