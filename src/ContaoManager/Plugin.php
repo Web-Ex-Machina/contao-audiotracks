@@ -23,7 +23,7 @@ class Plugin implements BundlePluginInterface
     public function getBundles(ParserInterface $parser)
     {
         return [
-            BundleConfig::create(WEM\AudioTracksBundle\AudioTracksBundle::class)
+            BundleConfig::create(AudioTracksBundle::class)
                 ->setLoadAfter([
                     ContaoCoreBundle::class
                 ])
