@@ -152,10 +152,6 @@ class AudioTracksList extends Module
      */
     protected function buildFilters()
     {
-        if (!$this->wemaudiotracks_filters) {
-            return;
-        }
-
         // Retrieve and format dropdowns filters
         $filters = deserialize($this->wemaudiotracks_filters);
         if (\is_array($filters) && !empty($filters)) {
@@ -231,6 +227,13 @@ class AudioTracksList extends Module
                 $this->config['search'] = StringUtil::formatKeywords(\Input::get('search'));
             }
         }
+
+        // Hook system to customize filters
+        if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTFILTERS']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTFILTERS'])) {
+            foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTFILTERS'] as $callback) {
+                $this->filters = static::importStatic($callback[0])->{$callback[1]}($this->filters, $this);
+            }
+        }
     }
 
     /**
@@ -300,6 +303,13 @@ class AudioTracksList extends Module
             $objTemplate->isImage = @is_array(getimagesize($objFile->path));
         } else {
             $objTemplate->audio = null;
+        }
+
+        // Hook system to customize item parsing
+        if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'])) {
+            foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'] as $callback) {
+                static::importStatic($callback[0])->{$callback[1]}($objTemplate, $objItem, $this);
+            }
         }
 
         return $objTemplate->parse();
