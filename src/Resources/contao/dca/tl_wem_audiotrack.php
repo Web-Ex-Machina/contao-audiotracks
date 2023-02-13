@@ -128,7 +128,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'save_callback' => [
                 [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'syncAudioTrackTagsPivotTable']
             ],
-            'eval' => ['doNotCopy' => true, 'chosen' => true, 'includeBlankOption' => true, 'multiple' => true, 'tl_class' => 'w50'],
+            'eval' => ['doNotCopy' => true, 'chosen' => true, 'includeBlankOption' => true, 'multiple' => true, 'tl_class' => 'w50', 'isAvailableForFilters'=>true],
             'sql' => "blob NULL",
         ],
         'picture' => [
