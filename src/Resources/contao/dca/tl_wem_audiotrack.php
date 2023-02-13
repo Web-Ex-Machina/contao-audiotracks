@@ -121,7 +121,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'picture' => [
             'exclude' => true,
             'inputType' => 'fileTree',
-            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => '%contao.image.valid_extensions%'],
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Contao\Config::get('validImageTypes')],
             'sql' => 'binary(16) NULL',
         ],
         'pictureText' => [
