@@ -6,6 +6,7 @@ namespace WEM\AudioTracksBundle\Module;
 
 use Contao\Module;
 use WEM\AudioTracksBundle\Model\AudioTrack;
+use Patchwork\Utf8;
 
 class AudioTracksList extends Module
 {
@@ -138,7 +139,7 @@ class AudioTracksList extends Module
 
         // Add the articles
         if (null !== $objItems) {
-            $this->Template->articles = $this->parseItems($objItems);
+            $this->Template->items = $this->parseItems($objItems);
         }
 
         $this->Template->moduleId = $this->id;
