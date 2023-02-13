@@ -100,6 +100,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'date' => [
             'exclude' => true,
             'inputType' => 'text',
+            'flag' => 8,
             'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
             'sql' => "varchar(10) NOT NULL default ''",
         ],
