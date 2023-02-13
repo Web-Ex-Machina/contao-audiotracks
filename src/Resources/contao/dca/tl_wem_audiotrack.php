@@ -23,7 +23,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'sorting' => [
             'mode' => 4,
             'fields' => ['date ASC'],
-            'headerFields' => ['title'],
+            'headerFields' => ['title', 'tags'],
             'panelLayout' => 'filter;sort,search,limit',
             'child_record_callback' => [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'listItems'],
         ],
