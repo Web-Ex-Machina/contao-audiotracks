@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-$GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
+$GLOBALS['TL_DCA']['tl_wem_audiotrack_tag'] = [
     // Config
     'config' => [
         'dataContainer' => 'Table',
@@ -24,7 +24,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
             'fields' => ['tag ASC'],
             'headerFields' => ['title'],
             'panelLayout' => 'filter;sort,search,limit',
-            'child_record_callback' => [WEM\AudioTracksBundle\DataContainer\FeedbackContainer::class, 'listItems'],
+            'child_record_callback' => [WEM\AudioTracksBundle\DataContainer\AudioTrackTagContainer::class, 'listItems'],
         ],
         'global_operations' => [
             'all' => [
@@ -66,7 +66,9 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'pid' => [
+            'foreignKey' => 'tl_wem_audiotrack.title',
             'sql' => "int(10) unsigned NOT NULL default '0'",
+            'relation' => ['type' => 'belongsTo', 'load' => 'eager'],
         ],
         'createdAt' => [
             'default' => time(),

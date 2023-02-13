@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 array_insert($GLOBALS['BE_MOD']['content'], count($GLOBALS['BE_MOD']['content']), [
     'wemaudiotracks' => [
-        'tables' => ['tl_wem_audiotrack_category', 'tl_wem_audiotrack', 'tl_wem_audiotrack_feedback'],
+        'tables' => ['tl_wem_audiotrack_category', 'tl_wem_audiotrack', 'tl_wem_audiotrack_feedback', 'tl_wem_audiotrack_tag'],
     ],
 ]);
 

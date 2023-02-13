@@ -83,7 +83,9 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'pid' => [
+            'foreignKey' => 'tl_wem_audiotrack_category.title',
             'sql' => "int(10) unsigned NOT NULL default '0'",
+            'relation' => ['type' => 'belongsTo', 'load' => 'eager'],
         ],
         'createdAt' => [
             'default' => time(),
