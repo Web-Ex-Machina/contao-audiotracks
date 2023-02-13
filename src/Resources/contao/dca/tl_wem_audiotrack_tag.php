@@ -21,7 +21,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
     'list' => [
         'sorting' => [
             'mode' => 4,
-            'fields' => ['ip ASC'],
+            'fields' => ['tag ASC'],
             'headerFields' => ['title'],
             'panelLayout' => 'filter;sort,search,limit',
             'child_record_callback' => [WEM\AudioTracksBundle\DataContainer\FeedbackContainer::class, 'listItems'],
@@ -53,7 +53,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
     // Palettes
     'palettes' => [
         'default' => '
-            {title_legend},ip
+            {title_legend},tag
         ',
     ],
 
@@ -73,7 +73,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
             'flag' => 8,
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
-        'ip' => [
+        'tag' => [
             'exclude' => true,
             'search' => true,
             'inputType' => 'text',

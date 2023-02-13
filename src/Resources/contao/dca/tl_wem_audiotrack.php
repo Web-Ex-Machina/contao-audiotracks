@@ -7,7 +7,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     'config' => [
         'dataContainer' => 'Table',
         'ptable' => 'tl_wem_audiotrack_category',
-        'ctable' => ['tl_wem_audiotrack_feedback'],
+        'ctable' => ['tl_wem_audiotrack_feedback', 'tl_wem_audiotrack_tag'],
         'switchToEdit' => true,
         'enableVersioning' => true,
         'sql' => [
@@ -69,7 +69,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     'palettes' => [
         'default' => '
             {title_legend},title,date,audio,description;
-            {content_legend},picture,pictureText;
+            {content_legend},tags,picture,pictureText;
             {publish_legend},published,start,stop
         ',
     ],
@@ -117,6 +117,17 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'eval' => ['mandatory' => true, 'rte' => 'tinyMCE', 'helpwizard' => true, 'tl_class' => 'clr'],
             'explanation' => 'insertTags',
             'sql' => 'mediumtext NULL',
+        ],
+        'tags' => [
+            'exclude' => true,
+            'flag' => 1,
+            'inputType' => 'select',
+            'options_callback' => [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'getTags'],
+            'save_callback' => [
+                [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'syncAudioTrackTagsPivotTable']
+            ],
+            'eval' => ['doNotCopy' => true, 'chosen' => true, 'includeBlankOption' => true, 'multiple' => true, 'tl_class' => 'w50'],
+            'sql' => "blob NULL",
         ],
         'picture' => [
             'exclude' => true,
