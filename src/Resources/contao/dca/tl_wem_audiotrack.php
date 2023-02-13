@@ -107,7 +107,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'audio' => [
             'exclude' => true,
             'inputType' => 'fileTree',
-            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => 'mp3,ogg,wave'],
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => 'mp3,ogg,wav', 'mandatory'=>true],
             'sql' => 'binary(16) NULL',
         ],
         'description' => [
