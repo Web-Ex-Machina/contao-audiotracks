@@ -36,11 +36,166 @@
     <p class="empty"><?= $this->empty; ?></p>
   <?php else: ?>
   	
-  <div class="" id="audioTracks">
-    <?= implode('', $this->items); ?>
-	</div>
-  
-  <?= $this->pagination; ?>
+	  <div class="audiotracks" id="audioTracks">
+	    <?= implode('', $this->items); ?>
+		</div>
+	  <?= $this->pagination; ?>
+
+		<div class="audioPlayer" data-id>
+			<div class="container audioPlayer__wrapper">
+				<div class="audioPlayer__title ellipsis" title="no track"> - </div>
+				<div class="audioPlayer__controls">
+					<div class="audioPlayer__buttons">
+						<div class="audioPlayer__button prev"><i class="fas fa-step-backward"></i></div>
+						<div class="audioPlayer__button play"><i class="fas fa-play"></i><i class="fas fa-pause"></i></div>
+						<div class="audioPlayer__button next"><i class="fas fa-step-forward"></i></div>
+					</div>
+					<div class="audioPlayer__timecontrols">
+						<div class="audioPlayer__current"></div>
+						<input type="range" class="audioPlayer__track" value="0">
+						<div class="audioPlayer__duration"></div>
+					</div>
+					<div class="audioPlayer__volumecontrols">
+						<input type="range" class="audioPlayer__volume" min=0 max=1 value=1 step=0.01>
+						<div class="audioPlayer__mute audioPlayer__button">
+							<i class="fas fa-volume"></i>
+							<i class="fas fa-volume-slash"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	  <script>
+
+	  	window.addEventListener("load", function(e) {
+	  		var trackList = $('.audiotrack__play').toArray().map(function(t){
+	  			return {
+	  				id   : t.getAttribute('data-id'),
+	  				title: t.getAttribute('data-title'),
+	  				src  : t.getAttribute('data-src'),
+	  			}
+	  		});
+	  		var audioPlayer         = $('.audioPlayer');
+	  		var audioPlayer__track  = audioPlayer.find('.audioPlayer__track');
+	  		var audioPlayer__volume = audioPlayer.find('.audioPlayer__volume');
+	  		var audioPlayer__mute   = audioPlayer.find('.audioPlayer__mute');
+	  		var audioPlayer__next   = audioPlayer.find('.audioPlayer__button.next');
+	  		var audioPlayer__prev   = audioPlayer.find('.audioPlayer__button.prev');
+	  		var audioPlayer__play   = audioPlayer.find('.audioPlayer__button.play');
+	  		var audioElement        = new Audio();
+	  		var currentTrack        = false;
+	  		var prevTrack        		= false;
+	  		var nextTrack        		= false;
+
+	  		$('.audiotrack__play').on('click',function(){
+	  			var track = trackList.filter(t=>{ return t.id==this.getAttribute('data-id');})[0];
+	  			if (track != currentTrack)
+	  				playerTogglePlay(!$(this).hasClass('playing'),track);
+	  			else
+	  				$('.audioPlayer__button.play').trigger('click');
+	  		});
+	  		audioPlayer__play.on('click',function(){
+	  			if (!audioPlayer.hasClass('playing') && currentTrack)
+	  				audioElement.play();
+	  			else
+	  				audioElement.pause();
+	  		});
+	  		audioPlayer__next.on('click',function(){
+	  			if (nextTrack)
+	  				playerTogglePlay(true,nextTrack);
+	  		})
+	  		audioPlayer__prev.on('click',function(){
+	  			if (prevTrack)
+	  				playerTogglePlay(true,prevTrack);
+	  		})
+	  		audioPlayer__track.on('mousedown',function(){audioPlayer__track.addClass('seeking'); });
+	  		audioPlayer__track.on('mouseup',function(){audioPlayer__track.removeClass('seeking'); })
+	  		audioPlayer__track.on('change',function(){
+	  			if (currentTrack)
+	  				audioElement.currentTime = this.value;
+	  		});
+				audioPlayer__volume.on('input',function(){
+					audioElement.volume = this.value;
+				});
+				audioPlayer__mute.on('click',function(){
+					audioPlayer__mute.toggleClass('mute');
+					audioElement.muted = audioPlayer__mute.hasClass('mute');
+				})
+
+	  		audioElement.addEventListener('play',function(){
+  				$('.audiotrack__play').removeClass('playing');
+  				$('.audiotrack__play[data-id='+currentTrack.id+']').addClass('playing');
+  				audioPlayer.find('.audioPlayer__title').attr('title',currentTrack.title).text(currentTrack.title);
+  				audioPlayer.addClass('playing');
+	  		});
+	  		audioElement.addEventListener('pause',function(){
+  				$('.audiotrack__play').removeClass('playing');
+  				audioPlayer.removeClass('playing');
+	  		});
+	  		audioElement.addEventListener('loadeddata',function(){
+	  			audioPlayer__track.attr('min',0);
+	        audioPlayer__track.attr('max',audioElement.duration);
+	        audioPlayer__track.attr('style','--min: 0; --max: '+Math.floor(audioElement.duration)+'; --val:'+Math.floor(audioElement.currentTime)+'');
+	  		});
+	  		audioElement.addEventListener('timeupdate',function(){
+	  			if (!audioPlayer__track.hasClass('seeking')) {
+		  			audioPlayer__track.val(Math.floor(audioElement.currentTime));
+		  			audioPlayer__track.get(0).style.setProperty('--val', +audioElement.currentTime)
+	  			}
+	  			audioPlayer.find('.audioPlayer__current').text(convertStoMs(audioElement.currentTime));
+	  			audioPlayer.find('.audioPlayer__duration').text(convertStoMs(audioElement.duration));
+	  		});
+
+	  		var playerTogglePlay = function(play,track){
+	  			if (play && track.src) {
+		  			currentTrack = track;
+						setPlayerButtons();			
+	  				audioElement.src = track.src;
+	  				audioPlayer.addClass('active');
+	  				audioElement.play();
+	  			} else {
+	  				audioElement.pause();
+	  			}
+	  			// console.log(track);
+	  			// console.log(audioElement);
+	  		}
+	  		// debug only
+	  		// $('body').append(audioElement);
+
+	  		var setPlayerButtons = function(){
+	  			audioPlayer__next.removeClass('disabled');
+	  			audioPlayer__prev.removeClass('disabled');
+	  			if (trackList.indexOf(currentTrack)<trackList.length-1){
+	  				nextTrack = trackList[trackList.indexOf(currentTrack)+1];
+	  				audioPlayer__next.attr('title', nextTrack.title);
+	  			}
+	  			else{
+	  				nextTrack = false;
+	  				audioPlayer__next.attr('title','').addClass('disabled');
+	  			}
+	  			if (trackList.indexOf(currentTrack)>0){
+	  				prevTrack = trackList[trackList.indexOf(currentTrack)-1];
+	  				audioPlayer__prev.attr('title', prevTrack.title);
+	  			}
+	  			else{
+	  				prevTrack = false;
+	  				audioPlayer__prev.attr('title','').addClass('disabled');
+	  			}
+	  		}
+
+	  		var convertStoMs = function(seconds) {
+	        let minutes = Math.floor(seconds / 60);
+	        let extraSeconds = Math.floor(seconds % 60);
+	        minutes = minutes < 10 ? "0" + minutes : minutes;
+	        extraSeconds = extraSeconds< 10 ? "0" + extraSeconds : extraSeconds;
+	        return minutes + ":" + extraSeconds;
+	      }
+	  		setTimeout(function(){
+		  		if ($('#tarteaucitronIcon[class*=tarteaucitronIconBottom]').length)
+		  			$('#tarteaucitronIcon').css('z-index',0)
+	  		},500)
+	  	});
+	  </script>
   
   <?php endif; ?>
 
