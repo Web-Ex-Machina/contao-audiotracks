@@ -1,23 +1,57 @@
-<div class="block-list audiotrack audiotrack_default col-4 content--inline<?= $this->class ?>" data-audiotrack="<?= $this->id ?>" itemscope itemtype="http://schema.org/Article">
-	<div class="block-list__wrapper">
-		<div class="block-list__wrapper__inner">
-			<?php if ($this->picture): ?>
-			<div class="block-list__figure">
-				<img src="<?= $this->picture ?>" alt="<?= $this->title ?>" />
-			</div>
-			<?php endif; ?>
+<?php 
+	$tz = reset(iterator_to_array(IntlTimeZone::createEnumeration('FR')));
+	$formatter = IntlDateFormatter::create(
+	    'fr_FR',
+	    IntlDateFormatter::FULL,
+	    IntlDateFormatter::FULL,
+	    $tz,
+	    IntlDateFormatter::GREGORIAN,
+	    'd MMMM Y'
+	);
+?>
+<div class="audiotrack audiotrack_default <?= $this->class ?>"  data-audiotrack="<?= $this->id ?>" itemscope itemtype="http://schema.org/Article">
+	<div class="audiotrack__wrapper">
+		<?php if ($this->picture): ?>
+		<div class="audiotrack__figure img-container r_2-1 hidden-sm">
+			<img src="<?= $this->picture ?>" alt="<?= $this->title ?>" />
+			<?php if ($this->pictureText): ?>
+				<div class="audiotrack__figure__text"><?= $this->pictureText ?></div>
+			<?php endif ?>
+		</div>
+		<?php endif; ?>
 
-			<div class="block-list__content">
-				<h3 class="block-list__title" itemprop="name"><?= $this->title ?></h3>
-				<div class="block-list__text">
-					<?= $this->description ?>
+		<div class="audiotrack__content">
+			<?php if ($this->picture): ?>
+				<div class="audiotrack__figure img-container r_1-1 hidden visible-sm">
+					<img src="<?= $this->picture ?>" alt="<?= $this->title ?>" />
 				</div>
+			<?php endif; ?>
+			<div class="audiotrack__text">
+				<div class="audiotrack__title h4" itemprop="name"><?= $this->title ?></div>
+				<?= $this->description ?>
 			</div>
-			
-			<div class="block-list__footer">
-				<div class="block-list__author">
-					<button class="btn-load" data-process="playAudioTrack" data-audiotrack="<?= $this->id ?>" data-icon="false" data-result="false"><?= $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['play'] ?></button>
-				</div>
+			<div class="audiotrack__actions">
+				<div class="audiotrack__play" 
+					data-id="<?php echo $this->id ?>" 
+					data-title="<?php echo $this->title ?>" 
+					data-src="<?php echo $this->audio ?>">
+				<i class="fas fa-play"></i><i class="fas fa-pause"></i></div>
+				<div class="audiotrack__duration">2h39 min</div>
+				<div class="audiotrack__datetime"><?php  echo datefmt_format($formatter,$this->date); ?></div>
+			</div>
+		</div>
+		<div class="audiotrack__footer">
+			<div class="audiotrack__tags">
+			<?php if (count(deserialize($this->tags))>0): ?>
+					<div class="h4 w-100 hidden-sm">Thème</div>
+					<?php foreach (deserialize($this->tags) as $key => $tag): ?>
+						<span class="tag"><?php echo $tag; ?></span>
+					<?php endforeach ?>
+			<?php endif ?>
+			</div>
+			<div class="audiotrack__likes">
+				<i class="fal fa-heart"></i>
+				<span class="count">12</span>
 			</div>
 		</div>
 	</div>
