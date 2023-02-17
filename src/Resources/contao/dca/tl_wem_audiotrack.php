@@ -7,7 +7,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     'config' => [
         'dataContainer' => 'Table',
         'ptable' => 'tl_wem_audiotrack_category',
-        'ctable' => ['tl_wem_audiotrack_feedback', 'tl_wem_audiotrack_tag'],
+        'ctable' => ['tl_wem_audiotrack_feedback', 'tl_wem_audiotrack_tag', 'tl_wem_audiotrack_session'],
         'switchToEdit' => true,
         'enableVersioning' => true,
         'sql' => [
@@ -61,6 +61,10 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'feedbacks' => [
                 'href' => 'table=tl_wem_audiotrack_feedback',
                 'icon' => 'member.gif',
+            ],
+            'sessions' => [
+                'href' => 'table=tl_wem_audiotrack_session',
+                'icon' => 'su.gif',
             ],
         ],
     ],
