@@ -8,6 +8,7 @@ use Contao\Module;
 use Contao\Input;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Feedback;
+use WEM\AudioTracksBundle\Model\Session;
 use WEM\AudioTracksBundle\Util\MP3File;
 use Patchwork\Utf8;
 
@@ -370,6 +371,17 @@ class AudioTracksList extends Module
         $objTemplate->liked = 0 < Feedback::countItems(['pid' => $objItem->id, 'ip' => \Environment::get('ip')]);
         $objTemplate->nbLikes = Feedback::countItems(['pid' => $objItem->id]) ?: 0;
 
+        // Retrieve user session if exists
+        $objSession = Session::findItems(['pid' => $objItem->id, 'ip' => \Environment::get('ip')], 1);
+
+        if ($objSession) {
+            $objTemplate->session = [
+                "currentTime" => $objSession->currentTime,
+                "volume" => $objSession->volume,
+                "complete" => 1 === (int) $objSession->complete ? true : false,
+            ];
+        }
+
         // Hook system to customize item parsing
         if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'])) {
             foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'] as $callback) {
@@ -401,6 +413,20 @@ class AudioTracksList extends Module
 
     public function updateAudiotrackSession($pid, $currentTime = 0, $volume = 1, $markAsComplete = false)
     {
+        $strIp = \Environment::get('ip');
+        $objSession = Session::findItems(['pid' => $pid, 'ip' => $strIp], 1);
 
+        if (!$objSession) {
+            $objSession = new Session();
+            $objSession->createdAt = time();
+            $objSession->pid = $pid;
+            $objSession->ip = $strIp;
+        }
+
+        $objSession->tstamp = time();
+        $objSession->volume = $volume;
+        $objSession->currentTime = $currentTime;
+        $objSession->complete = $markAsComplete ? 1 : '';
+        $objSession->save();
     }
 }
