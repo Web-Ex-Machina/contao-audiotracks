@@ -7,6 +7,7 @@ namespace WEM\AudioTracksBundle\Module;
 use Contao\Module;
 use Contao\Input;
 use WEM\AudioTracksBundle\Model\AudioTrack;
+use WEM\AudioTracksBundle\Model\Feedback;
 use WEM\AudioTracksBundle\Util\MP3File;
 use Patchwork\Utf8;
 
@@ -80,7 +81,7 @@ class AudioTracksList extends Module
     protected function compile()
     {
         // Catch Ajax Request
-        if(Input::post("TL_AJAX") && $this->id === Input::post('module')) {
+        if(Input::post("TL_AJAX") && $this->id === Input::post('module_id')) {
             try {
                 switch(Input::post('action')) {
                     // Requires audiotrack ID
@@ -89,7 +90,10 @@ class AudioTracksList extends Module
                             throw new Exception("No audiotrack provided");
                         }
 
-                        $this->updateAudiotrackFeedback(Input::post('audiotrack'));
+                        $this->updateAudiotrackFeedback(
+                            Input::post('audiotrack'),
+                            Input::post('liked'),
+                        );
 
                         $arrResponse['status'] = 'success';
                     break;
@@ -362,6 +366,10 @@ class AudioTracksList extends Module
             $objTemplate->audio = null;
         }
 
+        // Retrieve the feedback from this IP
+        $objTemplate->liked = 0 < Feedback::countItems(['pid' => $objItem->id, 'ip' => \Environment::get('ip')]);
+        $objTemplate->nbLikes = Feedback::countItems(['pid' => $objItem->id]) ?: 0;
+
         // Hook system to customize item parsing
         if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'])) {
             foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'] as $callback) {
@@ -372,12 +380,26 @@ class AudioTracksList extends Module
         return $objTemplate->parse();
     }
 
-    public function updateAudiotrackFeedback()
+    public function updateAudiotrackFeedback($pid, $like = 1)
     {
+        $strIp = \Environment::get('ip');
+        
+        if (0 === $like && $objFeedback = Feedback::findItems(['pid' => $objItem->id, 'ip' => $strIp], 1)) {
+            $objFeedback->delete();
+        }
 
+        if(1 === $like && 0 === Feedback::countItems(['pid' => $objItem->id, 'ip' => $strIp])) {
+            $objFeedback = new Feedback();
+            $objFeedback->tstamp = time();
+            $objFeedback->createdAt = time();
+            $objFeedback->pid = $pid;
+            $objFeedback->ip = $strIp;
+            $objFeedback->save();
+        }
     }
 
-    public function updateAudiotrackSession($currentTime, $volume, $markAsComplete = false)
+
+    public function updateAudiotrackSession($pid, $currentTime = 0, $volume = 1, $markAsComplete = false)
     {
 
     }
