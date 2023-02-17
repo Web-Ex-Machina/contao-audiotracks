@@ -66,15 +66,18 @@
 			</div>
 		</div>
 	  <script>
-
 	  	window.addEventListener("load", function(e) {
 	  		var trackList = $('.audiotrack__play').toArray().map(function(t){
 	  			return {
-	  				id   : t.getAttribute('data-id'),
-	  				title: t.getAttribute('data-title'),
-	  				src  : t.getAttribute('data-src'),
+	  				id          : t.getAttribute('data-id'),
+	  				title       : t.getAttribute('data-title'),
+	  				src         : t.getAttribute('data-src'),
+	  				currentTime : t.getAttribute('data-currenttime') ? parseInt(t.getAttribute('data-currenttime'))       : 0,
+	  				volume      : t.getAttribute('data-volume')      ? parseFloat(t.getAttribute('data-volume'))          : 1,
+	  				complete    : t.getAttribute('data-complete')    ? Boolean(parseInt(t.getAttribute('data-complete'))) : false,
 	  			}
 	  		});
+	  		console.log(trackList);
 	  		var audioPlayer         = $('.audioPlayer');
 	  		var audioPlayer__track  = audioPlayer.find('.audioPlayer__track');
 	  		var audioPlayer__volume = audioPlayer.find('.audioPlayer__volume');
@@ -86,6 +89,8 @@
 	  		var currentTrack        = false;
 	  		var prevTrack        		= false;
 	  		var nextTrack        		= false;
+	  		var syncTimer;
+	  		var volumeTimer;
 
 	  		$('.audiotrack__play').on('click',function(){
 	  			var track = trackList.filter(t=>{ return t.id==this.getAttribute('data-id');})[0];
@@ -109,7 +114,13 @@
 	  				playerTogglePlay(true,prevTrack);
 	  		})
 	  		audioPlayer__track.on('mousedown',function(){audioPlayer__track.addClass('seeking'); });
-	  		audioPlayer__track.on('mouseup',function(){audioPlayer__track.removeClass('seeking'); })
+	  		audioPlayer__track.on('mouseup',function(){audioPlayer__track.removeClass('seeking'); 
+	  			// wait for the audioElement to register that time has changed
+	  			setTimeout(function(){ 
+  					// console.log('syncSession - audioPlayer__track mouseup');
+  					syncSession();
+	  			},100)
+	  		})
 	  		audioPlayer__track.on('change',function(){
 	  			if (currentTrack)
 	  				audioElement.currentTime = this.value;
@@ -120,6 +131,14 @@
 				audioPlayer__mute.on('click',function(){
 					audioPlayer__mute.toggleClass('mute');
 					audioElement.muted = audioPlayer__mute.hasClass('mute');
+				});
+
+				audioElement.addEventListener('volumechange',function(){
+					clearInterval(volumeTimer);
+					volumeTimer = setTimeout(function(){
+						// console.log('syncSession - volumechange');
+						syncSession();
+					},500)
 				})
 
 	  		audioElement.addEventListener('play',function(){
@@ -127,8 +146,17 @@
   				$('.audiotrack__play[data-id='+currentTrack.id+']').addClass('playing');
   				audioPlayer.find('.audioPlayer__title').attr('title',currentTrack.title).text(currentTrack.title);
   				audioPlayer.addClass('playing');
+  				clearInterval(syncTimer);
+					// console.log('syncSession - playing (first)');
+  				syncSession().then(function(){
+  					syncTimer = setInterval(function(){
+  						// console.log('syncSession - playing (auto)');
+  						syncSession();
+  					},10000)
+  				});
 	  		});
 	  		audioElement.addEventListener('pause',function(){
+  				clearInterval(syncTimer);
   				$('.audiotrack__play').removeClass('playing');
   				audioPlayer.removeClass('playing');
 	  		});
@@ -136,27 +164,29 @@
 	  			audioPlayer__track.attr('min',0);
 	        audioPlayer__track.attr('max',audioElement.duration);
 	        audioPlayer__track.attr('style','--min: 0; --max: '+Math.floor(audioElement.duration)+'; --val:'+Math.floor(audioElement.currentTime)+'');
+	  			audioPlayer.find('.audioPlayer__duration').text(convertStoMs(audioElement.duration));
 	  		});
 	  		audioElement.addEventListener('timeupdate',function(){
 	  			if (!audioPlayer__track.hasClass('seeking')) {
 		  			audioPlayer__track.val(Math.floor(audioElement.currentTime));
-		  			audioPlayer__track.get(0).style.setProperty('--val', +audioElement.currentTime)
+		  			audioPlayer__track.get(0).style.setProperty('--val', +audioElement.currentTime);
 	  			}
 	  			audioPlayer.find('.audioPlayer__current').text(convertStoMs(audioElement.currentTime));
-	  			audioPlayer.find('.audioPlayer__duration').text(convertStoMs(audioElement.duration));
 	  		});
 
 	  		var playerTogglePlay = function(play,track){
 	  			if (play && track.src) {
 		  			currentTrack = track;
-						setPlayerButtons();			
 	  				audioElement.src = track.src;
+	  				audioPlayer__volume.val(track.volume).trigger('input');
+	  				audioElement.currentTime = track.currentTime;
 	  				audioPlayer.addClass('active');
+						setPlayerButtons();			
 	  				audioElement.play();
 	  			} else {
 	  				audioElement.pause();
 	  			}
-	  			// console.log(track);
+	  			console.log(track);
 	  			// console.log(audioElement);
 	  		}
 	  		// debug only
@@ -185,18 +215,85 @@
 
 	  		var convertStoMs = function(seconds) {
 	        let minutes = Math.floor(seconds / 60);
-	        let extraSeconds = Math.floor(seconds % 60);
+	        let extraSeconds = Math.round(seconds % 60);
 	        minutes = minutes < 10 ? "0" + minutes : minutes;
 	        extraSeconds = extraSeconds< 10 ? "0" + extraSeconds : extraSeconds;
 	        return minutes + ":" + extraSeconds;
 	      }
+
+	      // likes management
+	      $('.audiotrack__likes').on('click',function(){
+	      	var el = $(this);
+	      	el.addClass('no-events');
+	      	$.ajax({
+	      	  timeout: 10000,
+	      	  url: window.location.pathname,
+	      	  type: 'post',
+	      	  data:{
+	      	    'TL_AJAX':true ,
+	      	    'REQUEST_TOKEN':"<?php echo \RequestToken::get() ?>" ,
+	      	    'module': "<?php echo $this->module_id ?>" ,
+	      	    'action': 'feedback',
+	      	    'liked': !el.hasClass('liked'),
+	      	    'audiotrack': el.data('id'),
+	      	  },
+	      	}).done(function(data){
+	      		el.removeClass('no-events');
+	      	  try{var results = $.parseJSON(data); } catch(e){throw e;}
+	      	  if (results.status == "success"){
+	      			el.toggleClass('liked');
+	      			if (el.hasClass('liked'))
+	      				el.find('.count').html(parseInt(el.find('.count').html())+1)
+	      			else
+	      				el.find('.count').html(parseInt(el.find('.count').html())-1)
+	      	  }
+	      	  else {
+	      	    throw results.msg
+	      	  }
+	      	}).fail(function(jqXHR, textStatus){
+	      		console.log(jqXHR, textStatus);
+	      	});
+	      });
+
+
+	      var syncSession = function(){
+	      	return new Promise(function(resolve,reject){
+	      	    $.ajax({
+	      	      timeout: 10000,
+	      	      url: window.location.pathname,
+	      	      type: 'post',
+	      	      data:{
+	      	        'TL_AJAX':true ,
+	      	        'REQUEST_TOKEN':"<?php echo \RequestToken::get() ?>" ,
+	      	        'module': "<?php echo $this->module_id ?>" ,
+	      	        'action': 'syncSession',
+	      	        'audiotrack': currentTrack.id,
+	      	        'currentTime': audioElement.currentTime,
+	      	        'volume': audioElement.volume,
+	      	        'complete': false
+	      	      },
+	      	    }).done(function(data){
+	      	      try{var results = $.parseJSON(data); } catch(e){throw e;}
+	      	      console.log(results);
+	      	      if (results.status == "success"){
+	      	        resolve();
+	      	      }
+	      	      else {
+	      	        throw results.msg
+	      	      }
+	      	    }).fail(function(jqXHR, textStatus){
+	      	      reject();
+	      	    });
+	      	});
+	      }
+
+	      // tarteauciron workaround
 	  		setTimeout(function(){
 		  		if ($('#tarteaucitronIcon[class*=tarteaucitronIconBottom]').length)
 		  			$('#tarteaucitronIcon').css('z-index',0)
 	  		},500)
 	  	});
 	  </script>
-  
   <?php endif; ?>
 
 

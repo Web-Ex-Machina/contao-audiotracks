@@ -9,6 +9,8 @@
 	    'd MMMM Y'
 	);
 ?>
+<!-- <button data-sidepanel="dpanel-session_<?= $this->id ?>" class="btn-sm">Dump session_<?= $this->id ?></button><div class="sidepanel" data-name="dpanel-session_<?= $this->id ?>" data-width="50vw" data-direction="right"><? dump($this->session); ?></div> -->
+<!-- <button data-sidepanel="dpanel-arrData_<?= $this->id ?>" class="btn-sm">Dump arrData_<?= $this->id ?></button><div class="sidepanel" data-name="dpanel-arrData_<?= $this->id ?>" data-width="50vw" data-direction="right"><? dump($this->arrData); ?></div> -->
 <div class="audiotrack audiotrack_default <?= $this->class ?>"  data-audiotrack="<?= $this->id ?>" itemscope itemtype="http://schema.org/Article">
 	<div class="audiotrack__wrapper">
 		<?php if ($this->picture): ?>
@@ -34,9 +36,13 @@
 				<div class="audiotrack__play" 
 					data-id="<?php echo $this->id ?>" 
 					data-title="<?php echo $this->title ?>" 
-					data-src="<?php echo $this->audio ?>">
+					data-src="<?php echo $this->audio ?>"
+					data-complete="<?php echo $this->session['complete'] ?>"
+					data-currentTime="<?php echo $this->session['currentTime'] ?>"
+					data-volume="<?php echo $this->session['volume'] ?>"
+				>
 				<i class="fas fa-play"></i><i class="fas fa-pause"></i></div>
-				<div class="audiotrack__duration">2h39 min</div>
+				<div class="audiotrack__duration"><?php echo $this->duration ?></div>
 				<div class="audiotrack__datetime"><?php  echo datefmt_format($formatter,$this->date); ?></div>
 			</div>
 		</div>
@@ -49,9 +55,10 @@
 					<?php endforeach ?>
 			<?php endif ?>
 			</div>
-			<div class="audiotrack__likes">
-				<i class="fal fa-heart"></i>
-				<span class="count">12</span>
+			<div class="audiotrack__likes<?php echo $this->liked?' liked':''; ?>" data-id="<?php echo $this->id ?>" >
+				<i class="fal fa-heart empty"></i>
+				<i class="fas fa-heart full"></i>
+				<span class="count"><?php echo $this->nbLikes?:'' ?></span>
 			</div>
 		</div>
 	</div>
