@@ -82,7 +82,7 @@ class AudioTracksList extends Module
     protected function compile()
     {
         // Catch Ajax Request
-        if(Input::post("TL_AJAX") && $this->id === Input::post('module_id')) {
+        if(Input::post("TL_AJAX") && $this->id === Input::post('module')) {
             try {
                 switch(Input::post('action')) {
                     // Requires audiotrack ID
@@ -93,7 +93,7 @@ class AudioTracksList extends Module
 
                         $this->updateAudiotrackFeedback(
                             Input::post('audiotrack'),
-                            Input::post('liked'),
+                            "false" === Input::post('liked') ? false : true,
                         );
 
                         $arrResponse['status'] = 'success';
@@ -126,7 +126,7 @@ class AudioTracksList extends Module
 
             $arrResponse['rt'] = \RequestToken::get();
 
-            echo json_encode($arrResponse, true);
+            echo json_encode($arrResponse);
             die;
         }
 
@@ -392,15 +392,15 @@ class AudioTracksList extends Module
         return $objTemplate->parse();
     }
 
-    public function updateAudiotrackFeedback($pid, $like = 1)
+    public function updateAudiotrackFeedback($pid, $like = true)
     {
         $strIp = \Environment::get('ip');
         
-        if (0 === $like && $objFeedback = Feedback::findItems(['pid' => $objItem->id, 'ip' => $strIp], 1)) {
+        if (false === $like && $objFeedback = Feedback::findItems(['pid' => $pid, 'ip' => $strIp], 1)) {
             $objFeedback->delete();
         }
 
-        if(1 === $like && 0 === Feedback::countItems(['pid' => $objItem->id, 'ip' => $strIp])) {
+        if(true === $like && 0 === Feedback::countItems(['pid' => $pid, 'ip' => $strIp])) {
             $objFeedback = new Feedback();
             $objFeedback->tstamp = time();
             $objFeedback->createdAt = time();
