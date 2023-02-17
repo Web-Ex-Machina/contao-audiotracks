@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace WEM\AudioTracksBundle\Module;
 
 use Contao\Module;
+use Contao\Input;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use Patchwork\Utf8;
 
@@ -77,6 +78,52 @@ class AudioTracksList extends Module
      */
     protected function compile()
     {
+        // Catch Ajax Request
+        if(Input::post("TL_AJAX") && $this->id === Input::post('module')) {
+            try {
+                switch(Input::post('action')) {
+                    // Requires audiotrack ID
+                    case 'feedback':
+                        if (!Input::post('audiotrack')) {
+                            throw new Exception("No audiotrack provided");
+                        }
+
+                        $this->updateAudiotrackFeedback(Input::post('audiotrack'));
+
+                        $arrResponse['status'] = 'success';
+                    break;
+
+                    // Requires audiotrack ID, currentTime, volume and complete
+                    case 'syncSession':
+                        if (!Input::post('audiotrack')) {
+                            throw new Exception("No audiotrack provided");
+                        }
+
+                        $this->updateAudiotrackSession(
+                            Input::post('audiotrack'),
+                            Input::post('currentTime') ?: 0,
+                            Input::post('volume') ?: 1,
+                            Input::post('complete') ?: false,
+                        );
+
+                        $arrResponse['status'] = 'success';
+                    break;
+
+                    default:
+                        throw new Exception(sprintf($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['unknownAjaxAction']), Input::post('action'));
+                }
+            }
+            catch(Exception $e) {
+                $arrResponse['status'] = 'error';
+                $arrResponse['message'] = $e->getMessage();
+            }
+
+            $arrResponse['rt'] = \RequestToken::get();
+
+            echo json_encode($arrResponse, true);
+            die;
+        }
+
         $this->limit = null;
         $this->offset = (int) $this->skipFirst;
 
@@ -313,5 +360,15 @@ class AudioTracksList extends Module
         }
 
         return $objTemplate->parse();
+    }
+
+    public function updateAudiotrackFeedback()
+    {
+
+    }
+
+    public function updateAudiotrackSession($currentTime, $volume, $markAsComplete = false)
+    {
+
     }
 }
