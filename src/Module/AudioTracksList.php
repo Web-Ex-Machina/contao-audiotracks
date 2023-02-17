@@ -7,6 +7,7 @@ namespace WEM\AudioTracksBundle\Module;
 use Contao\Module;
 use Contao\Input;
 use WEM\AudioTracksBundle\Model\AudioTrack;
+use WEM\AudioTracksBundle\Util\MP3File;
 use Patchwork\Utf8;
 
 class AudioTracksList extends Module
@@ -347,7 +348,16 @@ class AudioTracksList extends Module
         // Fetch the audio file
         if ($objFile = \FilesModel::findByUuid($objItem->audio)) {
             $objTemplate->audio = $objFile->path;
-            $objTemplate->isImage = @is_array(getimagesize($objFile->path));
+            
+            // Use library to get file duration
+            $mp3file = new MP3File($objFile->path);
+            $duration = $mp3file->getDurationEstimate();
+
+            $objTemplate->duration = ($duration > 3600) ?
+                sprintf('%sh%s min', $duration / 3600, $duration / 60 % 60) : 
+                sprintf('%s:%s min', $duration / 60 % 60, $duration % 60)
+            ;
+            $objTemplate->durationRaw = $duration;
         } else {
             $objTemplate->audio = null;
         }
