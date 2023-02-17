@@ -195,7 +195,7 @@ class AudioTracksList extends Module
             $this->Template->items = $this->parseItems($objItems);
         }
 
-        $this->Template->moduleId = $this->id;
+        $this->Template->module_id = $this->id;
     }
 
     /**
