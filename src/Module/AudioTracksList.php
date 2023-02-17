@@ -109,7 +109,7 @@ class AudioTracksList extends Module
                             Input::post('audiotrack'),
                             Input::post('currentTime') ?: 0,
                             Input::post('volume') ?: 1,
-                            Input::post('complete') ?: false,
+                            1 === (int) Input::post('complete') ?: false,
                         );
 
                         $arrResponse['status'] = 'success';
@@ -378,7 +378,7 @@ class AudioTracksList extends Module
             $objTemplate->session = [
                 "currentTime" => $objSession->currentTime,
                 "volume" => $objSession->volume,
-                "complete" => 1 === (int) $objSession->complete ? true : false,
+                "complete" => 1 === (int) $objSession->complete,
             ];
         }
 
