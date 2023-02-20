@@ -45,7 +45,8 @@ class AudioTrack extends \WEM\UtilsBundle\Model\Model
                 break;
 
                 case 'search':
-                    
+                    $strKeywords = implode('|', $varValue);
+                    $arrColumns[] = "($t.title REGEXP '$strKeywords' OR $t.description REGEXP '$strKeywords')";
                 break;
 
                 // Load parent

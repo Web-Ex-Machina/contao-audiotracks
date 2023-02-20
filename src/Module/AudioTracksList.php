@@ -11,6 +11,7 @@ use WEM\AudioTracksBundle\Model\Feedback;
 use WEM\AudioTracksBundle\Model\Session;
 use WEM\AudioTracksBundle\Util\MP3File;
 use Patchwork\Utf8;
+use WEM\UtilsBundle\Classes\StringUtil;
 
 class AudioTracksList extends Module
 {
@@ -205,6 +206,21 @@ class AudioTracksList extends Module
      */
     protected function buildFilters()
     {
+        // Add fulltext search if asked
+        if ($this->wemaudiotracks_addSearch) {
+            $this->filters[] = [
+                'type' => 'text',
+                'name' => 'search',
+                'label' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['search'],
+                'placeholder' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['searchPlaceholder'],
+                'value' => \Input::get('search') ?: '',
+            ];
+
+            if ('' !== \Input::get('search') && null !== \Input::get('search')) {
+                $this->config['search'] = StringUtil::formatKeywords(\Input::get('search'));
+            }
+        }
+
         // Retrieve and format dropdowns filters
         $filters = deserialize($this->wemaudiotracks_filters);
         if (\is_array($filters) && !empty($filters)) {
@@ -219,6 +235,7 @@ class AudioTracksList extends Module
                     'type' => $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['inputType'],
                     'name' => $strName,
                     'label' => $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['label'][0] ?: $GLOBALS['TL_LANG']['tl_wem_audiotrack'][$f][0],
+                    'placeholder' => $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['label'][1] ?: $GLOBALS['TL_LANG']['tl_wem_audiotrack'][$f][1],
                     'value' => \Input::get($f) ?: '',
                     'options' => [],
                     'multiple' => $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['eval']['multiple'] ? true : false,
@@ -242,7 +259,7 @@ class AudioTracksList extends Module
                             $filter['options'][] = [
                                 'value' => $label,
                                 'label' => $label,
-                                'selected' => (null !== \Input::get($f) && (\Input::get($f) === $value || (\is_array(\Input::get($f)) && \in_array($value, \Input::get($f))))),
+                                'selected' => (null !== \Input::get($f) && (\Input::get($f) === $label || (\is_array(\Input::get($f)) && \in_array($label, \Input::get($f))))),
                             ];
                         }
                         break;
@@ -272,25 +289,17 @@ class AudioTracksList extends Module
             }
         }
 
-        // Add fulltext search if asked
-        if ($this->wemaudiotracks_addSearch) {
-            $this->filters[] = [
-                'type' => 'text',
-                'name' => 'search',
-                'label' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['search'],
-                'placeholder' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['searchPlaceholder'],
-                'value' => \Input::get('search') ?: '',
-            ];
-
-            if ('' !== \Input::get('search') && null !== \Input::get('search')) {
-                $this->config['search'] = StringUtil::formatKeywords(\Input::get('search'));
-            }
-        }
-
         // Hook system to customize filters
         if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTFILTERS']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTFILTERS'])) {
             foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTFILTERS'] as $callback) {
                 $this->filters = static::importStatic($callback[0])->{$callback[1]}($this->filters, $this);
+            }
+        }
+
+        // Hook system to customize filters config
+        if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTCONFIG']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTCONFIG'])) {
+            foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTCONFIG'] as $callback) {
+                $this->config = static::importStatic($callback[0])->{$callback[1]}($this->filters, $this->config, $this);
             }
         }
     }
