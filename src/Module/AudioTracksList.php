@@ -209,9 +209,15 @@ class AudioTracksList extends Module
         $filters = deserialize($this->wemaudiotracks_filters);
         if (\is_array($filters) && !empty($filters)) {
             foreach ($filters as $f) {
+                $strName = $f;
+
+                if($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['eval']['multiple']) {
+                    $strName .= '[]';
+                }
+
                 $filter = [
                     'type' => $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['inputType'],
-                    'name' => $f,
+                    'name' => $strName,
                     'label' => $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['label'][0] ?: $GLOBALS['TL_LANG']['tl_wem_audiotrack'][$f][0],
                     'value' => \Input::get($f) ?: '',
                     'options' => [],
