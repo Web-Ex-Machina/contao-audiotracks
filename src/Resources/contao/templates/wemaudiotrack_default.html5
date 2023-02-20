@@ -9,8 +9,6 @@
 	    'd MMMM Y'
 	);
 ?>
-<!-- <button data-sidepanel="dpanel-session_<?= $this->id ?>" class="btn-sm">Dump session_<?= $this->id ?></button><div class="sidepanel" data-name="dpanel-session_<?= $this->id ?>" data-width="50vw" data-direction="right"><? dump($this->session); ?></div> -->
-<!-- <button data-sidepanel="dpanel-arrData_<?= $this->id ?>" class="btn-sm">Dump arrData_<?= $this->id ?></button><div class="sidepanel" data-name="dpanel-arrData_<?= $this->id ?>" data-width="50vw" data-direction="right"><? dump($this->arrData); ?></div> -->
 <div class="audiotrack audiotrack_default <?= $this->class ?>"  data-audiotrack="<?= $this->id ?>" itemscope itemtype="http://schema.org/Article">
 	<div class="audiotrack__wrapper">
 		<?php if ($this->picture): ?>
@@ -31,6 +29,7 @@
 			<div class="audiotrack__text">
 				<div class="audiotrack__title h4" itemprop="name"><?= $this->title ?></div>
 				<?= $this->description ?>
+				<div class="audiotrack__listened<?php echo $this->session['complete']?' active':'' ?>"><i class="far fa-check ft-success ft-1-3-em"></i><span><?= $GLOBALS['TL_LANG']['LBL']['listened'] ?></span></div>
 			</div>
 			<div class="audiotrack__actions">
 				<div class="audiotrack__play" 
