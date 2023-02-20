@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<xliff version="1.1">
+	<file datatype="php" original="system/modules/core/languages/en/tl_wem_audiotrack.php" source-language="en" target-language="fr">
+		<body>
+			<trans-unit id="LBL.listened">
+				<source>Listened</source>
+				<target>Écouté</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
