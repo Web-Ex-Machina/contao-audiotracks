@@ -109,7 +109,7 @@ class AudioTracksList extends Module
                             Input::post('audiotrack'),
                             Input::post('currentTime') ?: 0,
                             Input::post('volume') ?: 1,
-                            1 === (int) Input::post('complete') ?: false,
+                            "true" === Input::post('complete') ? true : false,
                         );
 
                         $arrResponse['status'] = 'success';
@@ -209,27 +209,33 @@ class AudioTracksList extends Module
         $filters = deserialize($this->wemaudiotracks_filters);
         if (\is_array($filters) && !empty($filters)) {
             foreach ($filters as $f) {
+                $strName = $f;
+
+                if($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['eval']['multiple']) {
+                    $strName .= '[]';
+                }
+
                 $filter = [
-                    'type' => $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['inputType'],
-                    'name' => $f,
-                    'label' => $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['label'][0] ?: $GLOBALS['TL_LANG']['tl_wem_job'][$f][0],
+                    'type' => $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['inputType'],
+                    'name' => $strName,
+                    'label' => $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['label'][0] ?: $GLOBALS['TL_LANG']['tl_wem_audiotrack'][$f][0],
                     'value' => \Input::get($f) ?: '',
                     'options' => [],
-                    'multiple' => $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['eval']['multiple'] ? true : false,
+                    'multiple' => $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['eval']['multiple'] ? true : false,
                 ];
 
-                switch ($GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['inputType']) {
+                switch ($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['inputType']) {
                     case 'select':
-                        if (\is_array($GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options_callback'])) {
-                            $strClass = $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options_callback'][0];
-                            $strMethod = $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options_callback'][1];
+                        if (\is_array($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options_callback'])) {
+                            $strClass = $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options_callback'][0];
+                            $strMethod = $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options_callback'][1];
 
                             $this->import($strClass);
-                            $options = $this->$strClass->$strMethod($this);
-                        } elseif (\is_callable($GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options_callback'])) {
-                            $options = $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options_callback']($this);
-                        } elseif (\is_array($GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options'])) {
-                            $options = $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options'];
+                            $options = $this->$strClass->$strMethod(null, $this->pids);
+                        } elseif (\is_callable($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options_callback'])) {
+                            $options = $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options_callback'](null, $this->pids);
+                        } elseif (\is_array($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options'])) {
+                            $options = $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options'];
                         }
 
                         foreach ($options as $value => $label) {

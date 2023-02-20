@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\DataContainer;
 
+use Contao\DataContainer;
 use WEM\AudioTracksBundle\Model\AudioTrack;
+use WEM\AudioTracksBundle\Model\Category;
 use WEM\UtilsBundle\Model\Model;
 
 class AudioTrackContainer extends \Backend
@@ -140,16 +142,35 @@ class AudioTrackContainer extends \Backend
      *
      * @return array ['tag1','tag2', ...]
      */
-    public function getTags($dc): array
+    public function getTags(?DataContainer $dc, ?array $arrPids = null): array
     {
-        $objItem = AudioTrack::findByPk($dc->id);
-        $objCategory = $objItem->getRelated('pid');
+        if (null !== $dc) {
+            $objItem = AudioTrack::findByPk($dc->id);
+            $objCategory = $objItem->getRelated('pid');
 
-        if (!$objCategory->tags) {
-            return [];
+            if (!$objCategory->tags) {
+                return [];
+            }
+
+            return deserialize($objCategory->tags);
+        } 
+
+        if (null !== $arrPids) {
+            $arrTags = [];
+            foreach ($arrPids as $id) {
+                $objCategory = Category::findByPk($id);
+
+                if (!$objCategory || !$objCategory->tags) {
+                    continue;
+                }
+
+               $arrTags = array_merge($arrTags, deserialize($objCategory->tags));
+            }
+
+            return array_unique($arrTags);
         }
 
-        return deserialize($objCategory->tags);
+        return [];
     }
 
     public function syncAudioTrackTagsPivotTable($varValue, $dc)
