@@ -109,7 +109,7 @@ class AudioTracksList extends Module
                             Input::post('audiotrack'),
                             Input::post('currentTime') ?: 0,
                             Input::post('volume') ?: 1,
-                            1 === (int) Input::post('complete') ?: false,
+                            "true" === Input::post('complete') ? true : false,
                         );
 
                         $arrResponse['status'] = 'success';
