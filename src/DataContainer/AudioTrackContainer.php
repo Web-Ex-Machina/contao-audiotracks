@@ -175,7 +175,7 @@ class AudioTrackContainer extends \Backend
 
     public function syncAudioTrackTagsPivotTable($varValue, $dc)
     {
-        $this->syncData($varValues, 'tl_wem_audiotrack_tag', $dc->id, 'pid', 'tag');
+        $this->syncData(deserialize($varValue), 'tl_wem_audiotrack_tag', $dc->id, 'pid', 'tag');
 
         return $varValue;
     }
@@ -211,14 +211,14 @@ class AudioTrackContainer extends \Backend
 
         // step 2 - remove all ids not in $varValues
         if ($varValues) {
-            Database::getInstance()->prepare(
+            \Database::getInstance()->prepare(
                 sprintf(
-                    'DELETE FROM %s WHERE %s = %s AND %s NOT IN (%s)',
+                    "DELETE FROM %s WHERE %s = %s AND %s NOT IN ('%s')",
                     $strTable,
                     $strParentField,
                     $intParentId,
                     $strForeignField,
-                    implode(',', array_map('intval', $varValues))
+                    implode("','", $varValues)
                 )
             )->execute();
         }

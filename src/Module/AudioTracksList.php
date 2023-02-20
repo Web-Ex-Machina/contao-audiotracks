@@ -240,7 +240,7 @@ class AudioTracksList extends Module
 
                         foreach ($options as $value => $label) {
                             $filter['options'][] = [
-                                'value' => $value,
+                                'value' => $label,
                                 'label' => $label,
                                 'selected' => (null !== \Input::get($f) && (\Input::get($f) === $value || (\is_array(\Input::get($f)) && \in_array($value, \Input::get($f))))),
                             ];

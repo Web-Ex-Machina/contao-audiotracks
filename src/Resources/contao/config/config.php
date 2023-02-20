@@ -25,3 +25,4 @@ $GLOBALS['TL_MODELS'][\WEM\AudioTracksBundle\Model\AudioTrack::getTable()] = WEM
 $GLOBALS['TL_MODELS'][\WEM\AudioTracksBundle\Model\Category::getTable()] = WEM\AudioTracksBundle\Model\Category::class;
 $GLOBALS['TL_MODELS'][\WEM\AudioTracksBundle\Model\Feedback::getTable()] = WEM\AudioTracksBundle\Model\Feedback::class;
 $GLOBALS['TL_MODELS'][\WEM\AudioTracksBundle\Model\Session::getTable()] = WEM\AudioTracksBundle\Model\Session::class;
+$GLOBALS['TL_MODELS'][\WEM\AudioTracksBundle\Model\Tag::getTable()] = WEM\AudioTracksBundle\Model\Tag::class;
