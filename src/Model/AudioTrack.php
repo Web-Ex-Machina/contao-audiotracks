@@ -16,6 +16,41 @@ class AudioTrack extends \WEM\UtilsBundle\Model\Model
      */
     protected static $strTable = 'tl_wem_audiotrack';
 
+
+    /**
+     * Find items, depends on the arguments.
+     *
+     * @param array $arrConfig  [Request Config]
+     * @param int   $intLimit   [Query Limit]
+     * @param int   $intOffset  [Query Offset]
+     * @param array $arrOptions [Query Options]
+     *
+     * @return Collection
+     */
+    public static function findItems($arrConfig = [], $intLimit = 0, $intOffset = 0, array $arrOptions = [])
+    {
+        try {
+            $t = static::$strTable;
+
+            // Catch sorting by subtable
+            if ($arrOptions['order'] && false !== strpos($arrOptions['order'], 'mostLiked')) {
+                $arrOptions['select'] = "$t.*, COUNT(twaf.id) AS nbLikes";
+                $arrOptions['join'][] = "LEFT JOIN tl_wem_audiotrack_feedback twaf on $t.id = twaf.pid";
+                $arrOptions['group'] = "$t.id";
+
+                if('DESC' === substr($arrOptions['order'], -4, 4)) {
+                    $arrOptions['order'] = 'nbLikes DESC';
+                } else {
+                    $arrOptions['order'] = 'nbLikes ASC';
+                }
+            }
+
+            return parent::findItems($arrConfig, $intLimit, $intOffset, $arrOptions);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     /**
      * Generic statements format.
      *
