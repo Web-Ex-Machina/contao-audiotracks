@@ -2,22 +2,22 @@
 <xliff version="1.1">
 	<file datatype="php" original="system/modules/core/languages/en/modules.php" source-language="en" target-language="fr">
 		<body>
-			<trans-unit id="MOD.survey_results.0">
-				<target>Résultats du sondage</target>
+			<trans-unit id="MOD.wemaudiotracks.0">
+				<source>Audiotracks</source>
+				<target>Pistes audio</target>
 			</trans-unit>
-			<trans-unit id="MOD.survey_results.1">
-				<target>Afficher/exporter les résultats du sondage</target>
-			</trans-unit>
-
-			<trans-unit id="FMD.factorielles">
-				<target>Factorielles</target>
+			<trans-unit id="MOD.wemaudiotracks.1">
+				<source>Manage audiotracks feeds on your website</source>
+				<target>Gérer les flux de pistes audio sur votre site</target>
 			</trans-unit>
 
-			<trans-unit id="FMD.addToCart.0">
-				<target>Bloc de commande</target>
+			<trans-unit id="FMD.wemaudiotrackslist.0">
+				<source>Audiotracks</source>
+				<target>Pistes audio</target>
 			</trans-unit>
-			<trans-unit id="FMD.addToCart.1">
-				<target>Ajoute un bloc de commande à la page</target>
+			<trans-unit id="FMD.wemaudiotrackslist.1">
+				<source>Display audiotracks feeds on your website</source>
+				<target>Affiche les flux de pistes audio sur votre site</target>
 			</trans-unit>
 		</body>
 	</file>
