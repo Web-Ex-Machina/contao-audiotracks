@@ -189,7 +189,7 @@ class AudioTracksList extends Module
             $this->Template->pagination = $objPagination->generate("\n  ");
         }
 
-        $objItems = AudioTrack::findItems($this->config, ($this->limit ?: 0), ($this->offset ?: 0));
+        $objItems = AudioTrack::findItems($this->config, ($this->limit ?: 0), ($this->offset ?: 0), $this->options);
 
         // Add the articles
         if (null !== $objItems) {
@@ -296,10 +296,17 @@ class AudioTracksList extends Module
             }
         }
 
-        // Hook system to customize filters config
+        // Hook system to customize list config
         if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTCONFIG']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTCONFIG'])) {
             foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTCONFIG'] as $callback) {
                 $this->config = static::importStatic($callback[0])->{$callback[1]}($this->filters, $this->config, $this);
+            }
+        }
+
+        // Hook system to customize list options
+        if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTOPTIONS']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTOPTIONS'])) {
+            foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTOPTIONS'] as $callback) {
+                $this->options = static::importStatic($callback[0])->{$callback[1]}($this->filters, $this->config, $this->options, $this);
             }
         }
     }
