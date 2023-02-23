@@ -83,9 +83,9 @@ class AudioTracksList extends Module
     protected function compile()
     {
         // Catch Ajax Request
-        if(Input::post("TL_AJAX") && $this->id === Input::post('module')) {
+        if (Input::post("TL_AJAX") && $this->id === Input::post('module')) {
             try {
-                switch(Input::post('action')) {
+                switch (Input::post('action')) {
                     // Requires audiotrack ID
                     case 'feedback':
                         if (!Input::post('audiotrack')) {
@@ -119,8 +119,7 @@ class AudioTracksList extends Module
                     default:
                         throw new Exception(sprintf($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['unknownAjaxAction']), Input::post('action'));
                 }
-            }
-            catch(Exception $e) {
+            } catch (Exception $e) {
                 $arrResponse['status'] = 'error';
                 $arrResponse['message'] = $e->getMessage();
             }
@@ -227,7 +226,7 @@ class AudioTracksList extends Module
             foreach ($filters as $f) {
                 $strName = $f;
 
-                if($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['eval']['multiple']) {
+                if ($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['eval']['multiple']) {
                     $strName .= '[]';
                 }
 
@@ -375,14 +374,14 @@ class AudioTracksList extends Module
         // Fetch the audio file
         if ($objFile = \FilesModel::findByUuid($objItem->audio)) {
             $objTemplate->audio = $objFile->path;
-            
+
             // Use library to get file duration
             $mp3file = new MP3File($objFile->path);
             $duration = $mp3file->getDurationEstimate();
 
             $objTemplate->duration = ($duration > 3600) ?
-                sprintf('%sh%s min', $duration / 3600, $duration / 60 % 60) : 
-                sprintf('%s:%s min', $duration / 60 % 60, $duration % 60)
+                sprintf('%sh%s min', $duration / 3600, $duration / 60 % 60) :
+                sprintf('%s min %s%s s', $duration / 60 % 60, $duration % 60 < 10 ? '0' : '', $duration % 60)
             ;
             $objTemplate->durationRaw = $duration;
         } else {
@@ -417,12 +416,12 @@ class AudioTracksList extends Module
     public function updateAudiotrackFeedback($pid, $like = true)
     {
         $strIp = \Environment::get('ip');
-        
+
         if (false === $like && $objFeedback = Feedback::findItems(['pid' => $pid, 'ip' => $strIp], 1)) {
             $objFeedback->delete();
         }
 
-        if(true === $like && 0 === Feedback::countItems(['pid' => $pid, 'ip' => $strIp])) {
+        if (true === $like && 0 === Feedback::countItems(['pid' => $pid, 'ip' => $strIp])) {
             $objFeedback = new Feedback();
             $objFeedback->tstamp = time();
             $objFeedback->createdAt = time();
