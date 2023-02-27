@@ -380,7 +380,7 @@ class AudioTracksList extends Module
             $duration = $mp3file->getDurationEstimate();
 
             $objTemplate->duration = ($duration > 3600) ?
-                sprintf('%sh%s min', $duration / 3600, $duration / 60 % 60) :
+                sprintf('%s h %s%s min', number_format($duration / 3600), $duration / 60 % 60 < 10 ? '0' : '', $duration / 60 % 60) :
                 sprintf('%s min %s%s s', $duration / 60 % 60, $duration % 60 < 10 ? '0' : '', $duration % 60)
             ;
             $objTemplate->durationRaw = $duration;
