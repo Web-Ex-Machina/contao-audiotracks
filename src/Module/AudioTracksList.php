@@ -370,6 +370,9 @@ class AudioTracksList extends Module
         if ($objItem->picture && $objFile = \FilesModel::findByUuid($objItem->picture)) {
             $objTemplate->picture = \Image::get($objFile->path, 300, 300);
         }
+        if ($objItem->picture_mobile && $objFile = \FilesModel::findByUuid($objItem->picture_mobile)) {
+            $objTemplate->picture_mobile = \Image::get($objFile->path, 300, 300);
+        }
 
         // Fetch the audio file
         if ($objFile = \FilesModel::findByUuid($objItem->audio)) {

@@ -14,16 +14,13 @@
 		<?php if ($this->picture): ?>
 		<div class="audiotrack__figure img-container r_2-1 hidden-sm">
 			<img src="<?= $this->picture ?>" alt="<?= $this->title ?>" />
-			<?php if ($this->pictureText): ?>
-				<div class="audiotrack__figure__text"><?= $this->pictureText ?></div>
-			<?php endif ?>
 		</div>
 		<?php endif; ?>
 
 		<div class="audiotrack__content">
-			<?php if ($this->picture): ?>
+			<?php if ($this->picture || $this->picture_mobile): ?>
 				<div class="audiotrack__figure img-container r_1-1 hidden visible-sm">
-					<img src="<?= $this->picture ?>" alt="<?= $this->title ?>" />
+					<img src="<?= $this->picture_mobile?:$this->picture ?>" alt="<?= $this->title ?>" />
 				</div>
 			<?php endif; ?>
 			<div class="audiotrack__text">

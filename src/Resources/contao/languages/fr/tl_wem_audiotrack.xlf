@@ -50,13 +50,13 @@
 				<source>Select the track picture.</source>
 				<target>Sélectionnez l'illustration de la piste.</target>
 			</trans-unit>
-			<trans-unit id="tl_wem_audiotrack.pictureText.0">
-				<source>Text on picture</source>
-				<target>Texte sur l'illustration</target>
+			<trans-unit id="tl_wem_audiotrack.picture_mobile.0">
+				<source>Picture mobile</source>
+				<target>Illustration mobile</target>
 			</trans-unit>
-			<trans-unit id="tl_wem_audiotrack.pictureText.1">
-				<source>If wanted, enter a text on the track picture.</source>
-				<target>Si souhaité, saisissez un texte sur l'illustration de la piste.</target>
+			<trans-unit id="tl_wem_audiotrack.picture_mobile.1">
+				<source>Select the track picture displayed on mobile resolution.</source>
+				<target>Sélectionnez l'illustration de la piste affichée sur résolution mobile.</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.published.0">
 				<source>Published</source>
