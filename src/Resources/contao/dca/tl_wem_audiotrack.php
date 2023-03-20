@@ -73,7 +73,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     'palettes' => [
         'default' => '
             {title_legend},title,date,audio,description;
-            {content_legend},tags,picture,picture_mobile;
+            {content_legend},tags,picture,picture_mobile,pictureText;
             {publish_legend},published,start,stop
         ',
     ],
@@ -146,6 +146,14 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'inputType' => 'fileTree',
             'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Contao\Config::get('validImageTypes')],
             'sql' => 'binary(16) NULL',
+        ],
+        'pictureText' => [
+            'exclude' => true,
+            'search' => true,
+            'inputType' => 'textarea',
+            'eval' => ['rte' => 'tinyMCE', 'helpwizard' => true, 'tl_class' => 'clr'],
+            'explanation' => 'insertTags',
+            'sql' => 'mediumtext NULL',
         ],
         'published' => [
             'exclude' => true,

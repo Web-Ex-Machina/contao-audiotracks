@@ -42,13 +42,21 @@
 				<source>Select the track tags.</source>
 				<target>Sélectionnez les tags de la piste.</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.pictureText.0">
+				<source>Text picture</source>
+				<target>Texte illustration</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.pictureText.1">
+				<source>Text displayed inside the track picture</source>
+				<target>Texte affiché dans l'illustration</target>
+			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.picture.0">
 				<source>Picture</source>
 				<target>Illustration</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.picture.1">
 				<source>Select the track picture.</source>
-				<target>Sélectionnez l'illustration de la piste.</target>
+				<target>Sélectionnez l'illustration de la piste (format 2:1 ou 16:9).</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.picture_mobile.0">
 				<source>Picture mobile</source>
@@ -56,7 +64,7 @@
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.picture_mobile.1">
 				<source>Select the track picture displayed on mobile resolution.</source>
-				<target>Sélectionnez l'illustration de la piste affichée sur résolution mobile.</target>
+				<target>Sélectionnez l'illustration de la piste affichée sur résolution mobile (format 1:1).</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.published.0">
 				<source>Published</source>
