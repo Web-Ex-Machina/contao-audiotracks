@@ -10,7 +10,6 @@ use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Feedback;
 use WEM\AudioTracksBundle\Model\Session;
 use WEM\AudioTracksBundle\Util\MP3File;
-use Patchwork\Utf8;
 use WEM\UtilsBundle\Classes\StringUtil;
 
 class AudioTracksList extends Module
@@ -55,7 +54,7 @@ class AudioTracksList extends Module
     {
         if (TL_MODE === 'BE') {
             $objTemplate = new \BackendTemplate('be_wildcard');
-            $objTemplate->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['FMD']['wemaudiotrackslist'][0]).' ###';
+            $objTemplate->wildcard = '### '.mb_strtoupper($GLOBALS['TL_LANG']['FMD']['wemaudiotrackslist'][0]).' ###';
             $objTemplate->title = $this->headline;
             $objTemplate->id = $this->id;
             $objTemplate->link = $this->name;
