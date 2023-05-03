@@ -48,7 +48,7 @@
 		<div class="audiotrack__footer">
 			<div class="audiotrack__tags">
 			<?php if (count(deserialize($this->tags))>0): ?>
-					<div class="h4 w-100 hidden-sm">Thème</div>
+					<div class="h4 w-100 hidden-sm"><?= $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS'][count(deserialize($this->tags))>1?'themes':'theme'] ?></div>
 					<?php foreach (deserialize($this->tags) as $key => $tag): ?>
 						<span class="tag"><?php echo $tag; ?></span>
 					<?php endforeach ?>
