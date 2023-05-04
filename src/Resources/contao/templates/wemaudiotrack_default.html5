@@ -42,7 +42,7 @@
 				>
 				<i class="fas fa-play"></i><i class="fas fa-pause"></i></div>
 				<div class="audiotrack__duration"><?php echo $this->duration ?></div>
-				<div class="audiotrack__datetime"><?php  echo datefmt_format($formatter,$this->date); ?></div>
+				<?php if ($this->date): ?><div class="audiotrack__datetime"><?php  echo datefmt_format($formatter,$this->date); ?></div><?php endif ?>
 			</div>
 		</div>
 		<div class="audiotrack__footer">
