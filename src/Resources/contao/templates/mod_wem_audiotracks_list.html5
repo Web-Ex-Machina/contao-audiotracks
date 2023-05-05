@@ -2,7 +2,7 @@
 
 <?php $this->block('content'); ?>
 
-  <?php if ($this->filters): ?>
+  <?php if ($this->addFilters): ?>
 		<form action="{{env::request}}" method="GET">
 		    <div class="audiotracks__filters m-bottom" data-container="audioTracks">
 		    	<div class="audiotracks__filters__line">

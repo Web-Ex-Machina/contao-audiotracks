@@ -195,6 +195,7 @@ class AudioTracksList extends Module
         }
 
         $this->Template->module_id = $this->id;
+        $this->Template->addFilters = $this->wemaudiotracks_addFilters;
     }
 
     /**
