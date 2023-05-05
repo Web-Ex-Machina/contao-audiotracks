@@ -78,7 +78,7 @@
 	  			}
 	  		});
 	  		localData = JSON.parse(localStorage.getItem('wem_audiotracks_data'));
-	  		if (localData === null){
+	  		if (localData === null || localData.length != trackList.length){
 	  			localData = trackList;
 	  		} else {
 	  			for(var track of localData){
@@ -283,7 +283,7 @@
 	      	return new Promise(function(resolve,reject){
 						if (audioElement.duration-audioElement.currentTime < 10 || currentTrack.complete)
 							setTrackComplete(currentTrack);
-
+	      		// console.log(localData);
 	      		var data = localData.filter(t=>{ return t.id==currentTrack.id;})[0];
 	      		data.currentTime = audioElement.currentTime;
 	      		data.volume = audioElement.volume;

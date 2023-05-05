@@ -12,7 +12,7 @@
 <div class="audiotrack audiotrack_default <?= $this->class ?>"  data-audiotrack="<?= $this->id ?>" itemscope itemtype="http://schema.org/Article">
 	<div class="audiotrack__wrapper">
 		<?php if ($this->picture): ?>
-		<div class="audiotrack__figure img-container r_16-9 hidden-sm">
+		<div class="audiotrack__figure img-container r_16-9 hidden-sm" style="background-image: url(<?= $this->picture ?>);">
 			<img src="<?= $this->picture ?>" alt="<?= $this->title ?>" />
 			<?php if ($this->pictureText): ?>
 				<div class="audiotrack__figure__text"><?= $this->pictureText ?></div>
@@ -22,7 +22,7 @@
 
 		<div class="audiotrack__content">
 			<?php if ($this->picture || $this->picture_mobile): ?>
-				<div class="audiotrack__figure img-container r_1-1 hidden visible-sm">
+				<div class="audiotrack__figure img-container r_1-1 hidden visible-sm" style="background-image: url(<?= $this->picture_mobile?:$this->picture ?>);">
 					<img src="<?= $this->picture_mobile?:$this->picture ?>" alt="<?= $this->title ?>" />
 				</div>
 			<?php endif; ?>
@@ -42,13 +42,13 @@
 				>
 				<i class="fas fa-play"></i><i class="fas fa-pause"></i></div>
 				<div class="audiotrack__duration"><?php echo $this->duration ?></div>
-				<div class="audiotrack__datetime"><?php  echo datefmt_format($formatter,$this->date); ?></div>
+				<?php if ($this->date): ?><div class="audiotrack__datetime"><?php  echo datefmt_format($formatter,$this->date); ?></div><?php endif ?>
 			</div>
 		</div>
 		<div class="audiotrack__footer">
 			<div class="audiotrack__tags">
 			<?php if (count(deserialize($this->tags))>0): ?>
-					<div class="h4 w-100 hidden-sm">Thème</div>
+					<div class="h4 w-100 hidden-sm"><?= $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS'][count(deserialize($this->tags))>1?'themes':'theme'] ?></div>
 					<?php foreach (deserialize($this->tags) as $key => $tag): ?>
 						<span class="tag"><?php echo $tag; ?></span>
 					<?php endforeach ?>
