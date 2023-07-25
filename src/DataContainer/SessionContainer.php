@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Geodata for Contao Open Source CMS
+ * Audiotracks for Contao Open Source CMS
  * Copyright (c) 2023 Web ex Machina
  *
  * @category ContaoBundle
