@@ -466,7 +466,7 @@ class AudioTracksList extends Module
         // Hook system to customize item parsing
         if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'])) {
             foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'] as $callback) {
-                static::importStatic($callback[0])->{$callback[1]}($objTemplate, $objItem, $this);
+                $objTemplate = static::importStatic($callback[0])->{$callback[1]}($objTemplate, $objItem, $this);
             }
         }
 
