@@ -10,7 +10,10 @@
 				<source>Manage audiotracks feeds on your website</source>
 				<target>Gérer les flux de pistes audio sur votre site</target>
 			</trans-unit>
-
+			<trans-unit id="FMD.wemaudiotracks">
+				<source>Audiotracks</source>
+				<target>Audiotracks</target>
+			</trans-unit>
 			<trans-unit id="FMD.wemaudiotrackslist.0">
 				<source>Audiotracks</source>
 				<target>Pistes audio</target>

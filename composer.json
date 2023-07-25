@@ -16,7 +16,7 @@
         "source":"https://github.com/webexmachina/contao-audiotracks"
     },
     "require": {
-        "php": "^7.4",
+        "php": "^7.4|^8.0",
         "contao/core-bundle": "^4.9",
         "webexmachina/contao-utils": "^0.3"
     },

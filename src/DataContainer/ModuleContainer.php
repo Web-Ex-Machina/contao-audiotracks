@@ -2,9 +2,21 @@
 
 declare(strict_types=1);
 
+/**
+ * Audiotracks for Contao Open Source CMS
+ * Copyright (c) 2023 Web ex Machina
+ *
+ * @category ContaoBundle
+ * @package  Web-Ex-Machina/contao-audiotracks
+ * @author   Web ex Machina <contact@webexmachina.fr>
+ * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ */
+
 namespace WEM\AudioTracksBundle\DataContainer;
 
-class ModuleContainer extends \Backend
+use Contao\Backend;
+
+class ModuleContainer extends Backend
 {
     /**
      * Return all templates as array.

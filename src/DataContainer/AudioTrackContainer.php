@@ -2,14 +2,30 @@
 
 declare(strict_types=1);
 
+/**
+ * Audiotracks for Contao Open Source CMS
+ * Copyright (c) 2023 Web ex Machina
+ *
+ * @category ContaoBundle
+ * @package  Web-Ex-Machina/contao-audiotracks
+ * @author   Web ex Machina <contact@webexmachina.fr>
+ * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ */
+
 namespace WEM\AudioTracksBundle\DataContainer;
 
+use Contao\Backend;
+use Contao\Database;
 use Contao\DataContainer;
+use Contao\Image;
+use Contao\Input;
+use Contao\Versions;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
+use WEM\UtilsBundle\Classes\StringUtil;
 use WEM\UtilsBundle\Model\Model;
 
-class AudioTrackContainer extends \Backend
+class AudioTrackContainer extends Backend
 {
     /**
      * Format items list.
@@ -40,8 +56,8 @@ class AudioTrackContainer extends \Backend
      */
     public function toggleIcon($row, $href, $label, $title, $icon, $attributes)
     {
-        if (!is_null(\Input::get('tid')) && \strlen(\Input::get('tid'))) {
-            $this->toggleVisibility(\Input::get('tid'), ('1' === \Input::get('state')), (@func_get_arg(12) ?: null));
+        if (null !== Input::get('tid') && \strlen(Input::get('tid'))) {
+            $this->toggleVisibility(Input::get('tid'), ('1' === Input::get('state')), (@func_get_arg(12) ?: null));
             $this->redirect($this->getReferer());
         }
 
@@ -51,7 +67,7 @@ class AudioTrackContainer extends \Backend
             $icon = 'invisible.svg';
         }
 
-        return '<a href="'.$this->addToUrl($href).'" title="'.\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label, 'data-state="'.($row['published'] ? 1 : 0).'"').'</a> ';
+        return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label, 'data-state="'.($row['published'] ? 1 : 0).'"').'</a> ';
     }
 
     /**
@@ -61,11 +77,11 @@ class AudioTrackContainer extends \Backend
      * @param bool          $blnVisible
      * @param DataContainer $dc
      */
-    public function toggleVisibility($intId, $blnVisible, \DataContainer $dc = null): void
+    public function toggleVisibility($intId, $blnVisible, DataContainer $dc = null): void
     {
         // Set the ID and action
-        \Input::setGet('id', $intId);
-        \Input::setGet('act', 'toggle');
+        Input::setGet('id', $intId);
+        Input::setGet('act', 'toggle');
 
         if ($dc) {
             $dc->id = $intId; // see #8043
@@ -95,7 +111,7 @@ class AudioTrackContainer extends \Backend
             }
         }
 
-        $objVersions = new \Versions('tl_wem_audiotrack', $intId);
+        $objVersions = new Versions('tl_wem_audiotrack', $intId);
         $objVersions->initialize();
 
         // Trigger the save_callback
@@ -138,7 +154,7 @@ class AudioTrackContainer extends \Backend
     }
 
     /**
-     * Retrieve tags in the parent table
+     * Retrieve tags in the parent table.
      *
      * @return array ['tag1','tag2', ...]
      */
@@ -153,7 +169,7 @@ class AudioTrackContainer extends \Backend
             }
 
             return deserialize($objCategory->tags);
-        } 
+        }
 
         if (null !== $arrPids) {
             $arrTags = [];
@@ -164,7 +180,7 @@ class AudioTrackContainer extends \Backend
                     continue;
                 }
 
-               $arrTags = array_merge($arrTags, deserialize($objCategory->tags));
+                $arrTags = array_merge($arrTags, deserialize($objCategory->tags));
             }
 
             return array_unique($arrTags);
@@ -211,7 +227,7 @@ class AudioTrackContainer extends \Backend
 
         // step 2 - remove all ids not in $varValues
         if ($varValues) {
-            \Database::getInstance()->prepare(
+            Database::getInstance()->prepare(
                 sprintf(
                     "DELETE FROM %s WHERE %s = %s AND %s NOT IN ('%s')",
                     $strTable,

@@ -2,7 +2,19 @@
 
 declare(strict_types=1);
 
+/**
+ * Audiotracks for Contao Open Source CMS
+ * Copyright (c) 2023 Web ex Machina
+ *
+ * @category ContaoBundle
+ * @package  Web-Ex-Machina/contao-audiotracks
+ * @author   Web ex Machina <contact@webexmachina.fr>
+ * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ */
+
 namespace WEM\AudioTracksBundle\Model;
+
+use Exception;
 
 /**
  * Reads and writes items.
@@ -15,7 +27,6 @@ class AudioTrack extends \WEM\UtilsBundle\Model\Model
      * @var string
      */
     protected static $strTable = 'tl_wem_audiotrack';
-
 
     /**
      * Find items, depends on the arguments.
@@ -38,7 +49,7 @@ class AudioTrack extends \WEM\UtilsBundle\Model\Model
                 $arrOptions['join'][] = "LEFT JOIN tl_wem_audiotrack_feedback twaf on $t.id = twaf.pid";
                 $arrOptions['group'] = "$t.id";
 
-                if('DESC' === substr($arrOptions['order'], -4, 4)) {
+                if ('DESC' === substr($arrOptions['order'], -4, 4)) {
                     $arrOptions['order'] = 'nbLikes DESC';
                 } else {
                     $arrOptions['order'] = 'nbLikes ASC';
