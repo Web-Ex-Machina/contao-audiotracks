@@ -139,7 +139,7 @@ class AudioTracksList extends Module
     protected function compile(): void
     {
         // Catch Ajax Request
-        if (Input::post('TL_AJAX') && $this->id === Input::post('module')) {
+        if (Input::post('TL_AJAX') && $this->id === (int) Input::post('module')) {
             try {
                 switch (Input::post('action')) {
                     // Requires audiotrack ID
