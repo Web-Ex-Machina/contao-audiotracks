@@ -2,6 +2,16 @@
 
 declare(strict_types=1);
 
+/**
+ * Geodata for Contao Open Source CMS
+ * Copyright (c) 2023 Web ex Machina
+ *
+ * @category ContaoBundle
+ * @package  Web-Ex-Machina/contao-audiotracks
+ * @author   Web ex Machina <contact@webexmachina.fr>
+ * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ */
+
 $GLOBALS['TL_DCA']['tl_wem_audiotrack_session'] = [
     // Config
     'config' => [
@@ -101,7 +111,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_session'] = [
             'filter' => true,
             'flag' => 1,
             'inputType' => 'checkbox',
-            'eval' => ['doNotCopy' => true],
+            'eval' => ['doNotCopy' => true, 'tl_class' => 'w50 m12'],
             'sql' => "char(1) NOT NULL default ''",
         ],
     ],
