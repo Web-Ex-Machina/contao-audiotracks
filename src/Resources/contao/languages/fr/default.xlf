@@ -30,6 +30,10 @@
 			    <source>Themes</source>
 			    <target>Thèmes</target>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.FILE_USAGE.tableName">
+			    <source>Podcasts</source>
+			    <target>Podcasts</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

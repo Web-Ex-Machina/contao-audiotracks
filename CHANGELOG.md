@@ -1,6 +1,10 @@
 Extension "Audiotracks" for Contao Open Source CMS
 ========
 
+1.0.2 - 2023-08-08
+---
+- ADDED : better interaction with `marcel-mathias-nolte/contao-filesmanager-fileusage`'s bundle
+
 1.0.1 - 2023-08-08
 ---
 - FIXED : audiotrack "like" button not working as intended
