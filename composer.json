@@ -12,8 +12,8 @@
         }
     ],
     "support":{
-        "issues":"https://github.com/webexmachina/contao-audiotracks/issues",
-        "source":"https://github.com/webexmachina/contao-audiotracks"
+        "issues":"https://github.com/Web-Ex-Machina/contao-audiotracks/issues",
+        "source":"https://github.com/Web-Ex-Machina/contao-audiotracks"
     },
     "require": {
         "php": "^7.4|^8.0",
