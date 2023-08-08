@@ -4,6 +4,7 @@ Extension "Audiotracks" for Contao Open Source CMS
 1.0.2 - 2023-08-08
 ---
 - ADDED : better interaction with `marcel-mathias-nolte/contao-filesmanager-fileusage`'s bundle
+- FIXED : wrong `issues` & `source` URLs in `composer.json` [issue #4](https://github.com/Web-Ex-Machina/contao-audiotracks/issues/4#issue-1841268970)
 
 1.0.1 - 2023-08-08
 ---
