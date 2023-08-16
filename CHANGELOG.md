@@ -1,6 +1,11 @@
 Extension "Audiotracks" for Contao Open Source CMS
 ========
 
+1.0.3 - 2023-08-16
+---
+- ADDED : content in README [issue #5](https://github.com/Web-Ex-Machina/contao-audiotracks/issues/5)
+- UPDATED : bundle now requires [webexmachina/contao-utils](https://github.com/Web-Ex-Machina/contao-utils) ^1.0
+
 1.0.2 - 2023-08-08
 ---
 - ADDED : better interaction with `marcel-mathias-nolte/contao-filesmanager-fileusage`'s bundle
