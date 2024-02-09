@@ -188,6 +188,7 @@ class AudioTracksList extends Module
 
         $this->limit = null;
         $this->offset = (int) $this->skipFirst;
+        $this->options = ['order' => 'date DESC'];
 
         // Maximum number of items
         if ($this->numberOfItems > 0) {
