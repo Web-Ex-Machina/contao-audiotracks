@@ -19,7 +19,8 @@
         "php": ">=7.4 || >=8.2",
         "contao/core-bundle": "^4.13 || 5.3.x",
         "contao/manager-plugin": "^2.0",
-        "webexmachina/contao-utils": "dev-php-8-2-preparation"
+        "webexmachina/contao-utils": "dev-php-8-2-preparation",
+        "ext-json": "*"
     },
     "autoload":{
         "psr-4": {

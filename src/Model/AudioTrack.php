@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\Model;
 
+use Contao\Model\Collection;
 use Exception;
 
 use WEM\UtilsBundle\Model\Model;
@@ -33,14 +34,15 @@ class AudioTrack extends Model
     /**
      * Find items, depends on the arguments.
      *
-     * @param array $arrConfig  [Request Config]
-     * @param int   $intLimit   [Query Limit]
-     * @param int   $intOffset  [Query Offset]
-     * @param array $arrOptions [Query Options]
+     * @param array $arrConfig Request Config
+     * @param int $intLimit Query Limit
+     * @param int $intOffset Query Offset
+     * @param array $arrOptions Query Options
      *
      * @return Collection
+     * @throws Exception
      */
-    public static function findItems($arrConfig = [], $intLimit = 0, $intOffset = 0, array $arrOptions = [])
+    public static function findItems(array $arrConfig = [], int $intLimit = 0, int $intOffset = 0, array $arrOptions = []): ?Collection
     {
         $t = static::$strTable;
         // Catch sorting by subtable
@@ -63,7 +65,7 @@ class AudioTrack extends Model
      *
      * @return array
      */
-    public static function formatStatement($strField, $varValue, $strOperator = '=')
+    public static function formatStatement(string $strField, $varValue, string $strOperator = '='): array
     {
         $arrColumns = [];
         $t = static::$strTable;

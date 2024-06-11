@@ -141,6 +141,7 @@ class AudioTrackContainer extends Backend
      * Retrieve tags in the parent table.
      *
      * @return array ['tag1','tag2', ...]
+     * @throws \Exception
      */
     public function getTags(?DataContainer $dc, ?array $arrPids = null): array
     {
@@ -152,7 +153,7 @@ class AudioTrackContainer extends Backend
                 return [];
             }
 
-            return deserialize($objCategory->tags);
+            return StringUtil::deserialize($objCategory->tags);
         }
 
         if (null !== $arrPids) {
@@ -164,7 +165,7 @@ class AudioTrackContainer extends Backend
                     continue;
                 }
 
-                $arrTags = array_merge($arrTags, deserialize($objCategory->tags));
+                $arrTags = array_merge($arrTags, StringUtil::deserialize($objCategory->tags));
             }
 
             return array_unique($arrTags);
@@ -175,7 +176,7 @@ class AudioTrackContainer extends Backend
 
     public function syncAudioTrackTagsPivotTable($varValue, $dc)
     {
-        $this->syncData(deserialize($varValue), 'tl_wem_audiotrack_tag', $dc->id, 'pid', 'tag');
+        $this->syncData(StringUtil::deserialize($varValue), 'tl_wem_audiotrack_tag', $dc->id, 'pid', 'tag');
 
         return $varValue;
     }
@@ -183,13 +184,13 @@ class AudioTrackContainer extends Backend
     /**
      * Sync basic data between pivot tables.
      *
-     * @param [array]  $varValues       [Usually an array of IDs]
-     * @param [string] $strTable        [Table where to sync]
-     * @param [int]    $intParentId     [Parent ID]
-     * @param [string] $strParentField  [Parent Field]
-     * @param [string] $strForeignField [Foreign field where to sync values]
+     * @param array $varValues Usually an array of IDs
+     * @param string $strTable Table where to sync
+     * @param int $intParentId Parent ID
+     * @param string $strParentField  Parent Field
+     * @param string $strForeignField Foreign field where to sync values
      */
-    public function syncData($varValues, $strTable, $intParentId, $strParentField, $strForeignField): void
+    public function syncData(array $varValues, string $strTable, int $intParentId, string $strParentField, string $strForeignField): void
     {
         // Found Model class
         $stdModel = Model::getClassFromTable($strTable);

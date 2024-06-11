@@ -25,7 +25,7 @@ use Contao\Input;
 use Contao\Model\Collection;
 use Contao\Module;
 use Contao\Pagination;
-use Contao\RequestToken;
+use Contao\RequestToken; // TODO : deprecated
 use Exception;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Feedback;
@@ -183,7 +183,7 @@ class AudioTracksList extends Module
                 $arrResponse['message'] = $e->getMessage();
             }
 
-            $arrResponse['rt'] = RequestToken::get();
+            $arrResponse['rt'] = RequestToken::get(); //TODO : deprecated
 
             echo json_encode($arrResponse);
             exit;
@@ -262,7 +262,8 @@ class AudioTracksList extends Module
     /**
      * Retrieve list filters.
      *
-     * @return array [Array of available filters, parsed]
+     * @return array Array of available filters, parsed
+     * @throws Exception
      */
     protected function buildFilters(): ?array
     {
@@ -282,7 +283,7 @@ class AudioTracksList extends Module
         }
 
         // Retrieve and format dropdowns filters
-        $filters = \Contao\StringUtil::deserialize($this->wemaudiotracks_filters);
+        $filters = StringUtil::deserialize($this->wemaudiotracks_filters);
         if (\is_array($filters) && !empty($filters)) {
             foreach ($filters as $f) {
                 $strName = $f;
@@ -383,6 +384,7 @@ class AudioTracksList extends Module
      * @param bool $blnAddArchive
      *
      * @return array
+     * @throws Exception
      */
     protected function parseItems(Collection $objItems, bool $blnAddArchive = false): array
     {
@@ -396,7 +398,7 @@ class AudioTracksList extends Module
         $arrArticles = [];
 
         while ($objItems->next()) {
-            /** @var NewsModel $objArticle */
+            /** @var NewsModel $objArticle TODO : what is NewsModel */
             $objArticle = $objItems->current();
 
             $arrArticles[] = $this->parseItem($objArticle, $blnAddArchive, ((1 === ++$count) ? ' first' : '').(($count === $limit) ? ' last' : '').((0 === ($count % 2)) ? ' odd' : ' even'), $count);
@@ -408,12 +410,13 @@ class AudioTracksList extends Module
     /**
      * Parse an item and return it as string.
      *
-     * @param NewsModel $objItem
-     * @param bool      $blnAddArchive
-     * @param string    $strClass
-     * @param int       $intCount
+     * @param NewsModel $objItem TODO : what is NewsModel
+     * @param bool $blnAddArchive
+     * @param string $strClass
+     * @param int $intCount
      *
      * @return string
+     * @throws Exception
      */
     protected function parseItem(NewsModel $objItem, bool $blnAddArchive = false, string $strClass = '', int $intCount = 0): string
     {
@@ -434,11 +437,11 @@ class AudioTracksList extends Module
 
         // Retrieve and parse the picture
         if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
-            $objTemplate->picture = Image::get($objFile->path, 300, 300);
+            $objTemplate->picture = Image::get($objFile->path, 300, 300); // TODO : deprecated
         }
 
         if ($objItem->picture_mobile && $objFile = FilesModel::findByUuid($objItem->picture_mobile)) {
-            $objTemplate->picture_mobile = Image::get($objFile->path, 300, 300);
+            $objTemplate->picture_mobile = Image::get($objFile->path, 300, 300); // TODO : deprecated
         }
 
         // Fetch the audio file

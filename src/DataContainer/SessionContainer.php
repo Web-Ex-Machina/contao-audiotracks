@@ -20,12 +20,8 @@ class SessionContainer extends Backend
 {
     /**
      * Format items list.
-     *
-     * @param array $r
-     *
-     * @return string
      */
-    public function listItems($r)
+    public function listItems(array $r): string
     {
         return sprintf(
             '%s',

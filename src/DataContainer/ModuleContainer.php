@@ -20,20 +20,16 @@ class ModuleContainer extends Backend
 {
     /**
      * Return all templates as array.
-     *
-     * @return array
      */
-    public function getTemplates()
+    public function getTemplates(): array
     {
         return $this->getTemplateGroup('wemaudiotrack_');
     }
 
     /**
      * Return all categories as array.
-     *
-     * @return array
      */
-    public function getCategories()
+    public function getCategories(): array
     {
         $arrItems = [];
         $objItems = $this->Database->execute('SELECT id, title FROM tl_wem_audiotrack_category ORDER BY title');
@@ -51,10 +47,8 @@ class ModuleContainer extends Backend
 
     /**
      * Return all available filters.
-     *
-     * @return array
      */
-    public function getFiltersOptions()
+    public function getFiltersOptions(): array
     {
         $this->loadDataContainer('tl_wem_audiotrack');
         $fields = [];
