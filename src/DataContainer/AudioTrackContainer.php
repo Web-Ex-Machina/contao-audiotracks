@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\DataContainer;
 
-class AudioTrackContainer extends \Backend
+use Contao\Backend;
+use Contao\DataContainer;
+use Contao\Input;
+use Contao\Image;
+use Contao\Versions;
+use WEM\UtilsBundle\Classes\StringUtil;
+
+class AudioTrackContainer extends Backend
 {
     /**
      * Format items list.
-     *
-     * @param array $r
-     *
-     * @return string
      */
-    public function listItems($r)
+    public function listItems(array $r): string
     {
         return sprintf(
             '%s',
@@ -23,20 +26,12 @@ class AudioTrackContainer extends \Backend
 
     /**
      * Return the "toggle visibility" button.
-     *
-     * @param array  $row
-     * @param string $href
-     * @param string $label
-     * @param string $title
-     * @param string $icon
-     * @param string $attributes
-     *
-     * @return string
      */
-    public function toggleIcon($row, $href, $label, $title, $icon, $attributes)
+    public function toggleIcon(array $row, ?string $href, string $label, string $title, string $icon, string $attributes): string
     {
-        if (!is_null(\Input::get('tid')) && \strlen(\Input::get('tid'))) {
-            $this->toggleVisibility(\Input::get('tid'), ('1' === \Input::get('state')), (@func_get_arg(12) ?: null));
+        if (!is_null(Input::get('tid')) && \strlen(Input::get('tid'))) {
+            // TODO : check if is ok, added cast to int Input::get because toggleVisibility need an int
+            $this->toggleVisibility((int)Input::get('tid'), ('1' === Input::get('state')), (@func_get_arg(12) ?: null));
             $this->redirect($this->getReferer());
         }
 
@@ -46,21 +41,17 @@ class AudioTrackContainer extends \Backend
             $icon = 'invisible.svg';
         }
 
-        return '<a href="'.$this->addToUrl($href).'" title="'.\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label, 'data-state="'.($row['published'] ? 1 : 0).'"').'</a> ';
+        return '<a href="'.$this->addToUrl($href).'" title="'. StringUtil::specialchars($title).'"'.$attributes.'>'. Image::getHtml($icon, $label, 'data-state="'.($row['published'] ? 1 : 0).'"').'</a> ';
     }
 
     /**
      * Disable/enable a job.
-     *
-     * @param int           $intId
-     * @param bool          $blnVisible
-     * @param DataContainer $dc
      */
-    public function toggleVisibility($intId, $blnVisible, \DataContainer $dc = null): void
+    public function toggleVisibility(int $intId, bool $blnVisible, DataContainer $dc = null): void
     {
         // Set the ID and action
-        \Input::setGet('id', $intId);
-        \Input::setGet('act', 'toggle');
+        Input::setGet('id', $intId);
+        Input::setGet('act', 'toggle');
 
         if ($dc) {
             $dc->id = $intId; // see #8043
@@ -90,7 +81,7 @@ class AudioTrackContainer extends \Backend
             }
         }
 
-        $objVersions = new \Versions('tl_wem_audiotrack', $intId);
+        $objVersions = new Versions('tl_wem_audiotrack', $intId);
         $objVersions->initialize();
 
         // Trigger the save_callback

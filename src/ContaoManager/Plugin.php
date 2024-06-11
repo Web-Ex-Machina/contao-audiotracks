@@ -20,10 +20,10 @@ class Plugin implements BundlePluginInterface
     /**
      * {@inheritdoc}
      */
-    public function getBundles(ParserInterface $parser)
+    public function getBundles(ParserInterface $parser): array
     {
         return [
-            BundleConfig::create(WEM\AudioTracksBundle\AudioTracksBundle::class)
+            BundleConfig::create(AudioTracksBundle::class)
                 ->setLoadAfter([
                     ContaoCoreBundle::class
                 ])
