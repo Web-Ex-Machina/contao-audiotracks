@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<xliff version="1.1">
+	<file datatype="php" original="system/modules/core/languages/en/tl_wem_audiotrack_category.php" source-language="en" target-language="fr">
+		<body>
+			<trans-unit id="tl_wem_audiotrack_category.title.0">
+				<source>Title</source>
+				<target>Intitulé</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.title.1">
+				<source>Enter the category title.</source>
+				<target>Saisissez l'intitulé de la catégorie.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.alias.0">
+				<source>Alias</source>
+				<target>Alias</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.alias.1">
+				<source>Enter the category alias.</source>
+				<target>Saisissez l'alias de la catégorie.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.tags.0">
+				<source>Tags</source>
+				<target>Tags</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.tags.1">
+				<source>Enter the category tags.</source>
+				<target>Saisissez les tags de la catégorie.</target>
+			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack_category.title_legend">
+				<source>Global settings</source>
+				<target>Paramètres généraux</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.settings_legend">
+				<source>Content settings</source>
+				<target>Paramètres de contenu</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

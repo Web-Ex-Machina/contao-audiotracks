@@ -2,6 +2,16 @@
 
 declare(strict_types=1);
 
+/**
+ * Audiotracks for Contao Open Source CMS
+ * Copyright (c) 2023 Web ex Machina
+ *
+ * @category ContaoBundle
+ * @package  Web-Ex-Machina/contao-audiotracks
+ * @author   Web ex Machina <contact@webexmachina.fr>
+ * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ */
+
 namespace WEM\AudioTracksBundle\ContaoManager;
 
 use Contao\CoreBundle\ContaoCoreBundle;
@@ -25,7 +35,7 @@ class Plugin implements BundlePluginInterface
         return [
             BundleConfig::create(AudioTracksBundle::class)
                 ->setLoadAfter([
-                    ContaoCoreBundle::class
+                    ContaoCoreBundle::class,
                 ])
                 ->setReplace(['wemaudiotracks']),
         ];

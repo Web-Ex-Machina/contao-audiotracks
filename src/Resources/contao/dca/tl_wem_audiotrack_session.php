@@ -2,7 +2,17 @@
 
 declare(strict_types=1);
 
-$GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
+/**
+ * Geodata for Contao Open Source CMS
+ * Copyright (c) 2023 Web ex Machina
+ *
+ * @category ContaoBundle
+ * @package  Web-Ex-Machina/contao-audiotracks
+ * @author   Web ex Machina <contact@webexmachina.fr>
+ * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ */
+
+$GLOBALS['TL_DCA']['tl_wem_audiotrack_session'] = [
     // Config
     'config' => [
         'dataContainer' => 'Table',
@@ -24,7 +34,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
             'fields' => ['ip ASC'],
             'headerFields' => ['title'],
             'panelLayout' => 'filter;sort,search,limit',
-            'child_record_callback' => [WEM\AudioTracksBundle\DataContainer\FeedbackContainer::class, 'listItems'],
+            'child_record_callback' => [WEM\AudioTracksBundle\DataContainer\SessionContainer::class, 'listItems'],
         ],
         'global_operations' => [
             'all' => [
@@ -53,7 +63,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
     // Palettes
     'palettes' => [
         'default' => '
-            {title_legend},ip
+            {title_legend},ip,volume,currentTime,complete
         ',
     ],
 
@@ -81,6 +91,28 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
             'inputType' => 'text',
             'eval' => ['mandatory' => true, 'tl_class' => 'w50', 'maxlength' => 255],
             'sql' => "varchar(255) NOT NULL default ''",
+        ],
+        'volume' => [
+            'exclude' => true,
+            'search' => true,
+            'inputType' => 'text',
+            'eval' => ['tl_class' => 'w50'],
+            'sql' => "decimal(10,2) NOT NULL default '0.00'",
+        ],
+        'currentTime' => [
+            'exclude' => true,
+            'search' => true,
+            'inputType' => 'text',
+            'eval' => ['tl_class' => 'w50'],
+            'sql' => "int(10) unsigned NOT NULL default '0'",
+        ],
+        'complete' => [
+            'exclude' => true,
+            'filter' => true,
+            'flag' => 1,
+            'inputType' => 'checkbox',
+            'eval' => ['doNotCopy' => true, 'tl_class' => 'w50 m12'],
+            'sql' => "char(1) NOT NULL default ''",
         ],
     ],
 ];

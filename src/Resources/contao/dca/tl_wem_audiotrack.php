@@ -7,7 +7,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     'config' => [
         'dataContainer' => 'Table',
         'ptable' => 'tl_wem_audiotrack_category',
-        'ctable' => ['tl_wem_audiotrack_feedback'],
+        'ctable' => ['tl_wem_audiotrack_feedback', 'tl_wem_audiotrack_tag', 'tl_wem_audiotrack_session'],
         'switchToEdit' => true,
         'enableVersioning' => true,
         'sql' => [
@@ -22,8 +22,8 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     'list' => [
         'sorting' => [
             'mode' => 4,
-            'fields' => ['title ASC'],
-            'headerFields' => ['title'],
+            'fields' => ['date ASC'],
+            'headerFields' => ['title', 'tags'],
             'panelLayout' => 'filter;sort,search,limit',
             'child_record_callback' => [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'listItems'],
         ],
@@ -62,6 +62,10 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
                 'href' => 'table=tl_wem_audiotrack_feedback',
                 'icon' => 'member.gif',
             ],
+            'sessions' => [
+                'href' => 'table=tl_wem_audiotrack_session',
+                'icon' => 'su.gif',
+            ],
         ],
     ],
 
@@ -69,7 +73,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     'palettes' => [
         'default' => '
             {title_legend},title,date,audio,description;
-            {content_legend},picture,pictureText;
+            {content_legend},tags,picture,picture_mobile,pictureText;
             {publish_legend},published,start,stop
         ',
     ],
@@ -83,7 +87,9 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'pid' => [
+            'foreignKey' => 'tl_wem_audiotrack_category.title',
             'sql' => "int(10) unsigned NOT NULL default '0'",
+            'relation' => ['type' => 'belongsTo', 'load' => 'eager'],
         ],
         'createdAt' => [
             'default' => time(),
@@ -100,13 +106,14 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'date' => [
             'exclude' => true,
             'inputType' => 'text',
+            'flag' => 8,
             'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
             'sql' => "varchar(10) NOT NULL default ''",
         ],
         'audio' => [
             'exclude' => true,
             'inputType' => 'fileTree',
-            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => 'mp3,ogg,wave'],
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => 'mp3,ogg,wav', 'mandatory'=>true],
             'sql' => 'binary(16) NULL',
         ],
         'description' => [
@@ -117,18 +124,36 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'explanation' => 'insertTags',
             'sql' => 'mediumtext NULL',
         ],
+        'tags' => [
+            'exclude' => true,
+            'flag' => 1,
+            'inputType' => 'select',
+            'options_callback' => [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'getTags'],
+            'save_callback' => [
+                [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'syncAudioTrackTagsPivotTable']
+            ],
+            'eval' => ['doNotCopy' => true, 'chosen' => true, 'includeBlankOption' => true, 'multiple' => true, 'tl_class' => 'w50', 'isAvailableForFilters'=>true],
+            'sql' => "blob NULL",
+        ],
         'picture' => [
             'exclude' => true,
             'inputType' => 'fileTree',
-            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => '%contao.image.valid_extensions%'],
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Contao\Config::get('validImageTypes')],
+            'sql' => 'binary(16) NULL',
+        ],
+        'picture_mobile' => [
+            'exclude' => true,
+            'inputType' => 'fileTree',
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Contao\Config::get('validImageTypes')],
             'sql' => 'binary(16) NULL',
         ],
         'pictureText' => [
             'exclude' => true,
             'search' => true,
-            'inputType' => 'text',
-            'eval' => ['tl_class' => 'w50', 'maxlength' => 255],
-            'sql' => "varchar(255) NOT NULL default ''",
+            'inputType' => 'textarea',
+            'eval' => ['rte' => 'tinyMCE', 'helpwizard' => true, 'tl_class' => 'clr'],
+            'explanation' => 'insertTags',
+            'sql' => 'mediumtext NULL',
         ],
         'published' => [
             'exclude' => true,

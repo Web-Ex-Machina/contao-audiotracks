@@ -2,6 +2,16 @@
 
 declare(strict_types=1);
 
+/**
+ * Audiotracks for Contao Open Source CMS
+ * Copyright (c) 2023 Web ex Machina
+ *
+ * @category ContaoBundle
+ * @package  Web-Ex-Machina/contao-audiotracks
+ * @author   Web ex Machina <contact@webexmachina.fr>
+ * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ */
+
 namespace WEM\AudioTracksBundle\DataContainer;
 
 use Contao\Backend;
@@ -10,6 +20,10 @@ use Contao\Input;
 use Contao\Image;
 use Contao\Versions;
 use WEM\UtilsBundle\Classes\StringUtil;
+use Contao\Database;
+use WEM\AudioTracksBundle\Model\AudioTrack;
+use WEM\AudioTracksBundle\Model\Category;
+use WEM\UtilsBundle\Model\Model;
 
 class AudioTrackContainer extends Backend
 {
@@ -29,7 +43,7 @@ class AudioTrackContainer extends Backend
      */
     public function toggleIcon(array $row, ?string $href, string $label, string $title, string $icon, string $attributes): string
     {
-        if (!is_null(Input::get('tid')) && \strlen(Input::get('tid'))) {
+        if (null !== Input::get('tid') && \strlen(Input::get('tid'))) {
             // TODO : check if is ok, added cast to int Input::get because toggleVisibility need an int
             $this->toggleVisibility((int)Input::get('tid'), ('1' === Input::get('state')), (@func_get_arg(12) ?: null));
             $this->redirect($this->getReferer());
@@ -41,7 +55,7 @@ class AudioTrackContainer extends Backend
             $icon = 'invisible.svg';
         }
 
-        return '<a href="'.$this->addToUrl($href).'" title="'. StringUtil::specialchars($title).'"'.$attributes.'>'. Image::getHtml($icon, $label, 'data-state="'.($row['published'] ? 1 : 0).'"').'</a> ';
+        return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label, 'data-state="'.($row['published'] ? 1 : 0).'"').'</a> ';
     }
 
     /**
@@ -121,5 +135,92 @@ class AudioTrackContainer extends Backend
         }
 
         $objVersions->create();
+    }
+
+    /**
+     * Retrieve tags in the parent table.
+     *
+     * @return array ['tag1','tag2', ...]
+     */
+    public function getTags(?DataContainer $dc, ?array $arrPids = null): array
+    {
+        if (null !== $dc) {
+            $objItem = AudioTrack::findByPk($dc->id);
+            $objCategory = $objItem->getRelated('pid');
+
+            if (!$objCategory->tags) {
+                return [];
+            }
+
+            return deserialize($objCategory->tags);
+        }
+
+        if (null !== $arrPids) {
+            $arrTags = [];
+            foreach ($arrPids as $id) {
+                $objCategory = Category::findByPk($id);
+
+                if (!$objCategory || !$objCategory->tags) {
+                    continue;
+                }
+
+                $arrTags = array_merge($arrTags, deserialize($objCategory->tags));
+            }
+
+            return array_unique($arrTags);
+        }
+
+        return [];
+    }
+
+    public function syncAudioTrackTagsPivotTable($varValue, $dc)
+    {
+        $this->syncData(deserialize($varValue), 'tl_wem_audiotrack_tag', $dc->id, 'pid', 'tag');
+
+        return $varValue;
+    }
+
+    /**
+     * Sync basic data between pivot tables.
+     *
+     * @param [array]  $varValues       [Usually an array of IDs]
+     * @param [string] $strTable        [Table where to sync]
+     * @param [int]    $intParentId     [Parent ID]
+     * @param [string] $strParentField  [Parent Field]
+     * @param [string] $strForeignField [Foreign field where to sync values]
+     */
+    public function syncData($varValues, $strTable, $intParentId, $strParentField, $strForeignField): void
+    {
+        // Found Model class
+        $stdModel = Model::getClassFromTable($strTable);
+
+        // step 1 - update existing recipients, add new ones
+        foreach ($varValues as $id) {
+            $objModel = $stdModel::findItems([$strParentField => $intParentId, $strForeignField => $id], 1);
+
+            if (!$objModel) {
+                $objModel = new $stdModel();
+                $objModel->createdAt = time();
+                $objModel->$strParentField = $intParentId;
+                $objModel->$strForeignField = $id;
+            }
+
+            $objModel->tstamp = time();
+            $objModel->save();
+        }
+
+        // step 2 - remove all ids not in $varValues
+        if ($varValues) {
+            Database::getInstance()->prepare(
+                sprintf(
+                    "DELETE FROM %s WHERE %s = %s AND %s NOT IN ('%s')",
+                    $strTable,
+                    $strParentField,
+                    $intParentId,
+                    $strForeignField,
+                    implode("','", $varValues)
+                )
+            )->execute();
+        }
     }
 }

@@ -60,7 +60,8 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
     // Palettes
     'palettes' => [
         'default' => '
-            {title_legend},title,alias
+            {title_legend},title,alias;
+            {settings_legend},tags
         ',
     ],
 
@@ -94,6 +95,12 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
                 [WEM\AudioTracksBundle\DataContainer\CategoryContainer::class, 'generateAlias'],
             ],
             'sql' => "varchar(255) BINARY NOT NULL default ''",
+        ],
+        'tags' => [
+            'exclude' => true,
+            'inputType' => 'listWizard',
+            'eval' => ['tl_class'=>'clr'],
+            'sql' => "blob NULL"
         ],
     ],
 ];

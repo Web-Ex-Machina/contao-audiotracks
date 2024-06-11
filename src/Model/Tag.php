@@ -14,17 +14,15 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\Model;
 
-use WEM\UtilsBundle\Model\Model;
-
 /**
  * Reads and writes items.
  */
-class Feedback extends Model
+class Tag extends \WEM\UtilsBundle\Model\Model
 {
     /**
      * Table name.
      *
      * @var string
      */
-    protected static $strTable = 'tl_wem_audiotrack_feedback';
+    protected static $strTable = 'tl_wem_audiotrack_tag';
 }
