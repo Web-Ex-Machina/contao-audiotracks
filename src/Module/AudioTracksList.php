@@ -4,8 +4,20 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\Module;
 
+use Contao\BackendTemplate;
+use Contao\Config;
+use Contao\CoreBundle\Exception\PageNotFoundException;
+use Contao\Environment;
+use Contao\FilesModel;
+use Contao\FrontendTemplate;
+use Contao\Image;
+use Contao\Input;
+use Contao\Model\Collection;
 use Contao\Module;
+use Contao\Pagination;
+use Contao\System;
 use WEM\AudioTracksBundle\Model\AudioTrack;
+use WEM\UtilsBundle\Classes\StringUtil;
 
 class AudioTracksList extends Module
 {
@@ -43,13 +55,13 @@ class AudioTracksList extends Module
 
     /**
      * Display a wildcard in the back end
-     * @return string
      */
     public function generate(): string
     {
-        if (TL_MODE === 'BE') {
-            $objTemplate = new \BackendTemplate('be_wildcard');
-            $objTemplate->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['FMD']['wemaudiotrackslist'][0]).' ###';
+        $scope = System::getContainer()->get('wem.scope_matcher');
+        if ($scope->isBackend()) {
+            $objTemplate = new BackendTemplate('be_wildcard');
+            $objTemplate->wildcard = '### '. mb_strtoupper($GLOBALS['TL_LANG']['FMD']['wemaudiotrackslist'][0], 'UTF-8').' ###';
             $objTemplate->title = $this->headline;
             $objTemplate->id = $this->id;
             $objTemplate->link = $this->name;
@@ -102,7 +114,7 @@ class AudioTracksList extends Module
             return;
         }
 
-        $total = $intTotal - $offset;
+        $total = $intTotal - $this->offset;
 
         // Split the results
         if ($this->perPage > 0 && (!isset($this->limit) || $this->numberOfItems > $this->perPage)) {
@@ -154,7 +166,7 @@ class AudioTracksList extends Module
     protected function buildFilters(): ?array
     {
         if (!$this->wemaudiotracks_filters) {
-            return;
+            exit();
         }
 
         // Retrieve and format dropdowns filters
@@ -167,11 +179,12 @@ class AudioTracksList extends Module
                     'label' => $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['label'][0] ?: $GLOBALS['TL_LANG']['tl_wem_job'][$f][0],
                     'value' => Input::get($f) ?: '',
                     'options' => [],
-                    'multiple' => $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['eval']['multiple'] ? true : false,
+                    'multiple' => (bool)$GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['eval']['multiple'],
                 ];
 
                 switch ($GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['inputType']) {
                     case 'select':
+                        $options = [];
                         if (\is_array($GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options_callback'])) {
                             $strClass = $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options_callback'][0];
                             $strMethod = $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options_callback'][1];
@@ -231,6 +244,7 @@ class AudioTracksList extends Module
                 $this->config['search'] = StringUtil::formatKeywords(Input::get('search'));
             }
         }
+        exit();
     }
 
     /**
