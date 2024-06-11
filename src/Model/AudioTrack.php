@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\Model;
 
+use WEM\UtilsBundle\Model\Model;
+
 /**
  * Reads and writes items.
  */
-class AudioTrack extends \WEM\UtilsBundle\Model\Model
+class AudioTrack extends Model
 {
     /**
      * Table name.

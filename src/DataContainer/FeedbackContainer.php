@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\DataContainer;
 
-class FeedbackContainer extends \Backend
+use Contao\Backend;
+
+class FeedbackContainer extends Backend
 {
     /**
      * Format items list.

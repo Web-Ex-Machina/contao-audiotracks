@@ -1,11 +1,12 @@
 <?php
 
 declare(strict_types=1);
+use WEM\AudioTracksBundle\Model;
 
 /*
  * Back end modules
  */
-array_insert($GLOBALS['BE_MOD']['content'], count($GLOBALS['BE_MOD']['content']), [
+Contao\ArrayUtil::arrayInsert($GLOBALS['BE_MOD']['content'], count($GLOBALS['BE_MOD']['content']), [
     'wemaudiotracks' => [
         'tables' => ['tl_wem_audiotrack_category', 'tl_wem_audiotrack', 'tl_wem_audiotrack_feedback'],
     ],
@@ -14,13 +15,13 @@ array_insert($GLOBALS['BE_MOD']['content'], count($GLOBALS['BE_MOD']['content'])
 /*
  * Front end modules
  */
-array_insert($GLOBALS['FE_MOD'], 2, [
+Contao\ArrayUtil::arrayInsert($GLOBALS['FE_MOD'], 2, [
     'wemaudiotracks' => [
         'wemaudiotrackslist' => WEM\AudioTracksBundle\Module\AudioTracksList::class,
     ],
 ]);
 
 // Models
-$GLOBALS['TL_MODELS'][\WEM\AudioTracksBundle\Model\AudioTrack::getTable()] = WEM\AudioTracksBundle\Model\AudioTrack::class;
-$GLOBALS['TL_MODELS'][\WEM\AudioTracksBundle\Model\Category::getTable()] = WEM\AudioTracksBundle\Model\Category::class;
-$GLOBALS['TL_MODELS'][\WEM\AudioTracksBundle\Model\Feedback::getTable()] = WEM\AudioTracksBundle\Model\Feedback::class;
+$GLOBALS['TL_MODELS'][Model\AudioTrack::getTable()] = Model\AudioTrack::class;
+$GLOBALS['TL_MODELS'][Model\Category::getTable()] = Model\Category::class;
+$GLOBALS['TL_MODELS'][Model\Feedback::getTable()] = Model\Feedback::class;
