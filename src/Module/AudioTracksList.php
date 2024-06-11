@@ -22,6 +22,7 @@ use Contao\FilesModel;
 use Contao\FrontendTemplate;
 use Contao\Image;
 use Contao\Input;
+use Contao\Model\Collection;
 use Contao\Module;
 use Contao\Pagination;
 use Contao\RequestToken;
@@ -120,7 +121,7 @@ class AudioTracksList extends Module
         $strIp = Environment::get('ip');
         $objSession = Session::findItems(['pid' => $pid, 'ip' => $strIp], 1);
 
-        if (!$objSession) {
+        if (!$objSession instanceof Collection) {
             $objSession = new Session();
             $objSession->createdAt = time();
             $objSession->pid = $pid;
@@ -152,7 +153,7 @@ class AudioTracksList extends Module
 
                         $this->updateAudiotrackFeedback(
                             Input::post('audiotrack'),
-                            'false' === Input::post('liked') ? false : true,
+                            'false' !== Input::post('liked'),
                         );
 
                         $arrResponse['status'] = 'success';
@@ -168,7 +169,7 @@ class AudioTracksList extends Module
                             Input::post('audiotrack'),
                             Input::post('currentTime') ?: 0,
                             Input::post('volume') ?: 1,
-                            'true' === Input::post('complete') ? true : false,
+                            'true' === Input::post('complete'),
                         );
 
                         $arrResponse['status'] = 'success';
@@ -314,13 +315,15 @@ class AudioTracksList extends Module
                         } elseif (\is_array($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options'])) {
                             $options = $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options'];
                         }
-                        foreach ($options as $value => $label) {
+
+                        foreach ($options as $label) {
                             $filter['options'][] = [
                                 'value' => $label,
                                 'label' => $label,
                                 'selected' => (null !== Input::get($f) && (Input::get($f) === $label || (\is_array(Input::get($f)) && \in_array($label, Input::get($f), true)))),
                             ];
                         }
+
                         break;
 
                     case 'text':
@@ -337,6 +340,7 @@ class AudioTracksList extends Module
                                 ];
                             }
                         }
+
                         break;
                 }
 
@@ -368,6 +372,7 @@ class AudioTracksList extends Module
                 $this->options = static::importStatic($callback[0])->{$callback[1]}($this->filters, $this->config, $this->options, $this);
             }
         }
+
         exit();
     }
 
@@ -431,6 +436,7 @@ class AudioTracksList extends Module
         if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
             $objTemplate->picture = Image::get($objFile->path, 300, 300);
         }
+
         if ($objItem->picture_mobile && $objFile = FilesModel::findByUuid($objItem->picture_mobile)) {
             $objTemplate->picture_mobile = Image::get($objFile->path, 300, 300);
         }
@@ -459,7 +465,7 @@ class AudioTracksList extends Module
         // Retrieve user session if exists
         $objSession = Session::findItems(['pid' => $objItem->id, 'ip' => Environment::get('ip')], 1);
 
-        if ($objSession) {
+        if ($objSession instanceof Collection) {
             $objTemplate->session = [
                 'currentTime' => $objSession->currentTime,
                 'volume' => $objSession->volume,

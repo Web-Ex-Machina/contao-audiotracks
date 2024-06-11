@@ -7,11 +7,12 @@ namespace WEM\AudioTracksBundle\Util;
 class MP3File
 {
     protected $filename;
+
     public function __construct($filename)
     {
         $this->filename = $filename;
     }
- 
+
     public static function formatTime($duration) //as hh:mm:ss
     {
         //return sprintf("%d:%02d", $duration/60, $duration%60);
@@ -20,18 +21,18 @@ class MP3File
         $seconds = $duration - ($hours * 3600) - ($minutes * 60);
         return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
     }
- 
+
     //Read first mp3 frame only...  use for CBR constant bit rate MP3s
     public function getDurationEstimate()
     {
         return $this->getDuration($use_cbr_estimate=true);
     }
- 
+
     //Read entire file, frame by frame... ie: Variable Bit Rate (VBR)
     public function getDuration($use_cbr_estimate=false)
     {
         $fd = fopen($this->filename, "rb");
- 
+
         $duration=0;
         $block = fread($fd, 100);
         $offset = $this->skipID3v2Tag($block);
@@ -56,24 +57,26 @@ class MP3File
             {
                 fseek($fd, -9, SEEK_CUR);
             }
+
             if ($use_cbr_estimate && !empty($info))
-            { 
-                return $this->estimateDuration($info['Bitrate'],$offset); 
+            {
+                return $this->estimateDuration($info['Bitrate'],$offset);
             }
         }
+
         return round($duration);
     }
- 
+
     private function estimateDuration($bitrate,$offset)
     {
         $kbps = ($bitrate*1000)/8;
         $datasize = filesize($this->filename) - $offset;
         return round($datasize / $kbps);
     }
- 
+
     private function skipID3v2Tag(&$block)
     {
-        if (substr($block, 0,3)=="ID3")
+        if (substr($block, 0,3) === "ID3")
         {
             $id3v2_major_version = ord($block[3]);
             $id3v2_minor_version = ord($block[4]);
@@ -94,9 +97,10 @@ class MP3File
                 return $header_size + $tag_size + $footer_size;//bytes to skip
             }
         }
+
         return 0;
     }
- 
+
     public static function parseFrameHeader($fourbytes)
     {
         static $versions = array(
@@ -126,19 +130,17 @@ class MP3File
         $b1=ord($fourbytes[1]);
         $b2=ord($fourbytes[2]);
         $b3=ord($fourbytes[3]);
- 
+
         $version_bits = ($b1 & 0x18) >> 3;
         $version = $versions[$version_bits];
         $simple_version =  ($version=='2.5' ? 2 : $version);
- 
+
         $layer_bits = ($b1 & 0x06) >> 1;
         $layer = $layers[$layer_bits];
- 
-        $protection_bit = ($b1 & 0x01);
         $bitrate_key = sprintf('V%dL%d', $simple_version , $layer);
         $bitrate_idx = ($b2 & 0xf0) >> 4;
         $bitrate = isset($bitrates[$bitrate_key][$bitrate_idx]) ? $bitrates[$bitrate_key][$bitrate_idx] : 0;
- 
+
         $sample_rate_idx = ($b2 & 0x0c) >> 2;//0xc => b1100
         $sample_rate = isset($sample_rates[$version][$sample_rate_idx]) ? $sample_rates[$version][$sample_rate_idx] : 0;
         $padding_bit = ($b2 & 0x02) >> 1;
@@ -148,7 +150,7 @@ class MP3File
         $copyright_bit = ($b3 & 0x08) >> 3;
         $original_bit = ($b3 & 0x04) >> 2;
         $emphasis = ($b3 & 0x03);
- 
+
         $info = array();
         $info['Version'] = $version;//MPEGVersion
         $info['Layer'] = $layer;
@@ -166,12 +168,14 @@ class MP3File
         $info['Samples'] = $samples[$simple_version][$layer];
         return $info;
     }
- 
+
     private static function framesize($layer, $bitrate,$sample_rate,$padding_bit)
     {
-        if ($layer==1)
+        if ($layer==1) {
             return intval(((12 * $bitrate*1000 /$sample_rate) + $padding_bit) * 4);
-        else //layer 2, 3
+        } else {
+            //layer 2, 3
             return intval(((144 * $bitrate*1000)/$sample_rate) + $padding_bit);
+        }
     }
 }

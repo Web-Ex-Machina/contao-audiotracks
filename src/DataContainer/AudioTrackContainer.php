@@ -67,7 +67,7 @@ class AudioTrackContainer extends Backend
         Input::setGet('id', $intId);
         Input::setGet('act', 'toggle');
 
-        if ($dc) {
+        if ($dc instanceof DataContainer) {
             $dc->id = $intId; // see #8043
         }
 
@@ -84,7 +84,7 @@ class AudioTrackContainer extends Backend
         }
 
         // Set the current record
-        if ($dc) {
+        if ($dc instanceof DataContainer) {
             $objRow = $this->Database->prepare('SELECT * FROM tl_wem_audiotrack WHERE id=?')
                                      ->limit(1)
                                      ->execute($intId)
@@ -117,7 +117,7 @@ class AudioTrackContainer extends Backend
                        ->execute($intId)
         ;
 
-        if ($dc) {
+        if ($dc instanceof DataContainer) {
             $dc->activeRecord->tstamp = $time;
             $dc->activeRecord->published = ($blnVisible ? '1' : '');
         }
@@ -144,7 +144,7 @@ class AudioTrackContainer extends Backend
      */
     public function getTags(?DataContainer $dc, ?array $arrPids = null): array
     {
-        if (null !== $dc) {
+        if ($dc instanceof DataContainer) {
             $objItem = AudioTrack::findByPk($dc->id);
             $objCategory = $objItem->getRelated('pid');
 
