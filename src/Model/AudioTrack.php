@@ -53,6 +53,7 @@ class AudioTrack extends Model
 
             $arrOptions['order'] = 'DESC' === substr($arrOptions['order'], -4, 4) ? 'nbLikes DESC' : 'nbLikes ASC';
         }
+
         return parent::findItems($arrConfig, $intLimit, $intOffset, $arrOptions);
     }
 
@@ -62,8 +63,6 @@ class AudioTrack extends Model
      * @param string $strField    [Column to format]
      * @param mixed  $varValue    [Value to use]
      * @param string $strOperator [Operator to use, default "="]
-     *
-     * @return array
      */
     public static function formatStatement(string $strField, $varValue, string $strOperator = '='): array
     {
@@ -75,22 +74,23 @@ class AudioTrack extends Model
                     $varValue = [$varValue];
                 }
 
-                $arrColumns[] = sprintf(sprintf('%s.pid IN(\'%%s\')', $t), implode("','", $varValue));
+                $arrColumns[] = sprintf(sprintf("%s.pid IN('%%s')", $t), implode("','", $varValue));
             break;
 
             case 'tags':
-                $arrColumns[] = sprintf(sprintf('%s.id IN(SELECT twat.pid FROM tl_wem_audiotrack_tag twat WHERE twat.tag IN(\'%%s\'))', $t), implode("','", $varValue));
+                $arrColumns[] = sprintf(sprintf("%s.id IN(SELECT twat.pid FROM tl_wem_audiotrack_tag twat WHERE twat.tag IN('%%s'))", $t), implode("','", $varValue));
             break;
 
             case 'search':
                 $strKeywords = implode('|', $varValue);
-                $arrColumns[] = sprintf('(%s.title REGEXP \'%s\' OR %s.description REGEXP \'%s\')', $t, $strKeywords, $t, $strKeywords);
+                $arrColumns[] = sprintf("(%s.title REGEXP '%s' OR %s.description REGEXP '%s')", $t, $strKeywords, $t, $strKeywords);
             break;
 
             // Load parent
             default:
                 $arrColumns = array_merge($arrColumns, parent::formatStatement($strField, $varValue, $strOperator));
         }
+
         return $arrColumns;
     }
 }

@@ -181,6 +181,7 @@ class AudioTracksList extends Module
                 $arrResponse['status'] = 'error';
                 $arrResponse['message'] = $e->getMessage();
             }
+
             $contaoCsrfTokenManager = System::getContainer()->get('contao.csrf.token_manager');
             $arrResponse['rt'] = $contaoCsrfTokenManager->getDefaultTokenValue();
 
@@ -250,7 +251,7 @@ class AudioTracksList extends Module
         $objItems = AudioTrack::findItems($this->config, ($this->limit ?: 0), ($this->offset ?: 0), $this->options);
 
         // Add the articles
-        if (null !== $objItems) {
+        if ($objItems instanceof Collection) {
             $this->Template->items = $this->parseItems($objItems);
         }
 
@@ -379,10 +380,6 @@ class AudioTracksList extends Module
     /**
      * Parse one or more items and return them as array.
      *
-     * @param Collection $objItems
-     * @param bool $blnAddArchive
-     *
-     * @return array
      * @throws Exception
      */
     protected function parseItems(Collection $objItems, bool $blnAddArchive = false): array
@@ -410,11 +407,7 @@ class AudioTracksList extends Module
      * Parse an item and return it as string.
      *
      * @param NewsModel $objItem TODO : what is NewsModel
-     * @param bool $blnAddArchive
-     * @param string $strClass
-     * @param int $intCount
      *
-     * @return string
      * @throws Exception
      */
     protected function parseItem(NewsModel $objItem, bool $blnAddArchive = false, string $strClass = '', int $intCount = 0): string
