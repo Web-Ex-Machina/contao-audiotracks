@@ -434,13 +434,14 @@ class AudioTracksList extends Module
         $objTemplate->timestamp = $objItem->date;
         $objTemplate->datetime = date('Y-m-d\TH:i:sP', (int) $objItem->date);
 
+        $imageFactory = System::getContainer()->get('contao.image.factory');
         // Retrieve and parse the picture
         if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
-            $objTemplate->picture = Image::get($objFile->path, 300, 300); // TODO : deprecated
+            $objTemplate->picture =  $imageFactory->get($objFile->path, 300, 300);
         }
 
         if ($objItem->picture_mobile && $objFile = FilesModel::findByUuid($objItem->picture_mobile)) {
-            $objTemplate->picture_mobile = Image::get($objFile->path, 300, 300); // TODO : deprecated
+            $objTemplate->picture_mobile = $imageFactory->get($objFile->path, 300, 300);
         }
 
         // Fetch the audio file
