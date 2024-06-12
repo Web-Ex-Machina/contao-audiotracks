@@ -25,7 +25,6 @@ use Contao\Input;
 use Contao\Model\Collection;
 use Contao\Module;
 use Contao\Pagination;
-use Contao\RequestToken; // TODO : deprecated
 use Exception;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Feedback;
@@ -182,8 +181,8 @@ class AudioTracksList extends Module
                 $arrResponse['status'] = 'error';
                 $arrResponse['message'] = $e->getMessage();
             }
-
-            $arrResponse['rt'] = RequestToken::get(); //TODO : deprecated
+            $contaoCsrfTokenManager = System::getContainer()->get('contao.csrf.token_manager');
+            $arrResponse['rt'] = $contaoCsrfTokenManager->getDefaultTokenValue();
 
             echo json_encode($arrResponse);
             exit;
