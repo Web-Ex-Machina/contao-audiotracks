@@ -8,7 +8,7 @@ class MP3File
 {
     protected ?string $filename;
 
-    public function __construct($filename)
+    public function __construct(?string $filename)
     {
         $this->filename = $filename;
     }
@@ -40,26 +40,24 @@ class MP3File
         while (!feof($fd))
         {
             $block = fread($fd, 10);
-            if (strlen($block)<10) { break; }
-            //looking for 1111 1111 111 (frame synchronization bits)
-            else if ($block[0]=="\xff" && (ord($block[1])&0xe0) )
-            {
+
+            if (strlen($block) < 10) {
+                break;
+            }  //looking for 1111 1111 111 (frame synchronization bits)
+            elseif ($block[0]=="\xff" && (ord($block[1])&0xe0) ) {
                 $info = self::parseFrameHeader(substr($block, 0, 4));
                 if (empty($info['Framesize'])) { return $duration; } //some corrupt mp3 files
                 fseek($fd, $info['Framesize']-10, SEEK_CUR);
                 $duration += ( $info['Samples'] / $info['Sampling Rate'] );
             }
-            else if (substr($block, 0, 3)=='TAG')
-            {
+            elseif (substr($block, 0, 3)=='TAG') {
                 fseek($fd, 128-10, SEEK_CUR);//skip over id3v1 tag size
             }
-            else
-            {
+            else {
                 fseek($fd, -9, SEEK_CUR);
             }
 
-            if ($use_cbr_estimate && !empty($info))
-            {
+            if ($use_cbr_estimate && $info !== []) {
                 return $this->estimateDuration($info['Bitrate'],$offset);
             }
         }
@@ -81,10 +79,10 @@ class MP3File
             $id3v2_major_version = ord($block[3]);
             $id3v2_minor_version = ord($block[4]);
             $id3v2_flags = ord($block[5]);
-            $flag_unsynchronisation  = $id3v2_flags & 0x80 ? 1 : 0;
-            $flag_extended_header    = $id3v2_flags & 0x40 ? 1 : 0;
-            $flag_experimental_ind   = $id3v2_flags & 0x20 ? 1 : 0;
-            $flag_footer_present     = $id3v2_flags & 0x10 ? 1 : 0;
+            $flag_unsynchronisation  = ($id3v2_flags & 0x80) !== 0 ? 1 : 0;
+            $flag_extended_header    = ($id3v2_flags & 0x40) !== 0 ? 1 : 0;
+            $flag_experimental_ind   = ($id3v2_flags & 0x20) !== 0 ? 1 : 0;
+            $flag_footer_present     = ($id3v2_flags & 0x10) !== 0 ? 1 : 0;
             $z0 = ord($block[6]);
             $z1 = ord($block[7]);
             $z2 = ord($block[8]);
@@ -93,7 +91,7 @@ class MP3File
             {
                 $header_size = 10;
                 $tag_size = (($z0&0x7f) * 2097152) + (($z1&0x7f) * 16384) + (($z2&0x7f) * 128) + ($z3&0x7f);
-                $footer_size = $flag_footer_present ? 10 : 0;
+                $footer_size = $flag_footer_present !== 0 ? 10 : 0;
                 return $header_size + $tag_size + $footer_size;//bytes to skip
             }
         }
@@ -169,7 +167,7 @@ class MP3File
         return $info;
     }
 
-    private static function framesize($layer, $bitrate,$sample_rate,$padding_bit): int
+    private static function framesize($layer, $bitrate,$sample_rate,int $padding_bit): int
     {
         if ($layer==1) {
             return intval(((12 * $bitrate*1000 /$sample_rate) + $padding_bit) * 4);

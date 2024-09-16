@@ -284,7 +284,7 @@ class AudioTracksList extends Module
 
         // Retrieve and format dropdowns filters
         $filters = StringUtil::deserialize($this->wemaudiotracks_filters);
-        if (\is_array($filters) && !empty($filters)) {
+        if (\is_array($filters) && $filters !== []) {
             foreach ($filters as $f) {
                 $strName = $f;
 

@@ -113,7 +113,7 @@ class AudioTrackContainer extends Backend
         $time = time();
 
         // Update the database
-        $this->Database->prepare("UPDATE tl_wem_audiotrack SET tstamp=$time, published='".($blnVisible ? '1' : '')."' WHERE id=?")
+        $this->Database->prepare(sprintf('UPDATE tl_wem_audiotrack SET tstamp=%d, published=\'', $time).($blnVisible ? '1' : '')."' WHERE id=?")
                        ->execute($intId)
         ;
 
@@ -211,7 +211,7 @@ class AudioTrackContainer extends Backend
         }
 
         // step 2 - remove all ids not in $varValues
-        if ($varValues) {
+        if ($varValues !== []) {
             Database::getInstance()->prepare(
                 sprintf(
                     "DELETE FROM %s WHERE %s = %s AND %s NOT IN ('%s')",
