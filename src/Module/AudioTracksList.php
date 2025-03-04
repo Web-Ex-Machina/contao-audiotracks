@@ -434,22 +434,22 @@ class AudioTracksList extends Module
             $objTemplate->picture_mobile = \Image::get($objFile->path, 300, 300);
         }
 
-        // Fetch the audio file
-        if ($objFile = FilesModel::findByUuid($objItem->audio)) {
-            $objTemplate->audio = $objFile->path;
-
-            // Use library to get file duration
+        // If there is no duration and an item
+        // Retrieve the duration and save it in the model
+        if (!$objItem->duration && $objFile = FilesModel::findByUuid($objItem->audio)) {
             $mp3file = new MP3File($objFile->path);
             $duration = $mp3file->getDuration();
 
-            $objTemplate->duration = ($duration > 3600) ?
-                sprintf('%s h %s%s min', number_format($duration / 3600), $duration / 60 % 60 < 10 ? '0' : '', $duration / 60 % 60) :
-                sprintf('%s min %s%s s', $duration / 60 % 60, $duration % 60 < 10 ? '0' : '', $duration % 60)
-            ;
-            $objTemplate->durationRaw = $duration;
-        } else {
-            $objTemplate->audio = null;
+            $objItem->duration = $duration;
+            $objItem->save();
         }
+
+        $objTemplate->audio = $objFile->path;
+        $objTemplate->duration = ($objItem->duration > 3600) ?
+            sprintf('%s h %s%s min', number_format($objItem->duration / 3600), $objItem->duration / 60 % 60 < 10 ? '0' : '', $objItem->duration / 60 % 60) :
+            sprintf('%s min %s%s s', $objItem->duration / 60 % 60, $objItem->duration % 60 < 10 ? '0' : '', $objItem->duration % 60)
+        ;
+        $objTemplate->durationRaw = $objItem->duration;
 
         // Retrieve the feedback from this IP
         $objTemplate->liked = 0 < Feedback::countItems(['pid' => $objItem->id, 'ip' => Environment::get('ip')]);
