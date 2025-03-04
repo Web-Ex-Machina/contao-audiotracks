@@ -72,7 +72,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     // Palettes
     'palettes' => [
         'default' => '
-            {title_legend},title,date,audio,description;
+            {title_legend},title,date,audio,duration,description;
             {content_legend},tags,picture,picture_mobile,pictureText;
             {publish_legend},published,start,stop
         ',
@@ -115,6 +115,16 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'inputType' => 'fileTree',
             'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => 'mp3,ogg,wav', 'mandatory'=>true],
             'sql' => 'binary(16) NULL',
+        ],
+        'duration' => [
+            'exclude' => true,
+            'search' => true,
+            'inputType' => 'text',
+            'eval' => ['tl_class' => 'w50'],
+            'save_callback' => [
+                [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'retrieveAudioTrackDuration']
+            ],
+            'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'description' => [
             'exclude' => true,
