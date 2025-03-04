@@ -23,16 +23,11 @@ class CategoryContainer extends Backend
 {
     /**
      * Auto-generate an article alias if it has not been set yet.
-     *
      * @throws Exception
-     *
-     * @return string
      */
-    public function generateAlias($varValue, DataContainer $dc)
+    public function generateAlias($varValue, DataContainer $dc): string
     {
-        $aliasExists = function (string $alias) use ($dc): bool {
-            return $this->Database->prepare('SELECT id FROM tl_wem_audiotrack_category WHERE alias=? AND id!=?')->execute($alias, $dc->id)->numRows > 0;
-        };
+        $aliasExists = fn(string $alias): bool => $this->Database->prepare('SELECT id FROM tl_wem_audiotrack_category WHERE alias=? AND id!=?')->execute($alias, $dc->id)->numRows > 0;
 
         // Generate an alias if there is none
         if (!$varValue) {

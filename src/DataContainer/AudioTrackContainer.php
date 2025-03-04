@@ -15,26 +15,22 @@ declare(strict_types=1);
 namespace WEM\AudioTracksBundle\DataContainer;
 
 use Contao\Backend;
-use Contao\Database;
 use Contao\DataContainer;
-use Contao\Image;
 use Contao\Input;
+use Contao\Image;
 use Contao\Versions;
+use WEM\UtilsBundle\Classes\StringUtil;
+use Contao\Database;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
-use WEM\UtilsBundle\Classes\StringUtil;
 use WEM\UtilsBundle\Model\Model;
 
 class AudioTrackContainer extends Backend
 {
     /**
      * Format items list.
-     *
-     * @param array $r
-     *
-     * @return string
      */
-    public function listItems($r)
+    public function listItems(array $r): string
     {
         return sprintf(
             '%s',
@@ -44,20 +40,12 @@ class AudioTrackContainer extends Backend
 
     /**
      * Return the "toggle visibility" button.
-     *
-     * @param array  $row
-     * @param string $href
-     * @param string $label
-     * @param string $title
-     * @param string $icon
-     * @param string $attributes
-     *
-     * @return string
      */
-    public function toggleIcon($row, $href, $label, $title, $icon, $attributes)
+    public function toggleIcon(array $row, ?string $href, string $label, string $title, string $icon, string $attributes): string
     {
         if (null !== Input::get('tid') && \strlen(Input::get('tid'))) {
-            $this->toggleVisibility(Input::get('tid'), ('1' === Input::get('state')), (@func_get_arg(12) ?: null));
+            // TODO : check if is ok, added cast to int Input::get because toggleVisibility need an int
+            $this->toggleVisibility((int)Input::get('tid'), ('1' === Input::get('state')), (@func_get_arg(12) ?: null));
             $this->redirect($this->getReferer());
         }
 
@@ -72,18 +60,14 @@ class AudioTrackContainer extends Backend
 
     /**
      * Disable/enable a job.
-     *
-     * @param int           $intId
-     * @param bool          $blnVisible
-     * @param DataContainer $dc
      */
-    public function toggleVisibility($intId, $blnVisible, DataContainer $dc = null): void
+    public function toggleVisibility(int $intId, bool $blnVisible, DataContainer $dc = null): void
     {
         // Set the ID and action
         Input::setGet('id', $intId);
         Input::setGet('act', 'toggle');
 
-        if ($dc) {
+        if ($dc instanceof DataContainer) {
             $dc->id = $intId; // see #8043
         }
 
@@ -100,7 +84,7 @@ class AudioTrackContainer extends Backend
         }
 
         // Set the current record
-        if ($dc) {
+        if ($dc instanceof DataContainer) {
             $objRow = $this->Database->prepare('SELECT * FROM tl_wem_audiotrack WHERE id=?')
                                      ->limit(1)
                                      ->execute($intId)
@@ -129,11 +113,11 @@ class AudioTrackContainer extends Backend
         $time = time();
 
         // Update the database
-        $this->Database->prepare("UPDATE tl_wem_audiotrack SET tstamp=$time, published='".($blnVisible ? '1' : '')."' WHERE id=?")
+        $this->Database->prepare(sprintf('UPDATE tl_wem_audiotrack SET tstamp=%d, published=\'', $time).($blnVisible ? '1' : '')."' WHERE id=?")
                        ->execute($intId)
         ;
 
-        if ($dc) {
+        if ($dc instanceof DataContainer) {
             $dc->activeRecord->tstamp = $time;
             $dc->activeRecord->published = ($blnVisible ? '1' : '');
         }
@@ -157,10 +141,11 @@ class AudioTrackContainer extends Backend
      * Retrieve tags in the parent table.
      *
      * @return array ['tag1','tag2', ...]
+     * @throws \Exception
      */
     public function getTags(?DataContainer $dc, ?array $arrPids = null): array
     {
-        if (null !== $dc) {
+        if ($dc instanceof DataContainer) {
             $objItem = AudioTrack::findByPk($dc->id);
             $objCategory = $objItem->getRelated('pid');
 
@@ -168,7 +153,7 @@ class AudioTrackContainer extends Backend
                 return [];
             }
 
-            return deserialize($objCategory->tags);
+            return StringUtil::deserialize($objCategory->tags);
         }
 
         if (null !== $arrPids) {
@@ -180,7 +165,7 @@ class AudioTrackContainer extends Backend
                     continue;
                 }
 
-                $arrTags = array_merge($arrTags, deserialize($objCategory->tags));
+                $arrTags = array_merge($arrTags, StringUtil::deserialize($objCategory->tags));
             }
 
             return array_unique($arrTags);
@@ -191,7 +176,7 @@ class AudioTrackContainer extends Backend
 
     public function syncAudioTrackTagsPivotTable($varValue, $dc)
     {
-        $this->syncData(deserialize($varValue), 'tl_wem_audiotrack_tag', $dc->id, 'pid', 'tag');
+        $this->syncData(StringUtil::deserialize($varValue), 'tl_wem_audiotrack_tag', $dc->id, 'pid', 'tag');
 
         return $varValue;
     }
@@ -199,13 +184,13 @@ class AudioTrackContainer extends Backend
     /**
      * Sync basic data between pivot tables.
      *
-     * @param [array]  $varValues       [Usually an array of IDs]
-     * @param [string] $strTable        [Table where to sync]
-     * @param [int]    $intParentId     [Parent ID]
-     * @param [string] $strParentField  [Parent Field]
-     * @param [string] $strForeignField [Foreign field where to sync values]
+     * @param array $varValues Usually an array of IDs
+     * @param string $strTable Table where to sync
+     * @param int $intParentId Parent ID
+     * @param string $strParentField  Parent Field
+     * @param string $strForeignField Foreign field where to sync values
      */
-    public function syncData($varValues, $strTable, $intParentId, $strParentField, $strForeignField): void
+    public function syncData(array $varValues, string $strTable, int $intParentId, string $strParentField, string $strForeignField): void
     {
         // Found Model class
         $stdModel = Model::getClassFromTable($strTable);
@@ -226,7 +211,7 @@ class AudioTrackContainer extends Backend
         }
 
         // step 2 - remove all ids not in $varValues
-        if ($varValues) {
+        if ($varValues !== []) {
             Database::getInstance()->prepare(
                 sprintf(
                     "DELETE FROM %s WHERE %s = %s AND %s NOT IN ('%s')",

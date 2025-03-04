@@ -16,9 +16,11 @@
         "source":"https://github.com/Web-Ex-Machina/contao-audiotracks"
     },
     "require": {
-        "php": "^7.4|^8.0",
-        "contao/core-bundle": "^4.9",
-        "webexmachina/contao-utils": "^1.0"
+        "php": ">=7.4 || >=8.2",
+        "contao/core-bundle": "^4.13 || 5.3.x",
+        "contao/manager-plugin": "^2.0",
+        "webexmachina/contao-utils": "2.x",
+        "ext-json": "*"
     },
     "autoload":{
         "psr-4": {
@@ -36,5 +38,11 @@
     },
     "extra":{
         "contao-manager-plugin": "WEM\\AudioTracksBundle\\ContaoManager\\Plugin"
+    },
+    "require-dev": {
+        "rector/rector": "^1.2",
+        "phpstan/phpstan": "^1.12",
+        "contao/contao-rector": "dev-main"
     }
 }
+

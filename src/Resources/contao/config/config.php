@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use WEM\AudioTracksBundle\Model;
 
 /**
  * Audiotracks for Contao Open Source CMS
@@ -15,7 +16,7 @@ declare(strict_types=1);
 /*
  * Back end modules
  */
-array_insert($GLOBALS['BE_MOD']['content'], \count($GLOBALS['BE_MOD']['content']), [
+Contao\ArrayUtil::arrayInsert($GLOBALS['BE_MOD']['content'], count($GLOBALS['BE_MOD']['content']), [
     'wemaudiotracks' => [
         'tables' => ['tl_wem_audiotrack_category', 'tl_wem_audiotrack', 'tl_wem_audiotrack_feedback', 'tl_wem_audiotrack_tag', 'tl_wem_audiotrack_session'],
     ],
@@ -24,7 +25,7 @@ array_insert($GLOBALS['BE_MOD']['content'], \count($GLOBALS['BE_MOD']['content']
 /*
  * Front end modules
  */
-array_insert($GLOBALS['FE_MOD'], 2, [
+Contao\ArrayUtil::arrayInsert($GLOBALS['FE_MOD'], 2, [
     'wemaudiotracks' => [
         'wemaudiotrackslist' => WEM\AudioTracksBundle\Module\AudioTracksList::class,
     ],

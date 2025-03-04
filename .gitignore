@@ -20,3 +20,5 @@ nbproject/
 # Dev
 sftp-config*
 *.sublime-*
+.php_cs*
+*.lock
