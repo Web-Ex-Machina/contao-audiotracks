@@ -72,8 +72,9 @@ class AudioTracksList extends Module
      */
     public function generate(): string
     {
-        $scope = System::getContainer()->get('wem.scope_matcher');
-        if ($scope->isBackend()) {
+        $request = System::getContainer()->get('request_stack')->getCurrentRequest();
+
+        if ($request && System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest($request)) {
             $objTemplate = new BackendTemplate('be_wildcard');
             $objTemplate->wildcard = '### '. mb_strtoupper($GLOBALS['TL_LANG']['FMD']['wemaudiotrackslist'][0], 'UTF-8').' ###';
             $objTemplate->title = $this->headline;
@@ -262,10 +263,9 @@ class AudioTracksList extends Module
     /**
      * Retrieve list filters.
      *
-     * @return array Array of available filters, parsed
      * @throws Exception
      */
-    protected function buildFilters(): ?array
+    protected function buildFilters(): void
     {
         // Add fulltext search if asked
         if ($this->wemaudiotracks_addSearch) {
@@ -373,8 +373,6 @@ class AudioTracksList extends Module
                 $this->options = static::importStatic($callback[0])->{$callback[1]}($this->filters, $this->config, $this->options, $this);
             }
         }
-
-        exit();
     }
 
     /**
@@ -394,10 +392,10 @@ class AudioTracksList extends Module
         $arrArticles = [];
 
         while ($objItems->next()) {
-            /** @var NewsModel $objArticle TODO : what is NewsModel */
-            $objArticle = $objItems->current();
+            /** @var AudioTrack $objItem */
+            $objItem = $objItems->current();
 
-            $arrArticles[] = $this->parseItem($objArticle, $blnAddArchive, ((1 === ++$count) ? ' first' : '').(($count === $limit) ? ' last' : '').((0 === ($count % 2)) ? ' odd' : ' even'), $count);
+            $arrArticles[] = $this->parseItem($objItem, $blnAddArchive, ((1 === ++$count) ? ' first' : '').(($count === $limit) ? ' last' : '').((0 === ($count % 2)) ? ' odd' : ' even'), $count);
         }
 
         return $arrArticles;
@@ -406,11 +404,11 @@ class AudioTracksList extends Module
     /**
      * Parse an item and return it as string.
      *
-     * @param NewsModel $objItem TODO : what is NewsModel
+     * @param AudioTrack $objItem
      *
      * @throws Exception
      */
-    protected function parseItem(NewsModel $objItem, bool $blnAddArchive = false, string $strClass = '', int $intCount = 0): string
+    protected function parseItem(AudioTrack $objItem, bool $blnAddArchive = false, string $strClass = '', int $intCount = 0): string
     {
         $objTemplate = new FrontendTemplate($this->wemaudiotracks_template);
         $objTemplate->setData($objItem->row());
@@ -427,14 +425,13 @@ class AudioTracksList extends Module
         $objTemplate->timestamp = $objItem->date;
         $objTemplate->datetime = date('Y-m-d\TH:i:sP', (int) $objItem->date);
 
-        $imageFactory = System::getContainer()->get('contao.image.factory');
         // Retrieve and parse the picture
         if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
-            $objTemplate->picture =  $imageFactory->get($objFile->path, 300, 300);
+            $objTemplate->picture =  \Image::get($objFile->path, 300, 300);
         }
 
         if ($objItem->picture_mobile && $objFile = FilesModel::findByUuid($objItem->picture_mobile)) {
-            $objTemplate->picture_mobile = $imageFactory->get($objFile->path, 300, 300);
+            $objTemplate->picture_mobile = \Image::get($objFile->path, 300, 300);
         }
 
         // Fetch the audio file
