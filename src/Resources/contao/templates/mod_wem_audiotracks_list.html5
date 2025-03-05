@@ -104,6 +104,7 @@
 	  		var currentTrack        = false;
 	  		var prevTrack        		= false;
 	  		var nextTrack        		= false;
+	  		var globalVolume     		= localStorage.getItem('wem_audiotracks_globalvolume')?localStorage.getItem('wem_audiotracks_globalvolume'):1;
 	  		var syncTimer;
 	  		var volumeTimer;
 
@@ -232,7 +233,7 @@
 	  			if (play && track.src) {
 		  			currentTrack = track;
 	  				audioElement.src = track.src;
-	  				audioPlayer__volume.val(track.volume).trigger('input');
+	  				audioPlayer__volume.val(globalVolume).trigger('input');
 	  				audioElement.currentTime = track.currentTime;
 	  				audioPlayer.addClass('active');
 						setPlayerButtons();			
@@ -286,11 +287,12 @@
 	      		// console.log(localData);
 	      		var data = localData.filter(t=>{ return t.id==currentTrack.id;})[0];
 	      		data.currentTime = audioElement.currentTime;
-	      		data.volume = audioElement.volume;
+	      		data.volume = globalVolume = audioElement.volume;
 	      		data.complete = currentTrack.complete;
 	      		// console.log(localData);
 	      		// console.log(JSON.stringify(localData));
 	      		
+	      		localStorage.setItem('wem_audiotracks_globalvolume',data.volume);
 	      		localStorage.setItem('wem_audiotracks_data',JSON.stringify(localData));
       	    $.ajax({
       	      timeout: 10000,
