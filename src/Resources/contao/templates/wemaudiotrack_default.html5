@@ -41,6 +41,11 @@
 					data-volume="<?php echo $this->session['volume'] ?>"
 				>
 				<i class="fas fa-play"></i><i class="fas fa-pause"></i></div>
+				<?php if ($this->canDownload): ?>
+				<div class="audiotrack__download">
+					<a href="<?php echo $this->audio ?>" title="<?= $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['download'] ?>" target="_blank" download><i class="fas fa-download"></i></a>
+				</div>
+				<?php endif; ?>
 				<div class="audiotrack__duration"><?php echo $this->duration ?></div>
 				<?php if ($this->date): ?><div class="audiotrack__datetime"><?php  echo datefmt_format($formatter,$this->date); ?></div><?php endif ?>
 			</div>
