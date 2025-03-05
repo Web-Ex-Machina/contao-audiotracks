@@ -329,6 +329,11 @@
 	  		// debug only
 	  		// $('body').append(audioElement);
 	  	});
+
+			window.onbeforeunload = function (e) {
+				if ($('.audioPlayer').hasClass('playing')) 
+			  	return true;
+			};
 	  </script>
   <?php endif; ?>
 
