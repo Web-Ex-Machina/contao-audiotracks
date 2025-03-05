@@ -26,6 +26,14 @@
 				<source>Select the track file (mp3).</source>
 				<target>Sélectionnez le fichier de la piste.</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.duration.0">
+				<source>Duration (in seconds)</source>
+				<target>Durée (en secondes)</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.duration.1">
+				<source>Enter the track duration (leave empty to let the system calculate).</source>
+				<target>Saisissez la durée de la piste (laissez vide pour laisser le système calculer).</target>
+			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.description.0">
 				<source>Description</source>
 				<target>Description</target>

@@ -18,11 +18,13 @@ use Contao\Backend;
 use Contao\DataContainer;
 use Contao\Input;
 use Contao\Image;
+use Contao\FilesModel;
 use Contao\Versions;
 use WEM\UtilsBundle\Classes\StringUtil;
 use Contao\Database;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
+use WEM\AudioTracksBundle\Util\MP3File;
 use WEM\UtilsBundle\Model\Model;
 
 class AudioTrackContainer extends Backend
@@ -174,9 +176,20 @@ class AudioTrackContainer extends Backend
         return [];
     }
 
+    public function retrieveAudioTrackDuration($varValue, $dc)
+    {
+        if (!$varValue && $objFile = FilesModel::findByUuid($dc->activeRecord->audio)) {
+            // Use library to get file duration
+            $mp3file = new MP3File($objFile->path);
+            $varValue = $mp3file->getDuration();
+        }
+
+        return $varValue;
+    }
+
     public function syncAudioTrackTagsPivotTable($varValue, $dc)
     {
-        $this->syncData(StringUtil::deserialize($varValue), 'tl_wem_audiotrack_tag', $dc->id, 'pid', 'tag');
+        $this->syncData(StringUtil::deserialize($varValue), 'tl_wem_audiotrack_tag', (int) $dc->id, 'pid', 'tag');
 
         return $varValue;
     }
@@ -190,7 +203,7 @@ class AudioTrackContainer extends Backend
      * @param string $strParentField  Parent Field
      * @param string $strForeignField Foreign field where to sync values
      */
-    public function syncData(array $varValues, string $strTable, int $intParentId, string $strParentField, string $strForeignField): void
+    public function syncData(?array $varValues, string $strTable, int $intParentId, string $strParentField, string $strForeignField): void
     {
         // Found Model class
         $stdModel = Model::getClassFromTable($strTable);
@@ -211,7 +224,7 @@ class AudioTrackContainer extends Backend
         }
 
         // step 2 - remove all ids not in $varValues
-        if ($varValues !== []) {
+        if (null !== $varValues && $varValues !== []) {
             Database::getInstance()->prepare(
                 sprintf(
                     "DELETE FROM %s WHERE %s = %s AND %s NOT IN ('%s')",
