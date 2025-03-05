@@ -27,8 +27,8 @@
 				<target>Sélectionnez le fichier de la piste.</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.duration.0">
-				<source>Duration (s)</source>
-				<target>Durée (s)</target>
+				<source>Duration (in seconds)</source>
+				<target>Durée (en secondes)</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.duration.1">
 				<source>Enter the track duration (leave empty to let the system calculate).</source>
