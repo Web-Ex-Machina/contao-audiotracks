@@ -436,7 +436,8 @@ class AudioTracksList extends Module
 
         // If there is no duration and an item
         // Retrieve the duration and save it in the model
-        if (!$objItem->duration && $objFile = FilesModel::findByUuid($objItem->audio)) {
+        $objFile = FilesModel::findByUuid($objItem->audio);
+        if (!$objItem->duration && $objFile) {
             $mp3file = new MP3File($objFile->path);
             $objItem->duration = $mp3file->getDuration();
             $objItem->save();
