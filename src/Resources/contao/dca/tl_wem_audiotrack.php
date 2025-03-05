@@ -120,7 +120,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'exclude' => true,
             'search' => true,
             'inputType' => 'text',
-            'eval' => ['tl_class' => 'w50'],
+            'eval' => ['tl_class' => 'w50', 'rgxp' => 'digit'],
             'save_callback' => [
                 [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'retrieveAudioTrackDuration']
             ],
