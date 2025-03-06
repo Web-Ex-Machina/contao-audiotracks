@@ -32,7 +32,7 @@
 				<div class="audiotrack__listened<?php echo $this->session['complete']?' active':'' ?>"><i class="far fa-check ft-success ft-1-3-em"></i><span><?= $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['listened'] ?></span></div>
 			</div>
 			<div class="audiotrack__actions">
-				<div class="audiotrack__play" 
+				<div class="audiotrack__play audiotrack__button" 
 					data-id="<?php echo $this->id ?>" 
 					data-title="<?php echo $this->title ?>" 
 					data-src="<?php echo $this->audio ?>"
@@ -42,12 +42,14 @@
 				>
 				<i class="fas fa-play"></i><i class="fas fa-pause"></i></div>
 				<?php if ($this->canDownload): ?>
-				<div class="audiotrack__download">
+				<div class="audiotrack__download audiotrack__button">
 					<a href="<?php echo $this->audio ?>" title="<?= $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['download'] ?>" target="_blank" download><i class="fas fa-download"></i></a>
 				</div>
 				<?php endif; ?>
 				<div class="audiotrack__duration"><?php echo $this->duration ?></div>
-				<?php if ($this->date): ?><div class="audiotrack__datetime"><?php  echo datefmt_format($formatter,$this->date); ?></div><?php endif ?>
+				<?php if ($this->date): ?>
+					<div class="audiotrack__datetime"><?php  echo datefmt_format($formatter,$this->date); ?></div>
+				<?php endif ?>
 			</div>
 		</div>
 		<div class="audiotrack__footer">
