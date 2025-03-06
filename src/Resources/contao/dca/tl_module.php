@@ -5,7 +5,7 @@ declare(strict_types=1);
 $GLOBALS['TL_DCA']['tl_module']['palettes']['__selector__'][] = 'wemaudiotracks_addFilters';
 $GLOBALS['TL_DCA']['tl_module']['palettes']['wemaudiotrackslist'] = '
     {title_legend},name,headline,type;
-    {config_legend},wemaudiotracks_categories,wemaudiotracks_addFilters;
+    {config_legend},wemaudiotracks_categories,wemaudiotracks_addFilters,wemaudiotracks_canDownload;
     {list_legend},numberOfItems,skipFirst,perPage;
     {template_legend:hide},wemaudiotracks_template,customTpl;
     {expert_legend:hide},guests,cssID
@@ -35,6 +35,14 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_filters'] = [
     'sql' => 'blob NULL',
 ];
 $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_addSearch'] = [
+    'exclude' => true,
+    'filter' => true,
+    'flag' => 1,
+    'inputType' => 'checkbox',
+    'eval' => ['doNotCopy' => true, 'tl_class' => 'clr'],
+    'sql' => "char(1) NOT NULL default ''",
+];
+$GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_canDownload'] = [
     'exclude' => true,
     'filter' => true,
     'flag' => 1,

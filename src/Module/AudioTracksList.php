@@ -465,6 +465,11 @@ class AudioTracksList extends Module
             ];
         }
 
+        // Let template know if we can download the item
+        if ($this->wemaudiotracks_canDownload) {
+            $objTemplate->canDownload = true;
+        }
+
         // Hook system to customize item parsing
         if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'])) {
             foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'] as $callback) {

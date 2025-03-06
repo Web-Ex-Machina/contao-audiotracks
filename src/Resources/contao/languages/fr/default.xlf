@@ -22,6 +22,10 @@
 			    <source>Listened</source>
 			    <target>Écouté</target>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.download">
+			    <source>Download</source>
+			    <target>Télécharger</target>
+			</trans-unit>
 			<trans-unit id="WEM.AUDIOTRACKS.theme">
 			    <source>Theme</source>
 			    <target>Thème</target>

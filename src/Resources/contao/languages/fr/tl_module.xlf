@@ -46,6 +46,14 @@
 				<source>Check to add a fulltext search inside the list</source>
 				<target>Cochez pour ajouter une recherche textuelle dans la liste</target>
 			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_canDownload.0">
+				<source>Can download</source>
+				<target>Autoriser le téléchargement</target>
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_canDownload.1">
+				<source>Check to add a button to download the audio file</source>
+				<target>Cochez pour ajouter un bouton permettant de télécharger le fichier audio</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
