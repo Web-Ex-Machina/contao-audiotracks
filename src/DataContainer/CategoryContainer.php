@@ -120,8 +120,6 @@ class CategoryContainer extends Backend
      * @return Laminas\Feed\Writer\Feed 
      * 
      * @todo setItunesSubtitle
-     * @todo setItunesType
-     * @todo setItunesComplete
      */
     protected function createRssFeed($objItem): Feed
     {
@@ -177,6 +175,7 @@ class CategoryContainer extends Backend
 
         $feed->setItunesType($objItem->type);
         $feed->setItunesExplicit('1' === $objItem->explicit);
+        $feed->setItunesComplete('1' === $objItem->complete);
 
         return $feed;
     }
