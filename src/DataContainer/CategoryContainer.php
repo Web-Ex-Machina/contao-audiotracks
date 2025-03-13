@@ -189,15 +189,9 @@ class CategoryContainer extends Backend
      * 
      * @return Laminas\Feed\Writer\Feed 
      * 
-     * @todo setItunesDuration
-     * @todo setItunesTitle
      * @todo setItunesSubtitle
-     * @todo setItunesSummary
-     * @todo setItunesImage
-     * @todo setItunesEpisode
-     * @todo setItunesEpisodeType
+     * @todo setItunesEpisodeTypes
      * @todo setItunesIsClosedCaptioned
-     * @todo setItunesSeason
      */
     protected function addTrackToRssFeed(AudioTrack $objItem, Category $objCategory, Feed $feed): Feed
     {
@@ -205,6 +199,7 @@ class CategoryContainer extends Backend
 
         $entry->setId((string) $objItem->id);
         $entry->setTitle(html_entity_decode($objItem->title));
+        $entry->setItunesTitle(html_entity_decode($objItem->title));
         $entry->setLink('http://www.example.com/all-your-base-are-belong-to-us');
         
         if ($objItem->authors) {
@@ -219,6 +214,7 @@ class CategoryContainer extends Backend
         $entry->setDateModified((int) $objItem->date);
         $entry->setDateCreated((int) $objItem->date);
         $entry->setDescription(strip_tags($objItem->description));
+        $entry->setItunesSummary(strip_tags($objItem->description));
         $entry->setContent($objItem->description);
         $entry->setCopyright($objCategory->rssCopyright);
 
@@ -229,6 +225,8 @@ class CategoryContainer extends Backend
                 'uri' => Environment::get('base') . $objFile->path,
                 'length' => filesize($objFile->path)
             ]);
+
+            $entry->setItunesImage(Environment::get('base') . $objFile->path);
         }
 
         $arrCategories = unserialize($objCategory->categories);
@@ -242,6 +240,9 @@ class CategoryContainer extends Backend
         }
 
         $entry->setItunesExplicit('1' === $objItem->explicit);
+        $entry->setItunesDuration(sprintf('%02d:%02d:%02d', $objItem->duration/3600, floor($objItem->duration/60)%60, $objItem->duration%60));
+        $entry->setItunesSeason((int) $objItem->season);
+        $entry->setItunesEpisode((int) $objItem->episode);
 
         $feed->addEntry($entry);
 
