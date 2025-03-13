@@ -117,10 +117,7 @@ class CategoryContainer extends Backend
      * 
      * @todo setItunesDuration
      * @todo setItunesExplicit
-     * @todo setItunesNewFeedUrl
-     * @todo addItunesOwners
      * @todo setItunesSubtitle
-     * @todo setItunesSummary
      * @todo setItunesType
      * @todo setItunesComplete
      */
@@ -128,17 +125,25 @@ class CategoryContainer extends Backend
     {
         $feed = new Feed;
         $feed->setTitle(html_entity_decode($objItem->title));
-        $feed->setDescription($objItem->rssDescription ?: $objItem->description);
+
+        $desc = $objItem->rssDescription ?: $objItem->description;
+        $feed->setDescription(strip_tags($desc));
+        $feed->setItunesSummary(strip_tags($desc));
         $feed->setLink($objItem->rssLink);
+        $feed->setItunesNewFeedUrl($objItem->getRssFeedUrl());
         $feed->setFeedLink($objItem->getRssFeedUrl(), $objItem->rssType);
 
         if ($objItem->authors) {
             $authors = unserialize($objItem->authors);
+            $names = [];
             $feed->addAuthors($authors);
 
             foreach ($authors as $a) {
-                $feed->addItunesAuthor($a['name']);
+                $names[] = $a['name'];
             }
+            
+            $feed->addItunesAuthors($names);
+            $feed->addItunesOwners($authors);
         }
 
         $feed->setDateCreated(time());
