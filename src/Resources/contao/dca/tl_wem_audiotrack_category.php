@@ -70,7 +70,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             {title_legend},title,alias,categories,description;
             {picture_legend},picture,pictureAlt,pictureTitle,pictureSize;
             {settings_legend},language,tags;
-            {author_legend},authorName,authorEmail,authorUri;
+            {author_legend},authors;
             {rss_legend},rss;
         ',
     ],
@@ -164,26 +164,29 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'eval' => ['tl_class'=>'clr'],
             'sql' => "blob NULL"
         ],
-        'authorName' => [
+        'authors' => [
             'exclude' => true,
-            'search' => true,
-            'inputType' => 'text',
-            'eval' => ['tl_class'=>'w50'],
-            'sql' => "varchar(255) NOT NULL default ''"
-        ],
-        'authorEmail' => [
-            'exclude' => true,
-            'search' => true,
-            'inputType' => 'text',
-            'eval' => ['tl_class'=>'w50'],
-            'sql' => "varchar(255) NOT NULL default ''"
-        ],
-        'authorUri' => [
-            'exclude' => true,
-            'search' => true,
-            'inputType' => 'text',
-            'eval' => ['tl_class'=>'w50'],
-            'sql' => "varchar(255) NOT NULL default ''"
+            'inputType' => 'multiColumnWizard',
+            'eval' => [
+                'columnFields' => [
+                    'name' => [
+                        'exclude' => true,
+                        'inputType' => 'text',
+                        'eval' => ['mandatory' => true],
+                    ],
+                    'email' => [
+                        'exclude' => true,
+                        'inputType' => 'text',
+                        'eval' => ['rgxp' => 'email', 'mandatory' => true],
+                    ],
+                    'uri' => [
+                        'exclude' => true,
+                        'inputType' => 'text',
+                        'eval' => ['rgxp' => 'url', 'mandatory' => true],
+                    ],
+                ]
+            ],
+            'sql' => 'blob NULL',
         ],
         'rss' => [
             'exclude' => true,

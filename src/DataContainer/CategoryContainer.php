@@ -127,16 +127,20 @@ class CategoryContainer extends Backend
     protected function createRssFeed($objItem): Feed
     {
         $feed = new Feed;
-        $feed->setTitle($objItem->title);
+        $feed->setTitle(html_entity_decode($objItem->title));
         $feed->setDescription($objItem->rssDescription ?: $objItem->description);
         $feed->setLink($objItem->rssLink);
         $feed->setFeedLink($objItem->getRssFeedUrl(), $objItem->rssType);
-        $feed->addAuthor([
-            'name'  => $objItem->authorName,
-            'email' => $objItem->authorEmail,
-            'uri'   => $objItem->authorUri,
-        ]);
-        $feed->addItunesAuthor($objItem->authorName);
+
+        if ($objItem->authors) {
+            $authors = unserialize($objItem->authors);
+            $feed->addAuthors($authors);
+
+            foreach ($authors as $a) {
+                $feed->addItunesAuthor($a['name']);
+            }
+        }
+
         $feed->setDateCreated(time());
         $feed->setDateModified(time());
         $feed->setLastBuildDate(time());
@@ -194,13 +198,18 @@ class CategoryContainer extends Backend
         $entry = $feed->createEntry();
 
         $entry->setId((string) $objItem->id);
-        $entry->setTitle($objItem->title);
+        $entry->setTitle(html_entity_decode($objItem->title));
         $entry->setLink('http://www.example.com/all-your-base-are-belong-to-us');
-        $entry->addAuthor([
-            'name'  => 'Paddy',
-            'email' => 'paddy@example.com',
-            'uri'   => 'http://www.example.com',
-        ]);
+        
+        if ($objItem->authors) {
+            $authors = unserialize($objItem->authors);
+            $entry->addAuthors($authors);
+
+            foreach ($authors as $a) {
+                $entry->addItunesAuthor($a['name']);
+            }
+        }
+
         $entry->setDateModified((int) $objItem->date);
         $entry->setDateCreated((int) $objItem->date);
         $entry->setDescription(strip_tags($objItem->description));

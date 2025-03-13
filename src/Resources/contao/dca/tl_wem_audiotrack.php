@@ -74,6 +74,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'default' => '
             {title_legend},title,date,audio,duration,description;
             {content_legend},tags,picture,picture_mobile,pictureText;
+            {author_legend},authors;
             {publish_legend},published,start,stop
         ',
     ],
@@ -164,6 +165,30 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'eval' => ['rte' => 'tinyMCE', 'helpwizard' => true, 'tl_class' => 'clr'],
             'explanation' => 'insertTags',
             'sql' => 'mediumtext NULL',
+        ],
+        'authors' => [
+            'exclude' => true,
+            'inputType' => 'multiColumnWizard',
+            'eval' => [
+                'columnFields' => [
+                    'name' => [
+                        'exclude' => true,
+                        'inputType' => 'text',
+                        'eval' => ['mandatory' => true],
+                    ],
+                    'email' => [
+                        'exclude' => true,
+                        'inputType' => 'text',
+                        'eval' => ['rgxp' => 'email', 'mandatory' => true],
+                    ],
+                    'uri' => [
+                        'exclude' => true,
+                        'inputType' => 'text',
+                        'eval' => ['rgxp' => 'url'],
+                    ],
+                ]
+            ],
+            'sql' => 'blob NULL',
         ],
         'published' => [
             'exclude' => true,
