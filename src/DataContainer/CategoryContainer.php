@@ -93,9 +93,13 @@ class CategoryContainer extends Backend
             return;
         }
 
+        $totalDuration = 0;
         while ($objTracks->next()) {
             $feed = $this->addTrackToRssFeed($objTracks->current(), $objItem, $feed);
+            $totalDuration += $objTracks->duration;
         }
+
+        $feed->setItunesDuration(sprintf('%02d:%02d:%02d', $totalDuration/3600, floor($totalDuration/60)%60, $totalDuration%60));
 
         $buffer = $feed->export($objItem->rssType);
 
@@ -115,8 +119,6 @@ class CategoryContainer extends Backend
      * 
      * @return Laminas\Feed\Writer\Feed 
      * 
-     * @todo setItunesDuration
-     * @todo 
      * @todo setItunesSubtitle
      * @todo setItunesType
      * @todo setItunesComplete
@@ -188,8 +190,6 @@ class CategoryContainer extends Backend
      * @return Laminas\Feed\Writer\Feed 
      * 
      * @todo setItunesDuration
-     * @todo setItunesDuration
-     * @todo setItunesExplicit
      * @todo setItunesTitle
      * @todo setItunesSubtitle
      * @todo setItunesSummary
