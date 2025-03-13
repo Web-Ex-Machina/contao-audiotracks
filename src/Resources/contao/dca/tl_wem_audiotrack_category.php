@@ -69,7 +69,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'default' => '
             {title_legend},title,alias,categories,description;
             {picture_legend},picture,pictureAlt,pictureTitle,pictureSize;
-            {settings_legend},language,explicit,tags;
+            {settings_legend},type,language,explicit,tags;
             {author_legend},authors;
             {rss_legend},rss;
         ',
@@ -147,6 +147,13 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'reference' => &$GLOBALS['TL_LANG']['MSC'],
             'eval' => array('rgxp'=>'natural', 'includeBlankOption'=>true, 'nospace'=>true, 'helpwizard'=>true, 'tl_class'=>'w50'),
             'sql' => "varchar(128) COLLATE ascii_bin NOT NULL default ''"
+        ],
+        'type' => [
+            'exclude' => true,
+            'inputType' => 'select',
+            'eval'=> array('tl_class'=>'w50'),
+            'options' => ['episodic', 'serial'],
+            'sql' => "varchar(16) NOT NULL default ''"
         ],
         'language' => [
             'exclude' => true,

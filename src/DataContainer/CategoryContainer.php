@@ -175,6 +175,7 @@ class CategoryContainer extends Backend
             $feed->setItunesCategories($arrCategories);
         }
 
+        $feed->setItunesType($objItem->type);
         $feed->setItunesExplicit('1' === $objItem->explicit);
 
         return $feed;
