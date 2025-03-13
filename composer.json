@@ -20,6 +20,7 @@
         "contao/core-bundle": "^4.13 || 5.3.x",
         "contao/manager-plugin": "^2.0",
         "webexmachina/contao-utils": "2.x",
+        "laminas/laminas-feed": "^2.18",
         "ext-json": "*"
     },
     "autoload":{
