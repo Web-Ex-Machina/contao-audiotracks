@@ -26,6 +26,22 @@
 				<source>Enter the category tags.</source>
 				<target>Saisissez les tags de la catégorie.</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rss.0">
+				<source>RSS Feed</source>
+				<target>Flux RSS</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rss.1">
+				<source>Check to create a rss feed for this category</source>
+				<target>Cocher pour créer un flux RSS pour cette catégorie</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssFilename.0">
+				<source>Filename</source>
+				<target>Nom du fichier</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssFilename.1">
+				<source>Enter the RSS Feed filename.</source>
+				<target>Saisissez le nom du fichier du flux RSS.</target>
+			</trans-unit>
 
 			<trans-unit id="tl_wem_audiotrack_category.title_legend">
 				<source>Global settings</source>
@@ -34,6 +50,10 @@
 			<trans-unit id="tl_wem_audiotrack_category.settings_legend">
 				<source>Content settings</source>
 				<target>Paramètres de contenu</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rss_legend">
+				<source>RSS Feed</source>
+				<target>Flux RSS</target>
 			</trans-unit>
 		</body>
 	</file>

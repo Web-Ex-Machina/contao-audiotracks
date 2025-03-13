@@ -16,8 +16,14 @@ namespace WEM\AudioTracksBundle\DataContainer;
 
 use Contao\Backend;
 use Contao\DataContainer;
+use Contao\Environment;
+use Contao\FilesModel;
+use Contao\Message;
 use Contao\System;
 use Exception;
+use Laminas\Feed\Reader\Reader;
+use Laminas\Feed\Writer\Feed;
+use WEM\AudioTracksBundle\Model\Category;
 
 class CategoryContainer extends Backend
 {
@@ -38,4 +44,103 @@ class CategoryContainer extends Backend
 
         return $varValue;
     }
+
+    /**
+     * Display the location of the rss feed
+     */
+    public function displayRssUrl(DataContainer $dc): void
+    {
+        if (!$dc->id) {
+            return;
+        }
+        
+        $objItem = Category::findByPk($dc->id);
+
+        if (!$objItem->rss) {
+            return;
+        }
+
+        $url = $objItem->getRssFeedUrl();
+
+        Message::addInfo('RSS Feed is located at: <a href="' . $url . '" title="Go to RSS Feed" target="_blank">' . $url . '</a>');
+    }
+
+    /**
+     * Generate the RSS feed
+     */
+    public function generateRssFeed(DataContainer $dc): void
+    {
+        if (!$dc->id) {
+            return;
+        }
+        
+        $objItem = Category::findByPk($dc->id);
+
+        if (!$objItem->rss) {
+            return;
+        }
+
+        $url = $objItem->getRssFeedUrl();
+
+        try {
+            $feed = Reader::import($url);
+        } catch(Exception $e) {
+            // It means feed does not exist, create it
+            $feed = $this->createRssFeed($objItem);
+        }
+
+        // Update Feed value
+        $feed->setDateModified(time());
+
+        $buffer = $feed->export($objItem->rssType);
+
+        dump($buffer);
+        die;
+    }
+
+    /**
+     * Generate the feed part of the RSS
+     * 
+     * @var WEM\AudioTracksBundle\Model\Category
+     * 
+     * @return Laminas\Feed\Writer\Feed 
+     */
+    protected function createRssFeed($objItem): Feed
+    {
+        $feed = new Feed;
+        $feed->setTitle($objItem->title);
+        $feed->setDescription($objItem->rssDescription ?: $objItem->description);
+        $feed->setLink($objItem->rssLink);
+        $feed->setFeedLink($objItem->getRssFeedUrl(), $objItem->rssType);
+        $feed->addAuthor([
+            'name'  => $objItem->authorName,
+            'email' => $objItem->authorEmail,
+            'uri'   => $objItem->authorUri,
+        ]);
+        $feed->setDateCreated(time());
+        $feed->setLanguage($objItem->language);
+        $feed->setCopyright($objItem->rssCopyright);
+        $feed->addHub($objItem->rssHub);
+
+        if ($objFile = FilesModel::findByUuid($objItem->picture)) {
+            $feed->setImage([
+                'uri' => Environment::get('base') . $objFile->path,
+                'title' => $objItem->title,
+                'link' => $objItem->authorUri,
+            ]);
+        }
+
+        $arrCategories = unserialize($objItem->categories);
+        if (is_iterable($arrCategories)) {
+            foreach ($arrCategories as $c) {
+                $feed->addCategory([
+                    "term" => $c,
+                    "label" => $c,
+                ]);
+            }
+        }
+
+        return $feed;
+    }
 }
+

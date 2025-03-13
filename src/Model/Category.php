@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\Model;
 
+use Contao\Environment;
 use WEM\UtilsBundle\Model\Model;
 
 /**
@@ -27,4 +28,20 @@ class Category extends Model
      * @var string
      */
     protected static $strTable = 'tl_wem_audiotrack_category';
+
+    /**
+     * RSS Folder path
+     * 
+     * @var string
+     */
+    protected static $strRssFolder = 'bundles/audiotracks/rss/';
+
+    public function getRssFeedUrl()
+    {
+        if (!$this->rssFilename) {
+            throw new \Exception("Cannot generate RSS Feed url as category does not have a RSS filename setup");
+        }
+
+        return Environment::get('base') . static::$strRssFolder . $this->rssFilename;
+    }
 }
