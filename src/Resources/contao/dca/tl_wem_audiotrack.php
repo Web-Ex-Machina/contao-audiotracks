@@ -72,7 +72,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     // Palettes
     'palettes' => [
         'default' => '
-            {title_legend},title,date,season,episode,audio,duration,description;
+            {title_legend},title,date,season,episode,audio,type,duration,description;
             {content_legend},explicit,tags,picture,picture_mobile,pictureText;
             {author_legend},authors;
             {publish_legend},published,start,stop
@@ -130,6 +130,13 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'inputType' => 'fileTree',
             'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => 'mp3,ogg,wav', 'mandatory'=>true],
             'sql' => 'binary(16) NULL',
+        ],
+        'type' => [
+            'exclude' => true,
+            'inputType' => 'select',
+            'eval'=> array('tl_class'=>'w50'),
+            'options' => ['full', 'trailer', 'bonus'],
+            'sql' => "varchar(16) NOT NULL default ''"
         ],
         'duration' => [
             'exclude' => true,

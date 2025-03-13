@@ -190,7 +190,6 @@ class CategoryContainer extends Backend
      * @return Laminas\Feed\Writer\Feed 
      * 
      * @todo setItunesSubtitle
-     * @todo setItunesEpisodeTypes
      * @todo setItunesIsClosedCaptioned
      */
     protected function addTrackToRssFeed(AudioTrack $objItem, Category $objCategory, Feed $feed): Feed
@@ -243,6 +242,7 @@ class CategoryContainer extends Backend
         $entry->setItunesDuration(sprintf('%02d:%02d:%02d', $objItem->duration/3600, floor($objItem->duration/60)%60, $objItem->duration%60));
         $entry->setItunesSeason((int) $objItem->season);
         $entry->setItunesEpisode((int) $objItem->episode);
+        $entry->setItunesEpisodeType($objItem->type);
 
         $feed->addEntry($entry);
 
