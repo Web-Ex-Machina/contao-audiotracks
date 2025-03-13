@@ -36,10 +36,14 @@ class Category extends Model
      */
     protected static $strRssFolder = 'bundles/audiotracks/rss/';
 
-    public function getRssFeedUrl()
+    public function getRssFeedUrl(bool $blnRelative = false): string
     {
         if (!$this->rssFilename) {
             throw new \Exception("Cannot generate RSS Feed url as category does not have a RSS filename setup");
+        }
+
+        if ($blnRelative) {
+            return $this->rssFilename;
         }
 
         return Environment::get('base') . static::$strRssFolder . $this->rssFilename;
