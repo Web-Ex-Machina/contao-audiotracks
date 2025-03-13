@@ -17,6 +17,7 @@ namespace WEM\AudioTracksBundle\DataContainer;
 use Contao\Backend;
 use Contao\DataContainer;
 use Contao\Environment;
+use Contao\File;
 use Contao\FilesModel;
 use Contao\Message;
 use Contao\System;
@@ -24,6 +25,7 @@ use Exception;
 use Laminas\Feed\Reader\Reader;
 use Laminas\Feed\Writer\Feed;
 use WEM\AudioTracksBundle\Model\Category;
+use WEM\AudioTracksBundle\Model\AudioTrack;
 
 class CategoryContainer extends Backend
 {
@@ -81,21 +83,29 @@ class CategoryContainer extends Backend
         }
 
         $url = $objItem->getRssFeedUrl();
+        $feed = $this->createRssFeed($objItem);
 
-        try {
-            $feed = Reader::import($url);
-        } catch(Exception $e) {
-            // It means feed does not exist, create it
-            $feed = $this->createRssFeed($objItem);
+        // Retrieve item tracks
+        $objTracks = AudioTrack::findItems(['pid' => $objItem->id, 'published' => 1]);
+
+        if (!$objTracks || 0 === $objTracks->count()) {
+            Message::addError('No tracks found, no RSS generated');
+            return;
         }
 
-        // Update Feed value
-        $feed->setDateModified(time());
+        while ($objTracks->next()) {
+            $feed = $this->addTrackToRssFeed($objTracks->current(), $objItem, $feed);
+        }
 
         $buffer = $feed->export($objItem->rssType);
 
-        dump($buffer);
-        die;
+        // Open the file
+        $path = $objItem->getRssFeedPath();
+        $objFile = new File($path);
+        $objFile->write($buffer);
+        $objFile->close();
+
+        Message::addConfirmation('RSS Feed saved');
     }
 
     /**
@@ -104,6 +114,15 @@ class CategoryContainer extends Backend
      * @var WEM\AudioTracksBundle\Model\Category
      * 
      * @return Laminas\Feed\Writer\Feed 
+     * 
+     * @todo setItunesDuration
+     * @todo setItunesExplicit
+     * @todo setItunesNewFeedUrl
+     * @todo addItunesOwners
+     * @todo setItunesSubtitle
+     * @todo setItunesSummary
+     * @todo setItunesType
+     * @todo setItunesComplete
      */
     protected function createRssFeed($objItem): Feed
     {
@@ -117,7 +136,10 @@ class CategoryContainer extends Backend
             'email' => $objItem->authorEmail,
             'uri'   => $objItem->authorUri,
         ]);
+        $feed->addItunesAuthor($objItem->authorName);
         $feed->setDateCreated(time());
+        $feed->setDateModified(time());
+        $feed->setLastBuildDate(time());
         $feed->setLanguage($objItem->language);
         $feed->setCopyright($objItem->rssCopyright);
         $feed->addHub($objItem->rssHub);
@@ -128,6 +150,7 @@ class CategoryContainer extends Backend
                 'title' => $objItem->title,
                 'link' => $objItem->authorUri,
             ]);
+            $feed->setItunesImage(Environment::get('base') . $objFile->path);
         }
 
         $arrCategories = unserialize($objItem->categories);
@@ -138,7 +161,72 @@ class CategoryContainer extends Backend
                     "label" => $c,
                 ]);
             }
+            $feed->setItunesCategories($arrCategories);
         }
+
+        return $feed;
+    }
+    
+    /**
+     * Generate an entry of the RSS
+     * 
+     * @var WEM\AudioTracksBundle\Model\AudioTrack
+     * @var WEM\AudioTracksBundle\Model\Category
+     * @var Laminas\Feed\Writer\Feed
+     * 
+     * @return Laminas\Feed\Writer\Feed 
+     * 
+     * @todo setItunesDuration
+     * @todo addItunesAuthors
+     * @todo setItunesDuration
+     * @todo setItunesExplicit
+     * @todo setItunesTitle
+     * @todo setItunesSubtitle
+     * @todo setItunesSummary
+     * @todo setItunesImage
+     * @todo setItunesEpisode
+     * @todo setItunesEpisodeType
+     * @todo setItunesIsClosedCaptioned
+     * @todo setItunesSeason
+     */
+    protected function addTrackToRssFeed(AudioTrack $objItem, Category $objCategory, Feed $feed): Feed
+    {
+        $entry = $feed->createEntry();
+
+        $entry->setId((string) $objItem->id);
+        $entry->setTitle($objItem->title);
+        $entry->setLink('http://www.example.com/all-your-base-are-belong-to-us');
+        $entry->addAuthor([
+            'name'  => 'Paddy',
+            'email' => 'paddy@example.com',
+            'uri'   => 'http://www.example.com',
+        ]);
+        $entry->setDateModified((int) $objItem->date);
+        $entry->setDateCreated((int) $objItem->date);
+        $entry->setDescription(strip_tags($objItem->description));
+        $entry->setContent($objItem->description);
+        $entry->setCopyright($objCategory->rssCopyright);
+
+        $uuid = $objItem->picture ?: $objCategory->picture;
+        if ($objFile = FilesModel::findByUuid($uuid)) {
+            $entry->setEnclosure([
+                'type' => 'image',
+                'uri' => Environment::get('base') . $objFile->path,
+                'length' => filesize($objFile->path)
+            ]);
+        }
+
+        $arrCategories = unserialize($objCategory->categories);
+        if (is_iterable($arrCategories)) {
+            foreach ($arrCategories as $c) {
+                $entry->addCategory([
+                    "term" => $c,
+                    "label" => $c,
+                ]);
+            }
+        }
+
+        $feed->addEntry($entry);
 
         return $feed;
     }

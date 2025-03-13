@@ -34,18 +34,29 @@ class Category extends Model
      * 
      * @var string
      */
-    protected static $strRssFolder = 'bundles/audiotracks/rss/';
+    protected static $strRssFolder = 'share/audiotracks/rss/';
 
-    public function getRssFeedUrl(bool $blnRelative = false): string
+    /**
+     * Generate URL for RSS
+     */
+    public function getRssFeedUrl(): string
     {
         if (!$this->rssFilename) {
             throw new \Exception("Cannot generate RSS Feed url as category does not have a RSS filename setup");
         }
 
-        if ($blnRelative) {
-            return $this->rssFilename;
+        return Environment::get('base') . static::$strRssFolder . $this->rssFilename;
+    }
+
+    /**
+     * Generate path for RSS
+     */
+    public function getRssFeedPath(): string
+    {
+        if (!$this->rssFilename) {
+            throw new \Exception("Cannot generate RSS Feed url as category does not have a RSS filename setup");
         }
 
-        return Environment::get('base') . static::$strRssFolder . $this->rssFilename;
+        return 'web/' . static::$strRssFolder . $this->rssFilename;
     }
 }
