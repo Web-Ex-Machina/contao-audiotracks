@@ -86,7 +86,7 @@ class CategoryContainer extends Backend
         $feed = $this->createRssFeed($objItem);
 
         // Retrieve item tracks
-        $objTracks = AudioTrack::findItems(['pid' => $objItem->id, 'published' => 1]);
+        $objTracks = AudioTrack::findItems(['pid' => $objItem->id, 'published' => 1], 0, 0, ['order' => 'date DESC']);
 
         if (!$objTracks || 0 === $objTracks->count()) {
             Message::addError('No tracks found, no RSS generated');
@@ -170,7 +170,7 @@ class CategoryContainer extends Backend
 
         return $feed;
     }
-    
+
     /**
      * Generate an entry of the RSS
      * 
@@ -181,7 +181,6 @@ class CategoryContainer extends Backend
      * @return Laminas\Feed\Writer\Feed 
      * 
      * @todo setItunesDuration
-     * @todo addItunesAuthors
      * @todo setItunesDuration
      * @todo setItunesExplicit
      * @todo setItunesTitle
