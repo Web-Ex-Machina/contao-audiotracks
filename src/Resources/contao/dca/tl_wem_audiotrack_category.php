@@ -69,7 +69,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'default' => '
             {title_legend},title,alias,categories,description;
             {picture_legend},picture,pictureAlt,pictureTitle,pictureSize;
-            {settings_legend},language,tags;
+            {settings_legend},language,explicit,tags;
             {author_legend},authors;
             {rss_legend},rss;
         ',
@@ -157,6 +157,14 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
                 return System::getContainer()->get('contao.intl.locales')->getLocales(null, false);
             },
             'sql' => "varchar(64) NOT NULL default ''"
+        ],
+        'explicit' => [
+            'exclude' => true,
+            'filter' => true,
+            'flag' => 1,
+            'inputType' => 'checkbox',
+            'eval' => ['doNotCopy' => true],
+            'sql' => "char(1) NOT NULL default ''",
         ],
         'tags' => [
             'exclude' => true,

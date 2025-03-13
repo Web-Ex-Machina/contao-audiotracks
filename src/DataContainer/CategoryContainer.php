@@ -116,7 +116,7 @@ class CategoryContainer extends Backend
      * @return Laminas\Feed\Writer\Feed 
      * 
      * @todo setItunesDuration
-     * @todo setItunesExplicit
+     * @todo 
      * @todo setItunesSubtitle
      * @todo setItunesType
      * @todo setItunesComplete
@@ -172,6 +172,8 @@ class CategoryContainer extends Backend
             }
             $feed->setItunesCategories($arrCategories);
         }
+
+        $feed->setItunesExplicit('1' === $objItem->explicit);
 
         return $feed;
     }
@@ -238,6 +240,8 @@ class CategoryContainer extends Backend
                 ]);
             }
         }
+
+        $entry->setItunesExplicit('1' === $objItem->explicit);
 
         $feed->addEntry($entry);
 
