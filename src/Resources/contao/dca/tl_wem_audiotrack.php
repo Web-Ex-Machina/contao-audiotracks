@@ -136,6 +136,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'inputType' => 'select',
             'eval'=> array('tl_class'=>'w50'),
             'options' => ['full', 'trailer', 'bonus'],
+            'reference' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['type'],
             'sql' => "varchar(16) NOT NULL default ''"
         ],
         'duration' => [
@@ -201,19 +202,22 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'eval' => [
                 'columnFields' => [
                     'name' => [
+                        'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['authors']['name'],
                         'exclude' => true,
                         'inputType' => 'text',
                         'eval' => ['mandatory' => true],
                     ],
                     'email' => [
+                        'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['authors']['email'],
                         'exclude' => true,
                         'inputType' => 'text',
                         'eval' => ['rgxp' => 'email', 'mandatory' => true],
                     ],
                     'uri' => [
+                        'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['authors']['uri'],
                         'exclude' => true,
                         'inputType' => 'text',
-                        'eval' => ['rgxp' => 'url'],
+                        'eval' => ['rgxp' => 'url', 'mandatory' => true],
                     ],
                 ]
             ],
