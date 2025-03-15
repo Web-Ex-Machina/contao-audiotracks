@@ -7,16 +7,106 @@
 				<target>Intitulé</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack_category.title.1">
-				<source>Enter the category title.</source>
-				<target>Saisissez l'intitulé de la catégorie.</target>
+				<source>Enter the feed title.</source>
+				<target>Saisissez l'intitulé du flux.</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack_category.alias.0">
 				<source>Alias</source>
 				<target>Alias</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack_category.alias.1">
-				<source>Enter the category alias.</source>
-				<target>Saisissez l'alias de la catégorie.</target>
+				<source>Enter the feed alias.</source>
+				<target>Saisissez l'alias du flux.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.categories.0">
+				<source>Categories</source>
+				<target>Catégories</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.categories.1">
+				<source>Enter the feed categories.</source>
+				<target>Saisissez les catégories du flux.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.description.0">
+				<source>Description</source>
+				<target>Description</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.description.1">
+				<source>Enter the feed description.</source>
+				<target>Saisissez la description du flux.</target>
+			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack_category.picture.0">
+				<source>Picture</source>
+				<target>Illustration</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.picture.1">
+				<source>Enter the feed picture.</source>
+				<target>Selectionnez l'image du flux.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.pictureAlt.0">
+				<source>Alternative text</source>
+				<target>Texte alternatif</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.pictureAlt.1">
+				<source>Enter the picture feed alternative text.</source>
+				<target>Saisissez le texte alternatif de l'image du flux.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.pictureTitle.0">
+				<source>Title text</source>
+				<target>Balise title</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.pictureTitle.1">
+				<source>Enter the picture feed title text.</source>
+				<target>Saisissez la balise title de l'image du flux.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.pictureSize.0">
+				<source>Picture size</source>
+				<target>Taille de l'image</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.pictureSize.1">
+				<source>Adjust the picture feed size.</source>
+				<target>Ajustez la taille de l'image du flux.</target>
+			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack_category.type.0">
+				<source>Type</source>
+				<target>Type</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.type.1">
+				<source>Enter the feed tracks type.</source>
+				<target>Saisissez le type de pistes du flux.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.type.episodic">
+				<source>Episodic</source>
+				<target>Épisodes</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.type.serial">
+				<source>Serial</source>
+				<target>Série</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.language.0">
+				<source>Language</source>
+				<target>Langue</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.language.1">
+				<source>Enter the feed language.</source>
+				<target>Saisissez la langue du flux.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.explicit.0">
+				<source>Explicit content</source>
+				<target>Contenu explicite</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.explicit.1">
+				<source>Check if the feed contains explicit language.</source>
+				<target>Cochez si le flux contient du language explicite.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.complete.0">
+				<source>Complete</source>
+				<target>Terminé</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.complete.1">
+				<source>Check if the feed is complete.</source>
+				<target>Cochez si le flux est terminé.</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack_category.tags.0">
 				<source>Tags</source>
@@ -26,6 +116,28 @@
 				<source>Enter the category tags.</source>
 				<target>Saisissez les tags de la catégorie.</target>
 			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack_category.authors.0">
+				<source>Authors</source>
+				<target>Auteurs &amp; Autrices</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.authors.1">
+				<source>Enter the feed authors.</source>
+				<target>Indiquez les auteurs et autrices du flux.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.authors.name">
+				<source>Name</source>
+				<target>Nom</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.authors.email">
+				<source>Email</source>
+				<target>Email</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.authors.uri">
+				<source>Website</source>
+				<target>Site internet</target>
+			</trans-unit>
+
 			<trans-unit id="tl_wem_audiotrack_category.rss.0">
 				<source>RSS Feed</source>
 				<target>Flux RSS</target>
@@ -34,22 +146,78 @@
 				<source>Check to create a rss feed for this category</source>
 				<target>Cocher pour créer un flux RSS pour cette catégorie</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssType.0">
+				<source>Type</source>
+				<target>Type</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssType.1">
+				<source>Enter the RSS feed type.</source>
+				<target>Saisissez le type de flux RSS.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssType.rss">
+				<source>RSS</source>
+				<target>RSS</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssType.atom">
+				<source>Atom</source>
+				<target>Atom</target>
+			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack_category.rssFilename.0">
 				<source>Filename</source>
 				<target>Nom du fichier</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack_category.rssFilename.1">
-				<source>Enter the RSS Feed filename.</source>
+				<source>Enter the RSS feed filename.</source>
 				<target>Saisissez le nom du fichier du flux RSS.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssLink.0">
+				<source>RSS Feed Link</source>
+				<target>Lien du flux</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssLink.1">
+				<source>Enter the RSS feed link.</source>
+				<target>Saisissez le lien du flux RSS.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssHub.0">
+				<source>RSS Feed Hub link</source>
+				<target>Lien du hub du flux</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssHub.1">
+				<source>Enter the RSS feed hub link.</source>
+				<target>Saisissez le hub du lien du flux RSS.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssCopyright.0">
+				<source>RSS Feed copyright</source>
+				<target>Copyright du flux</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssCopyright.1">
+				<source>Enter the RSS feed copyright.</source>
+				<target>Saisissez le copyright du flux RSS.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssDescription.0">
+				<source>RSS Description</source>
+				<target>Description du RSS</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssDescription.1">
+				<source>Enter the RSS feed description.</source>
+				<target>Saisissez la description du flux RSS.</target>
 			</trans-unit>
 
 			<trans-unit id="tl_wem_audiotrack_category.title_legend">
 				<source>Global settings</source>
 				<target>Paramètres généraux</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.picture_legend">
+				<source>Picture settings</source>
+				<target>Paramètres de l'image</target>
+			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack_category.settings_legend">
 				<source>Content settings</source>
 				<target>Paramètres de contenu</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.author_legend">
+				<source>Authors</source>
+				<target>Auteurs / Autrices</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack_category.rss_legend">
 				<source>RSS Feed</source>

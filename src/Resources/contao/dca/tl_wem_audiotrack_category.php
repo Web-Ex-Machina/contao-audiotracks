@@ -67,9 +67,9 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
     'palettes' => [
         '__selector__' => ['rss'],
         'default' => '
-            {title_legend},title,alias,categories,description;
+            {title_legend},title,alias,description;
             {picture_legend},picture,pictureAlt,pictureTitle,pictureSize;
-            {settings_legend},type,language,explicit,complete,tags;
+            {settings_legend},type,language,categories,tags,explicit,complete;
             {author_legend},authors;
             {rss_legend},rss;
         ',
@@ -153,6 +153,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'inputType' => 'select',
             'eval'=> array('tl_class'=>'w50'),
             'options' => ['episodic', 'serial'],
+            'reference' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack_category']['type'],
             'sql' => "varchar(16) NOT NULL default ''"
         ],
         'language' => [
@@ -193,16 +194,19 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'eval' => [
                 'columnFields' => [
                     'name' => [
+                        'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack_category']['authors']['name'],
                         'exclude' => true,
                         'inputType' => 'text',
                         'eval' => ['mandatory' => true],
                     ],
                     'email' => [
+                        'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack_category']['authors']['email'],
                         'exclude' => true,
                         'inputType' => 'text',
                         'eval' => ['rgxp' => 'email', 'mandatory' => true],
                     ],
                     'uri' => [
+                        'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack_category']['authors']['uri'],
                         'exclude' => true,
                         'inputType' => 'text',
                         'eval' => ['rgxp' => 'url', 'mandatory' => true],
@@ -223,6 +227,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'exclude' => true,
             'inputType' => 'select',
             'options' => ['rss', 'atom'],
+            'reference' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack_category']['rssType'],
             'eval' => ['tl_class'=>'clr'],
             'sql' => "varchar(16) NOT NULL default ''"
         ],
