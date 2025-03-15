@@ -24,6 +24,7 @@ use Contao\System;
 use Exception;
 use Laminas\Feed\Reader\Reader;
 use Laminas\Feed\Writer\Feed;
+use Symfony\Component\Uid\Uuid;
 use WEM\AudioTracksBundle\Model\Category;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 
@@ -126,6 +127,10 @@ class CategoryContainer extends Backend
         $feed = new Feed;
         $feed->setTitle(html_entity_decode($objItem->title));
 
+        $namespaceAsString = '8be5ecb9-1eba-4927-b4d9-73eaa98f8b65';
+        $namespace = Uuid::fromString($namespaceAsString);
+        $feed->setId((string) Uuid::v5($namespace, (string) $objItem->id));
+
         $desc = $objItem->rssDescription ?: $objItem->description;
         $feed->setDescription(strip_tags($desc));
         $feed->setItunesSummary(strip_tags($desc));
@@ -145,6 +150,15 @@ class CategoryContainer extends Backend
             $feed->addItunesAuthors($names);
             $feed->addItunesOwners($authors);
         }
+
+        $feed->setPodcastIndexFunding([
+            'title' => html_entity_decode($objItem->title),
+            'url' => $objItem->getRssFeedUrl(),
+        ]);
+        $feed->setPodcastIndexLocked([
+            'value' => 'no',
+            'owner' => html_entity_decode($objItem->title),
+        ]);
 
         $feed->setDateCreated(time());
         $feed->setDateModified(time());
@@ -173,6 +187,7 @@ class CategoryContainer extends Backend
             $feed->setItunesCategories($arrCategories);
         }
 
+        $feed->setItunesBlock("yes");
         $feed->setItunesType($objItem->type);
         $feed->setItunesExplicit('1' === $objItem->explicit);
         $feed->setItunesComplete('1' === $objItem->complete);
@@ -195,6 +210,7 @@ class CategoryContainer extends Backend
     protected function addTrackToRssFeed(AudioTrack $objItem, Category $objCategory, Feed $feed): Feed
     {
         $entry = $feed->createEntry();
+
 
         $entry->setId((string) $objItem->id);
         $entry->setTitle(html_entity_decode($objItem->title));
@@ -220,7 +236,7 @@ class CategoryContainer extends Backend
         $uuid = $objItem->picture ?: $objCategory->picture;
         if ($objFile = FilesModel::findByUuid($uuid)) {
             $entry->setEnclosure([
-                'type' => 'image',
+                'type' => mime_content_type($objFile->path),
                 'uri' => Environment::get('base') . $objFile->path,
                 'length' => filesize($objFile->path)
             ]);
@@ -243,6 +259,15 @@ class CategoryContainer extends Backend
         $entry->setItunesSeason((int) $objItem->season);
         $entry->setItunesEpisode((int) $objItem->episode);
         $entry->setItunesEpisodeType($objItem->type);
+
+        // Add audio as enclosure
+        if ($objFile = FilesModel::findByUuid($objItem->audio)) {
+            $entry->setEnclosure([
+                'type' => mime_content_type($objFile->path),
+                'uri' => Environment::get('base') . $objFile->path,
+                'length' => filesize($objFile->path)
+            ]);
+        }
 
         $feed->addEntry($entry);
 
