@@ -2,20 +2,14 @@
 
 declare(strict_types=1);
 
-/**
- * Geodata for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
- *
- * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
- */
+use Contao\DataContainer;
+use Contao\DC_Table;
+use WEM\AudioTracksBundle\DataContainer\SessionContainer;
 
 $GLOBALS['TL_DCA']['tl_wem_audiotrack_session'] = [
     // Config
     'config' => [
-        'dataContainer' => 'Table',
+        'dataContainer' => DC_Table::class,
         'ptable' => 'tl_wem_audiotrack',
         'switchToEdit' => true,
         'enableVersioning' => true,
@@ -30,11 +24,11 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_session'] = [
     // List
     'list' => [
         'sorting' => [
-            'mode' => 4,
+            'mode' => DataContainer::MODE_PARENT,
             'fields' => ['ip ASC'],
             'headerFields' => ['title'],
             'panelLayout' => 'filter;sort,search,limit',
-            'child_record_callback' => [WEM\AudioTracksBundle\DataContainer\SessionContainer::class, 'listItems'],
+            'child_record_callback' => [SessionContainer::class, 'listItems'],
         ],
         'global_operations' => [
             'all' => [

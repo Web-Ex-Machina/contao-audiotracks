@@ -2,18 +2,24 @@
 
 declare(strict_types=1);
 
+use Contao\Config;
+use Contao\DataContainer;
+use Contao\DC_Table;
+use Contao\System;
+use WEM\AudioTracksBundle\DataContainer\CategoryContainer;
+
 $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
     // Config
     'config' => [
-        'dataContainer' => 'Table',
+        'dataContainer' => DC_Table::class,
         'ctable' => ['tl_wem_audiotrack'],
         'switchToEdit' => true,
         'enableVersioning' => true,
         'onload_callback' => [
-            [WEM\AudioTracksBundle\DataContainer\CategoryContainer::class, 'displayRssUrl']
+            [CategoryContainer::class, 'displayRssUrl']
         ],
         'onsubmit_callback' => [
-            [WEM\AudioTracksBundle\DataContainer\CategoryContainer::class, 'generateRssFeed']
+            [CategoryContainer::class, 'generateRssFeed']
         ],
         'sql' => [
             'keys' => [
@@ -26,9 +32,9 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
     // List
     'list' => [
         'sorting' => [
-            'mode' => 1,
+            'mode' => DataContainer::MODE_SORTED,
             'fields' => ['title'],
-            'flag' => 1,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
             'panelLayout' => 'filter;search,limit',
         ],
         'label' => [
@@ -105,7 +111,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'search' => true,
             'eval' => ['rgxp' => 'alias', 'doNotCopy' => true, 'maxlength' => 255, 'tl_class' => 'w50'],
             'save_callback' => [
-                [WEM\AudioTracksBundle\DataContainer\CategoryContainer::class, 'generateAlias'],
+                [CategoryContainer::class, 'generateAlias'],
             ],
             'sql' => "varchar(255) BINARY NOT NULL default ''",
         ],
@@ -126,7 +132,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'picture' => [
             'exclude' => true,
             'inputType' => 'fileTree',
-            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Contao\Config::get('validImageTypes')],
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Config::get('validImageTypes')],
             'sql' => 'binary(16) NULL',
         ],
         'pictureAlt' => [
