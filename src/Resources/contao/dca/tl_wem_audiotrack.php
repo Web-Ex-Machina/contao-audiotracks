@@ -15,6 +15,9 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'ctable' => ['tl_wem_audiotrack_feedback', 'tl_wem_audiotrack_tag', 'tl_wem_audiotrack_session'],
         'switchToEdit' => true,
         'enableVersioning' => true,
+        'onsubmit_callback' => [
+            [AudioTrackContainer::class, 'generateRssFeed']
+        ],
         'sql' => [
             'keys' => [
                 'id' => 'primary',

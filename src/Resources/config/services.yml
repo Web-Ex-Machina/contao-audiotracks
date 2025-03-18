@@ -1,0 +1,6 @@
+services:
+    wem.audiotracks.rss_feed:
+        class: WEM\AudioTracksBundle\Classes\RssFeed
+        arguments:
+            $framework: '@contao.framework'
+        public: true
