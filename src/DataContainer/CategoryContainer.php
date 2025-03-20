@@ -20,6 +20,7 @@ use Contao\Message;
 use Contao\System;
 use Exception;
 use WEM\AudioTracksBundle\Model\Category;
+use Symfony\Component\Uid\Uuid;
 
 class CategoryContainer extends Backend
 {
@@ -36,6 +37,19 @@ class CategoryContainer extends Backend
             $varValue = System::getContainer()->get('contao.slug')->generate($dc->activeRecord->title, $dc->activeRecord->id, $aliasExists);
         } elseif ($aliasExists($varValue)) {
             throw new Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
+        }
+
+        return $varValue;
+    }
+
+    /**
+     * Auto-generate an article alias if it has not been set yet.
+     * @throws Exception
+     */
+    public function generateNamespace($varValue, DataContainer $dc): string
+    {
+        if (!$varValue) {
+            $varValue = (string) Uuid::v4();
         }
 
         return $varValue;

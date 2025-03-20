@@ -78,18 +78,36 @@ class RssFeed
     {
         $feed = new Feed;
         $feed->setTitle(html_entity_decode($objItem->title));
+        $feed->setLanguage($objItem->language);
 
-        $namespaceAsString = '8be5ecb9-1eba-4927-b4d9-73eaa98f8b65';
-        $namespace = Uuid::fromString($namespaceAsString);
-        $feed->setId((string) Uuid::v5($namespace, (string) $objItem->id));
+        $feed->setDateCreated(time());
+        $feed->setDateModified(time());
+        $feed->setLastBuildDate(time());
 
+        // If there is no namespace at this point, generate one and save it
+        if (!$objItem->rssNamespace) {
+            $objItem->rssNamespace = (string) Uuid::v4();
+            $objItem->save();
+        }
+
+        $namespace = Uuid::fromString($objItem->rssNamespace);
+        $feed->setId((string) Uuid::v5($namespace, $objItem->alias));
+
+        // Feed Description
         $desc = $objItem->rssDescription ?: $objItem->description;
         $feed->setDescription(strip_tags($desc));
         $feed->setItunesSummary(strip_tags($desc));
+
+        // Feed Link
         $feed->setLink($objItem->rssLink);
         $feed->setItunesNewFeedUrl($objItem->getRssFeedUrl());
         $feed->setFeedLink($objItem->getRssFeedUrl(), $objItem->rssType);
+        $feed->setPodcastIndexFunding([
+            'title' => html_entity_decode($objItem->title),
+            'url' => $objItem->getRssFeedUrl(),
+        ]);
 
+        // Feed Authors
         if ($objItem->authors) {
             $authors = unserialize($objItem->authors);
             $names = [];
@@ -103,22 +121,23 @@ class RssFeed
             $feed->addItunesOwners($authors);
         }
 
-        $feed->setPodcastIndexFunding([
-            'title' => html_entity_decode($objItem->title),
-            'url' => $objItem->getRssFeedUrl(),
-        ]);
+        // Feed owner
         $feed->setPodcastIndexLocked([
             'value' => 'no',
             'owner' => html_entity_decode($objItem->title),
         ]);
 
-        $feed->setDateCreated(time());
-        $feed->setDateModified(time());
-        $feed->setLastBuildDate(time());
-        $feed->setLanguage($objItem->language);
-        $feed->setCopyright($objItem->rssCopyright);
-        $feed->addHub($objItem->rssHub);
+        // Feed copyright
+        if ($objItem->rssCopyright) {
+            $feed->setCopyright($objItem->rssCopyright);
+        }
 
+        // Feed hub
+        if ($objItem->rssHub) {
+            $feed->addHub($objItem->rssHub);
+        }
+
+        // Feed picture
         if ($objFile = FilesModel::findByUuid($objItem->picture)) {
             $feed->setImage([
                 'uri' => Environment::get('base') . $objFile->path,
@@ -128,6 +147,7 @@ class RssFeed
             $feed->setItunesImage(Environment::get('base') . $objFile->path);
         }
 
+        // Feed categories
         $arrCategories = unserialize($objItem->categories);
         if (is_iterable($arrCategories)) {
             foreach ($arrCategories as $c) {
@@ -139,6 +159,7 @@ class RssFeed
             $feed->setItunesCategories($arrCategories);
         }
 
+        // Itunes fields
         $feed->setItunesBlock("yes");
         $feed->setItunesType($objItem->type);
         $feed->setItunesExplicit('1' === $objItem->explicit);

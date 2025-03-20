@@ -142,7 +142,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'type' => [
             'exclude' => true,
             'inputType' => 'select',
-            'eval'=> array('tl_class'=>'w50'),
+            'eval'=> array('tl_class'=>'w50', 'mandatory' => true),
             'options' => ['full', 'trailer', 'bonus'],
             'reference' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['type'],
             'sql' => "varchar(16) NOT NULL default ''"
@@ -207,6 +207,9 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'authors' => [
             'exclude' => true,
             'inputType' => 'multiColumnWizard',
+            'load_callback' => [
+                [AudioTrackContainer::class, 'getParentValue'],
+            ],
             'eval' => [
                 'columnFields' => [
                     'name' => [

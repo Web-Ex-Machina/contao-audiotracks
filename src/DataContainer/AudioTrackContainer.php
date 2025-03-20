@@ -255,4 +255,14 @@ class AudioTrackContainer extends Backend
 
         Message::addConfirmation('RSS Feed saved');
     }
+
+    public function getParentValue($varValue, DataContainer $dc)
+    {
+        if (!$varValue) {
+            $objItem = AudioTrack::findByPk($dc->id);
+            $varValue = $objItem->getRelated('pid')->authors;
+        }
+
+        return $varValue;
+    }
 }

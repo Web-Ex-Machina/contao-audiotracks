@@ -73,7 +73,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
     'palettes' => [
         '__selector__' => ['rss'],
         'default' => '
-            {title_legend},title,alias,description;
+            {title_legend},title,alias,namespace,description;
             {picture_legend},picture,pictureAlt,pictureTitle,pictureSize;
             {settings_legend},type,language,categories,tags,explicit,complete;
             {author_legend},authors;
@@ -82,7 +82,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
     ],
 
     'subpalettes' => [
-        'rss' => 'rssType,rssFilename,rssLink,rssHub,rssCopyright,rssDescription'
+        'rss' => 'rssType,rssNamespace,rssFilename,rssLink,rssHub,rssCopyright,rssDescription'
     ],
 
     // Fields
@@ -157,7 +157,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'type' => [
             'exclude' => true,
             'inputType' => 'select',
-            'eval'=> array('tl_class'=>'w50'),
+            'eval'=> array('tl_class'=>'w50', 'mandatory' => true),
             'options' => ['episodic', 'serial'],
             'reference' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack_category']['type'],
             'sql' => "varchar(16) NOT NULL default ''"
@@ -166,7 +166,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'exclude' => true,
             'filter' => true,
             'inputType' => 'select',
-            'eval'=> array('includeBlankOption'=>true, 'chosen'=>true, 'tl_class'=>'w50'),
+            'eval'=> array('includeBlankOption'=>true, 'chosen'=>true, 'mandatory' => true, 'tl_class'=>'w50'),
             'options_callback' => static function () {
                 return System::getContainer()->get('contao.intl.locales')->getLocales(null, false);
             },
@@ -234,21 +234,30 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'inputType' => 'select',
             'options' => ['rss', 'atom'],
             'reference' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack_category']['rssType'],
-            'eval' => ['tl_class'=>'clr'],
+            'eval' => ['tl_class'=>'w50', 'mandatory' => true],
             'sql' => "varchar(16) NOT NULL default ''"
+        ],
+        'rssNamespace' => [
+            'exclude' => true,
+            'inputType' => 'text',
+            'load_callback' => [
+                [CategoryContainer::class, 'generateNamespace'],
+            ],
+            'eval' => ['tl_class'=>'w50'],
+            'sql' => "varchar(32) NOT NULL default ''",
         ],
         'rssFilename' => [
             'exclude' => true,
             'search' => true,
             'inputType' => 'text',
-            'eval' => ['tl_class'=>'w50'],
+            'eval' => ['tl_class'=>'w50', 'mandatory' => true],
             'sql' => "text NULL"
         ],
         'rssLink' => [
             'exclude' => true,
             'search' => true,
             'inputType' => 'text',
-            'eval' => ['tl_class'=>'w50'],
+            'eval' => ['tl_class'=>'w50', 'mandatory' => true],
             'sql' => "varchar(255) NOT NULL default ''"
         ],
         'rssDescription' => [
@@ -270,7 +279,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'exclude' => true,
             'search' => true,
             'inputType' => 'text',
-            'eval' => ['tl_class'=>'w50'],
+            'eval' => ['tl_class'=>'w50', 'mandatory' => true],
             'sql' => "varchar(255) NOT NULL default ''"
         ],    
     ],
