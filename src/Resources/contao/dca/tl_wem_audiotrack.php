@@ -80,8 +80,9 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     // Palettes
     'palettes' => [
         'default' => '
-            {title_legend},title,date,season,episode,audio,type,duration,description;
-            {content_legend},explicit,tags,picture,picture_mobile,pictureText;
+            {title_legend},title,date,season,episode,audio,type,duration;
+            {content_legend},description,explicit,tags;
+            {picture_legend},picture,picture_mobile,pictureText;
             {author_legend},authors;
             {publish_legend},published,start,stop
         ',

@@ -175,6 +175,10 @@
 				<source>Content settings</source>
 				<target>Paramètres de contenu</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.picture_legend">
+				<source>Picture settings</source>
+				<target>Paramètres de l'illustration</target>
+			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.author_legend">
 				<source>Authors</source>
 				<target>Auteurs / Autrices</target>
