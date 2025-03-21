@@ -244,7 +244,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
                 [CategoryContainer::class, 'generateNamespace'],
             ],
             'eval' => ['tl_class'=>'w50'],
-            'sql' => "varchar(32) NOT NULL default ''",
+            'sql' => "varchar(255) NOT NULL default ''",
         ],
         'rssFilename' => [
             'exclude' => true,
