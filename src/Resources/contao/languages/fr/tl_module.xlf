@@ -54,6 +54,18 @@
 				<source>Check to add a button to download the audio file</source>
 				<target>Cochez pour ajouter un bouton permettant de télécharger le fichier audio</target>
 			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_links.0">
+				<source>Links</source>
+				<target>Liens</target>
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_links.1">
+				<source>Select links to display</source>
+				<target>Sélectionnez les liens à afficher</target>
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_links.rss">
+				<source>RSS</source>
+				<target>RSS</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
