@@ -38,6 +38,11 @@
 			    <source>Podcasts</source>
 			    <target>Podcasts</target>
 			</trans-unit>
+
+			<trans-unit id="WEM.AUDIOTRACKS.links.rss">
+			    <source>RSS Feed</source>
+			    <target>Flux RSS</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

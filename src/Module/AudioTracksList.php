@@ -27,6 +27,7 @@ use Contao\Module;
 use Contao\Pagination;
 use Exception;
 use WEM\AudioTracksBundle\Model\AudioTrack;
+use WEM\AudioTracksBundle\Model\Category;
 use WEM\AudioTracksBundle\Model\Feedback;
 use WEM\AudioTracksBundle\Model\Session;
 use WEM\AudioTracksBundle\Util\MP3File;
@@ -208,6 +209,38 @@ class AudioTracksList extends Module
         // Retrieve filters
         $this->buildFilters();
         $this->Template->filters = $this->filters;
+
+        // Retrieve links
+        if ($this->wemaudiotracks_links) {
+            $arrLinks = [];
+            $arrLinkTypes = unserialize($this->wemaudiotracks_links);
+            foreach ($this->pids as $pid) {
+                // Get the model
+                $objCategory = Category::findByPk($pid);
+
+                if (!array_key_exists($pid, $arrLinks)) {
+                    $arrLinks[$pid] = $objCategory->row();
+                    $arrLinks[$pid]['links'] = [];
+                }
+
+                foreach ($arrLinkTypes as $t) {
+                    switch ($t) {
+                        case 'rss':
+                            $arrLinks[$pid]['links'][$t] = [
+                                'href' => $objCategory->getRssFeedUrl(),
+                                'title' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['links'][$t],
+                                'icon' => '<i class="fa-solid fa-square-rss"></i>'
+                            ];
+                        break;
+
+                        default:
+                            // Nuthin'
+                    }
+                }
+            }
+
+            $this->Template->links = $arrLinks;
+        }
 
         // Get the total number of items
         $intTotal = AudioTrack::countItems($this->config);
