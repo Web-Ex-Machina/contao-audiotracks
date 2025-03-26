@@ -251,9 +251,13 @@ class AudioTrackContainer extends Backend
         
         $objItem = AudioTrack::findByPk($dc->id);
 
-        System::getContainer()->get('wem.audiotracks.rss_feed')->generate($objItem->pid);
+        try {
+            System::getContainer()->get('wem.audiotracks.rss_feed')->generate($objItem->pid);
+            Message::addConfirmation('RSS Feed saved');
+        } catch(\Exception $e) {
+            Message::addError($e->getMessage());
+        }
 
-        Message::addConfirmation('RSS Feed saved');
     }
 
     public function getParentValue($varValue, DataContainer $dc)

@@ -84,9 +84,13 @@ class CategoryContainer extends Backend
             return;
         }
 
-        System::getContainer()->get('wem.audiotracks.rss_feed')->generate((int) $dc->id);
+        try {
+            System::getContainer()->get('wem.audiotracks.rss_feed')->generate((int) $dc->id);
 
-        Message::addConfirmation('RSS Feed saved');
+            Message::addConfirmation('RSS Feed saved');
+        } catch(\Exception $e) {
+            Message::addError($e->getMessage());
+        }
     }
 }
 
