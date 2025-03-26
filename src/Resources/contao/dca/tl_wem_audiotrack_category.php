@@ -74,7 +74,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         '__selector__' => ['rss'],
         'default' => '
             {title_legend},title,alias,namespace,description;
-            {picture_legend},picture,pictureAlt,pictureTitle,pictureSize;
+            {picture_legend},picture,pictureAlt,pictureTitle;
             {settings_legend},type,language,categories,tags,explicit,complete;
             {author_legend},authors;
             {rss_legend},rss;
