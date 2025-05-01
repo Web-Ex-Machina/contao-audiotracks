@@ -161,7 +161,7 @@ class RssFeed
 
         // Itunes fields
         $feed->setItunesBlock("yes");
-        $feed->setItunesType($objItem->type);
+        $feed->setItunesType($objItem->tracksType);
         $feed->setItunesExplicit('1' === $objItem->explicit);
         $feed->setItunesComplete('1' === $objItem->complete);
 

@@ -2,6 +2,23 @@
 <xliff version="1.1">
 	<file datatype="php" original="system/modules/core/languages/en/tl_wem_audiotrack_category.php" source-language="en" target-language="fr">
 		<body>
+			<trans-unit id="tl_wem_audiotrack_category.type.0">
+				<source>Type</source>
+				<target>Type</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.type.1">
+				<source>Select the feed type.</source>
+				<target>Saisissez le type de flux.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.type.local">
+				<source>Local</source>
+				<target>Local</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.type.remote">
+				<source>Remote</source>
+				<target>Distant</target>
+			</trans-unit>
+
 			<trans-unit id="tl_wem_audiotrack_category.title.0">
 				<source>Title</source>
 				<target>Intitulé</target>
@@ -68,19 +85,19 @@
 				<target>Ajustez la taille de l'image du flux.</target>
 			</trans-unit>
 
-			<trans-unit id="tl_wem_audiotrack_category.type.0">
+			<trans-unit id="tl_wem_audiotrack_category.tracksType.0">
 				<source>Type</source>
 				<target>Type</target>
 			</trans-unit>
-			<trans-unit id="tl_wem_audiotrack_category.type.1">
+			<trans-unit id="tl_wem_audiotrack_category.tracksType.1">
 				<source>Enter the feed tracks type.</source>
 				<target>Saisissez le type de pistes du flux.</target>
 			</trans-unit>
-			<trans-unit id="tl_wem_audiotrack_category.type.episodic">
+			<trans-unit id="tl_wem_audiotrack_category.tracksType.episodic">
 				<source>Episodic</source>
 				<target>Épisodes</target>
 			</trans-unit>
-			<trans-unit id="tl_wem_audiotrack_category.type.serial">
+			<trans-unit id="tl_wem_audiotrack_category.tracksType.serial">
 				<source>Serial</source>
 				<target>Série</target>
 			</trans-unit>
@@ -203,6 +220,19 @@
 				<target>Saisissez la description du flux RSS.</target>
 			</trans-unit>
 
+			<trans-unit id="tl_wem_audiotrack_category.rssRemoteUrl.0">
+				<source>RSS remote Url</source>
+				<target>Url du flux RSS distant</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssRemoteUrl.1">
+				<source>Enter the RSS remote url.</source>
+				<target>Saisissez l'adresse du flux RSS distant.</target>
+			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack_category.type_legend">
+				<source>Settings</source>
+				<target>Configuration</target>
+			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack_category.title_legend">
 				<source>Global settings</source>
 				<target>Paramètres généraux</target>
