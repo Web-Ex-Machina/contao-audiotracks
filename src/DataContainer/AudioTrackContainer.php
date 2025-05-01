@@ -15,13 +15,15 @@ declare(strict_types=1);
 namespace WEM\AudioTracksBundle\DataContainer;
 
 use Contao\Backend;
+use Contao\Database;
 use Contao\DataContainer;
+use Contao\FilesModel;
 use Contao\Input;
 use Contao\Image;
-use Contao\FilesModel;
+use Contao\Message;
 use Contao\Versions;
+use Contao\System;
 use WEM\UtilsBundle\Classes\StringUtil;
-use Contao\Database;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
 use WEM\AudioTracksBundle\Util\MP3File;
@@ -236,5 +238,35 @@ class AudioTrackContainer extends Backend
                 )
             )->execute();
         }
+    }
+
+    /**
+     * Generate the RSS feed
+     */
+    public function generateRssFeed(DataContainer $dc): void
+    {
+        if (!$dc->id) {
+            return;
+        }
+        
+        $objItem = AudioTrack::findByPk($dc->id);
+
+        try {
+            System::getContainer()->get('wem.audiotracks.rss_feed')->generate($objItem->pid);
+            Message::addConfirmation('RSS Feed saved');
+        } catch(\Exception $e) {
+            Message::addError($e->getMessage());
+        }
+
+    }
+
+    public function getParentValue($varValue, DataContainer $dc)
+    {
+        if (!$varValue) {
+            $objItem = AudioTrack::findByPk($dc->id);
+            $varValue = $objItem->getRelated('pid')->authors;
+        }
+
+        return $varValue;
     }
 }

@@ -2,14 +2,22 @@
 
 declare(strict_types=1);
 
+use Contao\Config;
+use Contao\DataContainer;
+use Contao\DC_Table;
+use WEM\AudioTracksBundle\DataContainer\AudioTrackContainer;
+
 $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     // Config
     'config' => [
-        'dataContainer' => 'Table',
+        'dataContainer' => DC_Table::class,
         'ptable' => 'tl_wem_audiotrack_category',
         'ctable' => ['tl_wem_audiotrack_feedback', 'tl_wem_audiotrack_tag', 'tl_wem_audiotrack_session'],
         'switchToEdit' => true,
         'enableVersioning' => true,
+        'onsubmit_callback' => [
+            [AudioTrackContainer::class, 'generateRssFeed']
+        ],
         'sql' => [
             'keys' => [
                 'id' => 'primary',
@@ -21,11 +29,11 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     // List
     'list' => [
         'sorting' => [
-            'mode' => 4,
+            'mode' => DataContainer::MODE_PARENT,
             'fields' => ['date ASC'],
             'headerFields' => ['title', 'tags'],
             'panelLayout' => 'filter;sort,search,limit',
-            'child_record_callback' => [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'listItems'],
+            'child_record_callback' => [AudioTrackContainer::class, 'listItems'],
         ],
         'global_operations' => [
             'all' => [
@@ -55,7 +63,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'toggle' => [
                 'icon' => 'visible.svg',
                 'attributes' => 'onclick="Backend.getScrollOffset();return AjaxRequest.toggleVisibility(this,%s)"',
-                'button_callback' => [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'toggleIcon'],
+                'button_callback' => [AudioTrackContainer::class, 'toggleIcon'],
                 'showInHeader' => true,
             ],
             'feedbacks' => [
@@ -72,8 +80,10 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     // Palettes
     'palettes' => [
         'default' => '
-            {title_legend},title,date,audio,duration,description;
-            {content_legend},tags,picture,picture_mobile,pictureText;
+            {title_legend},title,date,season,episode,audio,type,duration;
+            {content_legend},description,explicit,tags;
+            {picture_legend},picture,picture_mobile,pictureText;
+            {author_legend},authors;
             {publish_legend},published,start,stop
         ',
     ],
@@ -110,11 +120,33 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
             'sql' => "varchar(10) NOT NULL default ''",
         ],
+        'season' => [
+            'exclude' => true,
+            'search' => true,
+            'inputType' => 'text',
+            'eval' => ['mandatory' => true, 'tl_class' => 'w50', 'maxlength' => 255],
+            'sql' => "varchar(16) NOT NULL default ''",
+        ],
+        'episode' => [
+            'exclude' => true,
+            'search' => true,
+            'inputType' => 'text',
+            'eval' => ['mandatory' => true, 'tl_class' => 'w50', 'maxlength' => 255],
+            'sql' => "varchar(16) NOT NULL default ''",
+        ],
         'audio' => [
             'exclude' => true,
             'inputType' => 'fileTree',
             'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => 'mp3,ogg,wav', 'mandatory'=>true],
             'sql' => 'binary(16) NULL',
+        ],
+        'type' => [
+            'exclude' => true,
+            'inputType' => 'select',
+            'eval'=> array('tl_class'=>'w50', 'mandatory' => true),
+            'options' => ['full', 'trailer', 'bonus'],
+            'reference' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['type'],
+            'sql' => "varchar(16) NOT NULL default ''"
         ],
         'duration' => [
             'exclude' => true,
@@ -122,7 +154,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'inputType' => 'text',
             'eval' => ['tl_class' => 'w50', 'rgxp' => 'digit'],
             'save_callback' => [
-                [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'retrieveAudioTrackDuration']
+                [AudioTrackContainer::class, 'retrieveAudioTrackDuration']
             ],
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
@@ -134,13 +166,21 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'explanation' => 'insertTags',
             'sql' => 'mediumtext NULL',
         ],
+        'explicit' => [
+            'exclude' => true,
+            'filter' => true,
+            'flag' => 1,
+            'inputType' => 'checkbox',
+            'eval' => ['doNotCopy' => true],
+            'sql' => "char(1) NOT NULL default ''",
+        ],
         'tags' => [
             'exclude' => true,
             'flag' => 1,
             'inputType' => 'select',
-            'options_callback' => [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'getTags'],
+            'options_callback' => [AudioTrackContainer::class, 'getTags'],
             'save_callback' => [
-                [WEM\AudioTracksBundle\DataContainer\AudioTrackContainer::class, 'syncAudioTrackTagsPivotTable']
+                [AudioTrackContainer::class, 'syncAudioTrackTagsPivotTable']
             ],
             'eval' => ['doNotCopy' => true, 'chosen' => true, 'includeBlankOption' => true, 'multiple' => true, 'tl_class' => 'w50', 'isAvailableForFilters'=>true],
             'sql' => "blob NULL",
@@ -148,13 +188,13 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'picture' => [
             'exclude' => true,
             'inputType' => 'fileTree',
-            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Contao\Config::get('validImageTypes')],
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Config::get('validImageTypes')],
             'sql' => 'binary(16) NULL',
         ],
         'picture_mobile' => [
             'exclude' => true,
             'inputType' => 'fileTree',
-            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Contao\Config::get('validImageTypes')],
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Config::get('validImageTypes')],
             'sql' => 'binary(16) NULL',
         ],
         'pictureText' => [
@@ -164,6 +204,36 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'eval' => ['rte' => 'tinyMCE', 'helpwizard' => true, 'tl_class' => 'clr'],
             'explanation' => 'insertTags',
             'sql' => 'mediumtext NULL',
+        ],
+        'authors' => [
+            'exclude' => true,
+            'inputType' => 'multiColumnWizard',
+            'load_callback' => [
+                [AudioTrackContainer::class, 'getParentValue'],
+            ],
+            'eval' => [
+                'columnFields' => [
+                    'name' => [
+                        'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['authors']['name'],
+                        'exclude' => true,
+                        'inputType' => 'text',
+                        'eval' => ['mandatory' => true],
+                    ],
+                    'email' => [
+                        'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['authors']['email'],
+                        'exclude' => true,
+                        'inputType' => 'text',
+                        'eval' => ['rgxp' => 'email', 'mandatory' => true],
+                    ],
+                    'uri' => [
+                        'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['authors']['uri'],
+                        'exclude' => true,
+                        'inputType' => 'text',
+                        'eval' => ['rgxp' => 'url', 'mandatory' => true],
+                    ],
+                ]
+            ],
+            'sql' => 'blob NULL',
         ],
         'published' => [
             'exclude' => true,

@@ -2,10 +2,14 @@ Extension "Audiotracks" for Contao Open Source CMS
 ========
 
 1.1.0
+---
 - PHP 8.2 Compatibility
 - Contao 5.3 compatibility
 - Feat: Improve load time with audiotrack duration calculation and storage
 - Feat: Allow user to download audiotrack in the module settings
+- Feat: Sound level is now global and will be kept between audiotracks
+- Feat: System will display a confirm box if the tab/window is closed when a file is currently playing
+- Feat: You can now generate a public RSS Feed for each category
 
 1.0.3 - 2023-08-16
 ---

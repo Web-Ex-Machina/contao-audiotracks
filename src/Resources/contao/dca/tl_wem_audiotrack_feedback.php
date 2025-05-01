@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
+use Contao\DataContainer;
+use Contao\DC_Table;
+use WEM\AudioTracksBundle\DataContainer\FeedbackContainer;
+
 $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
     // Config
     'config' => [
-        'dataContainer' => 'Table',
+        'dataContainer' => DC_Table::class,
         'ptable' => 'tl_wem_audiotrack',
         'switchToEdit' => true,
         'enableVersioning' => true,
@@ -20,11 +24,11 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
     // List
     'list' => [
         'sorting' => [
-            'mode' => 4,
+            'mode' => DataContainer::MODE_PARENT,
             'fields' => ['ip ASC'],
             'headerFields' => ['title'],
             'panelLayout' => 'filter;sort,search,limit',
-            'child_record_callback' => [WEM\AudioTracksBundle\DataContainer\FeedbackContainer::class, 'listItems'],
+            'child_record_callback' => [FeedbackContainer::class, 'listItems'],
         ],
         'global_operations' => [
             'all' => [

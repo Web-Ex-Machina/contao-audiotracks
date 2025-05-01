@@ -16,8 +16,11 @@ namespace WEM\AudioTracksBundle\DataContainer;
 
 use Contao\Backend;
 use Contao\DataContainer;
+use Contao\Message;
 use Contao\System;
 use Exception;
+use WEM\AudioTracksBundle\Model\Category;
+use Symfony\Component\Uid\Uuid;
 
 class CategoryContainer extends Backend
 {
@@ -38,4 +41,56 @@ class CategoryContainer extends Backend
 
         return $varValue;
     }
+
+    /**
+     * Auto-generate an article alias if it has not been set yet.
+     * @throws Exception
+     */
+    public function generateNamespace($varValue, DataContainer $dc): string
+    {
+        if (!$varValue) {
+            $varValue = (string) Uuid::v4();
+        }
+
+        return $varValue;
+    }
+
+    /**
+     * Display the location of the rss feed
+     */
+    public function displayRssUrl(DataContainer $dc): void
+    {
+        if (!$dc->id) {
+            return;
+        }
+        
+        $objItem = Category::findByPk($dc->id);
+
+        if (!$objItem->rss) {
+            return;
+        }
+
+        $url = $objItem->getRssFeedUrl();
+
+        Message::addInfo('RSS Feed is located at: <a href="' . $url . '" title="Go to RSS Feed" target="_blank">' . $url . '</a>');
+    }
+
+    /**
+     * Generate the RSS feed
+     */
+    public function generateRssFeed(DataContainer $dc): void
+    {
+        if (!$dc->id) {
+            return;
+        }
+
+        try {
+            System::getContainer()->get('wem.audiotracks.rss_feed')->generate((int) $dc->id);
+
+            Message::addConfirmation('RSS Feed saved');
+        } catch(\Exception $e) {
+            Message::addError($e->getMessage());
+        }
+    }
 }
+

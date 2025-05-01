@@ -18,6 +18,22 @@
 				<source>Select the track date.</source>
 				<target>Sélectionnez la date de la piste.</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.season.0">
+				<source>Season</source>
+				<target>Saison</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.season.1">
+				<source>Enter the track season number.</source>
+				<target>Saisissez le numéro de saison de la piste.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.episode.0">
+				<source>Episode</source>
+				<target>Épisode</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.episode.1">
+				<source>Enter the track episode number.</source>
+				<target>Saisissez le numéro d'épisode de la piste.</target>
+			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.audio.0">
 				<source>File</source>
 				<target>Fichier</target>
@@ -25,6 +41,26 @@
 			<trans-unit id="tl_wem_audiotrack.audio.1">
 				<source>Select the track file (mp3).</source>
 				<target>Sélectionnez le fichier de la piste.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.type.0">
+				<source>Type</source>
+				<target>Type</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.type.1">
+				<source>Enter the track type.</source>
+				<target>Saisissez le type de la piste.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.type.full">
+				<source>Full</source>
+				<target>Entier</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.type.trailer">
+				<source>Trailer</source>
+				<target>Accroche</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.type.bonus">
+				<source>Bonus</source>
+				<target>Bonus</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.duration.0">
 				<source>Duration (in seconds)</source>
@@ -42,6 +78,15 @@
 				<source>Enter the track description.</source>
 				<target>Saisissez la description de la piste.</target>
 			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack.explicit.0">
+				<source>Explicit content</source>
+				<target>Contenu explicite</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.explicit.1">
+				<source>Check if the track contains explicit language.</source>
+				<target>Cochez si la piste contient du language explicite.</target>
+			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.tags.0">
 				<source>Tags</source>
 				<target>Tags</target>
@@ -50,14 +95,7 @@
 				<source>Select the track tags.</source>
 				<target>Sélectionnez les tags de la piste.</target>
 			</trans-unit>
-			<trans-unit id="tl_wem_audiotrack.pictureText.0">
-				<source>Text picture</source>
-				<target>Texte illustration</target>
-			</trans-unit>
-			<trans-unit id="tl_wem_audiotrack.pictureText.1">
-				<source>Text displayed inside the track picture</source>
-				<target>Texte affiché dans l'illustration</target>
-			</trans-unit>
+
 			<trans-unit id="tl_wem_audiotrack.picture.0">
 				<source>Picture</source>
 				<target>Illustration</target>
@@ -74,6 +112,36 @@
 				<source>Select the track picture displayed on mobile resolution.</source>
 				<target>Sélectionnez l'illustration de la piste affichée sur résolution mobile (format 1:1).</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.pictureText.0">
+				<source>Text picture</source>
+				<target>Texte illustration</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.pictureText.1">
+				<source>Text displayed inside the track picture</source>
+				<target>Texte affiché dans l'illustration</target>
+			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack.authors.0">
+				<source>Authors</source>
+				<target>Auteurs &amp; Autrices</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.authors.1">
+				<source>Enter the feed authors.</source>
+				<target>Indiquez les auteurs et autrices du flux.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.authors.name">
+				<source>Name</source>
+				<target>Nom</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.authors.email">
+				<source>Email</source>
+				<target>Email</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.authors.uri">
+				<source>Website</source>
+				<target>Site internet</target>
+			</trans-unit>
+
 			<trans-unit id="tl_wem_audiotrack.published.0">
 				<source>Published</source>
 				<target>Publié</target>
@@ -106,6 +174,14 @@
 			<trans-unit id="tl_wem_audiotrack.content_legend">
 				<source>Content settings</source>
 				<target>Paramètres de contenu</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.picture_legend">
+				<source>Picture settings</source>
+				<target>Paramètres de l'illustration</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.author_legend">
+				<source>Authors</source>
+				<target>Auteurs / Autrices</target>
 			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.publish_legend">
 				<source>Publication settings</source>

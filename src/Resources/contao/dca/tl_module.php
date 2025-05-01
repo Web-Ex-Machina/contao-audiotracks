@@ -5,7 +5,7 @@ declare(strict_types=1);
 $GLOBALS['TL_DCA']['tl_module']['palettes']['__selector__'][] = 'wemaudiotracks_addFilters';
 $GLOBALS['TL_DCA']['tl_module']['palettes']['wemaudiotrackslist'] = '
     {title_legend},name,headline,type;
-    {config_legend},wemaudiotracks_categories,wemaudiotracks_addFilters,wemaudiotracks_canDownload;
+    {config_legend},wemaudiotracks_categories,wemaudiotracks_addFilters,wemaudiotracks_canDownload,wemaudiotracks_links;
     {list_legend},numberOfItems,skipFirst,perPage;
     {template_legend:hide},wemaudiotracks_template,customTpl;
     {expert_legend:hide},guests,cssID
@@ -24,14 +24,14 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_addFilters'] = [
     'filter' => true,
     'flag' => 1,
     'inputType' => 'checkbox',
-    'eval' => ['submitOnChange' => true, 'doNotCopy' => true, 'tl_class' => 'clr'],
+    'eval' => ['submitOnChange' => true, 'doNotCopy' => true],
     'sql' => "char(1) NOT NULL default ''",
 ];
 $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_filters'] = [
     'exclude' => true,
     'inputType' => 'select',
     'options_callback' => [WEM\AudioTracksBundle\DataContainer\ModuleContainer::class, 'getFiltersOptions'],
-    'eval' => ['chosen' => true, 'multiple' => true, 'mandatory' => true, 'tl_class' => 'w50'],
+    'eval' => ['chosen' => true, 'multiple' => true, 'mandatory' => true],
     'sql' => 'blob NULL',
 ];
 $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_addSearch'] = [
@@ -39,7 +39,7 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_addSearch'] = [
     'filter' => true,
     'flag' => 1,
     'inputType' => 'checkbox',
-    'eval' => ['doNotCopy' => true, 'tl_class' => 'clr'],
+    'eval' => ['doNotCopy' => true],
     'sql' => "char(1) NOT NULL default ''",
 ];
 $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_canDownload'] = [
@@ -47,8 +47,16 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_canDownload'] = [
     'filter' => true,
     'flag' => 1,
     'inputType' => 'checkbox',
-    'eval' => ['doNotCopy' => true, 'tl_class' => 'clr'],
+    'eval' => ['doNotCopy' => true],
     'sql' => "char(1) NOT NULL default ''",
+];
+$GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_links'] = [
+    'exclude' => true,
+    'inputType' => 'checkboxWizard',
+    'options' => ['rss'],
+    'reference' => $GLOBALS['TL_LANG']['tl_module']['wemaudiotracks_links'],
+    'eval' => ['multiple' => true,],
+    'sql' => 'blob NULL',
 ];
 $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_template'] = [
     'default' => 'job_default',

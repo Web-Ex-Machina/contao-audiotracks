@@ -1,17 +1,6 @@
 <?php
 
 declare(strict_types=1);
-use WEM\AudioTracksBundle\Model;
-
-/**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
- *
- * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
- */
 
 /*
  * Back end modules
