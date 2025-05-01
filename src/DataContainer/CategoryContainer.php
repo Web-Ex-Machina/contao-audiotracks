@@ -84,6 +84,12 @@ class CategoryContainer extends Backend
             return;
         }
 
+        $objItem = Category::findByPk($id);
+
+        if (!$objItem->rss) {
+            return;
+        }
+
         try {
             System::getContainer()->get('wem.audiotracks.rss_feed')->generate((int) $dc->id);
 
