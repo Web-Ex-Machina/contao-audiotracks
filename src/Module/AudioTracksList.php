@@ -467,16 +467,23 @@ class AudioTracksList extends Module
             $objTemplate->picture_mobile = \Image::get($objFile->path, 300, 300);
         }
 
-        // If there is no duration and an item
-        // Retrieve the duration and save it in the model
-        $objFile = FilesModel::findByUuid($objItem->audio);
-        if (!$objItem->duration && $objFile) {
-            $mp3file = new MP3File($objFile->path);
-            $objItem->duration = $mp3file->getDuration();
-            $objItem->save();
+        
+        // If item is from remote, file path is different
+        if ('remote' === $objItem->getRelated('pid')->type) {
+            $objTemplate->audio = $objItem->audioRemoteUrl;
+        } else {
+            // If there is no duration and an item
+            // Retrieve the duration and save it in the model
+            $objFile = FilesModel::findByUuid($objItem->audio);
+            if (!$objItem->duration && $objFile) {
+                $mp3file = new MP3File($objFile->path);
+                $objItem->duration = $mp3file->getDuration();
+                $objItem->save();
+            }
+
+            $objTemplate->audio = $objFile->path;
         }
 
-        $objTemplate->audio = $objFile->path;
         $objTemplate->duration = ($objItem->duration > 3600) ?
             sprintf('%s h %s%s min', number_format($objItem->duration / 3600), $objItem->duration / 60 % 60 < 10 ? '0' : '', $objItem->duration / 60 % 60) :
             sprintf('%s min %s%s s', $objItem->duration / 60 % 60, $objItem->duration % 60 < 10 ? '0' : '', $objItem->duration % 60)
