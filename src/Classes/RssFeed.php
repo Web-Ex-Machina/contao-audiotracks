@@ -245,4 +245,134 @@ class RssFeed
 
         return $feed;
     }
+
+    public function import(int $id): void
+    {
+        $objItem = Category::findByPk($id);
+
+        if ('remote' !== $objItem->type && !$objItem->rssRemoteUrl) {
+            return;
+        }
+
+        $feed = Reader::import($objItem->rssRemoteUrl);
+
+        // Update local columns
+        // @todo add controls
+        $objItem->title = $feed->getTitle();
+        $objItem->description = $feed->getDescription();
+        $objItem->language = $feed->getLanguage();
+        $objItem->rssLink = $feed->getLink();
+        $objItem->createdAt = $feed->getDateCreated()->getTimestamp();
+        $objItem->tstamp = $feed->getDateModified()->getTimestamp();
+        $objItem->rssRemoteLastSync = $feed->getDateModified()->getTimestamp();
+        $objItem->rssCopyright = $feed->getCopyright();
+        $objItem->tracksType = $feed->getPodcastType();
+        $objItem->complete = (bool) $feed->getPodcastType() ? '1' : '';
+        $objItem->explicit = (bool) $feed->getExplicit() ? '1' : '';
+
+        // Update picture
+        $picture = $feed->getImage();
+        if ($picture && !empty($picture)) {
+            // @todo retrieve picture
+            $objItem->pictureAlt = $picture['title'];
+            $objItem->pictureTitle = $picture['title'];
+        }
+
+        // Update categories
+        $categories = $feed->getItunesCategories();
+        if ($categories && !empty($categories)) {
+            $data = [];
+            foreach ($categories as $k => $c) {
+                $data[] = $k;
+            }
+
+            if (!empty($data)) {
+                $objItem->categories = serialize($data);
+            }
+        }
+
+        // Parse authors & owners
+        $arrAuthors = [];
+
+        // @todo Update authors
+        $authors = $feed->getAuthors();
+        if ($authors && !empty($authors)) {
+            foreach ($authors as $a) {
+
+            }
+        }
+
+        // Update owner
+        // @todo try with more formats?
+        $owner = $feed->getOwner();
+        if ($owner) {
+            $str = explode(' (', $owner);
+            $arrAuthors[] = [
+                'name' => substr($str[1], 0, -1),
+                'email' => $str[0],
+                'uri' => '',
+            ];
+        }
+
+        $objItem->authors = serialize($arrAuthors);
+
+        // Save item
+        $objItem->save();
+
+        $data = [
+            'getImage' => $feed->getImage(),
+            'getGenerator' => $feed->getGenerator(),
+            'getHubs' => $feed->getHubs(),
+            'entries'      => [],
+        ];
+
+        foreach ($feed as $entry) {
+            $edata = [
+                'id'           => $entry->getId(),
+                'title'        => $entry->getTitle(),
+                'description'  => $entry->getDescription(),
+                'dateCreated'  => $entry->getDateCreated(),
+                'dateModified' => $entry->getDateModified(),
+                'authors'      => $entry->getAuthors(),
+                'link'         => $entry->getLink(),
+                'content'      => $entry->getContent(),
+                'enclosure'    => $entry->getEnclosure(),
+                'baseUrl'      => $entry->getBaseUrl(),
+                'links'        => $entry->getLinks(),
+                'permalink'    => $entry->getPermalink(),
+                'commentCount' => $entry->getCommentCount(),
+                'categories'   => $entry->getCategories(),
+                'source'       => $entry->getSource(),
+                'explicit'     => $entry->getPlayPodcastExplicit(),
+                'castAuthor'   => $entry->getCastAuthor(),
+                'castAuthor'   => $entry->getCastAuthor(),
+                'duration'     => $entry->getDuration(),
+                'subtitle'     => $entry->getSubtitle(),
+                'itunesImage'  => $entry->getItunesImage(),
+                'episode'      => $entry->getEpisode(),
+                'episodeType'  => $entry->getEpisodeType(),
+                'isCC'         => $entry->isClosedCaptioned(),
+                'season'       => $entry->getSeason(),
+                'transcript'   => $entry->getTranscript(),
+                'chapters'     => $entry->getChapters(),
+                'soundBites'   => $entry->getSoundbites(),
+                'soundBites'   => $entry->getSoundbites(),
+            ];
+            $data['entries'][] = $edata;
+        }
+
+        
+        // picture
+        // tags
+        // authors
+        // rssNamespace
+        // rssFilename
+        // rssHub
+
+        
+
+        dump($feed);
+        dump($data);
+        die;
+    }
 }

@@ -16,7 +16,10 @@ namespace WEM\AudioTracksBundle\DataContainer;
 
 use Contao\Backend;
 use Contao\DataContainer;
+use Contao\DC_Table;
+use Contao\Image;
 use Contao\Message;
+use Contao\StringUtil;
 use Contao\System;
 use Exception;
 use WEM\AudioTracksBundle\Model\Category;
@@ -94,6 +97,36 @@ class CategoryContainer extends Backend
             System::getContainer()->get('wem.audiotracks.rss_feed')->generate((int) $dc->id);
 
             Message::addConfirmation('RSS Feed saved');
+        } catch(\Exception $e) {
+            Message::addError($e->getMessage());
+        }
+    }
+
+    public function displaySyncRemoteRssButton(array $row, ?string $href, string $label, string $title, string $icon, string $attributes): string
+    {
+        if ('remote' !== $row['type'] && !$row['rssRemoteUrl']) {
+            return '';
+        }
+
+        return '<a href="' . $this->addToUrl($href . '&amp;id=' . $row['id']) . '" title="' . StringUtil::specialchars($title) . '"' . $attributes . '>' . Image::getHtml($icon, $label) . '</a>';
+    }
+
+    public function syncRemoteRssFeed(DC_Table $dc)
+    {
+        if (!$dc->id) {
+            return;
+        }
+
+        $objItem = Category::findByPk($dc->id);
+
+        if ('remote' !== $objItem->type && !$objItem->rssRemoteUrl) {
+            return;
+        }
+
+        try {
+            System::getContainer()->get('wem.audiotracks.rss_feed')->import((int) $dc->id);
+
+            Message::addConfirmation('RSS Feed imported');
         } catch(\Exception $e) {
             Message::addError($e->getMessage());
         }

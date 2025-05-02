@@ -51,20 +51,25 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'operations' => [
             'edit' => [
                 'href' => 'table=tl_wem_audiotrack',
-                'icon' => 'edit.gif',
+                'icon' => 'edit.svg',
             ],
             'header' => [
                 'href' => 'act=edit',
-                'icon' => 'header.gif',
+                'icon' => 'header.svg',
             ],
             'delete' => [
                 'href' => 'act=delete',
-                'icon' => 'delete.gif',
+                'icon' => 'delete.svg',
                 'attributes' => 'onclick="if(!confirm(\''.$GLOBALS['TL_LANG']['MSC']['deleteConfirm'].'\'))return false;Backend.getScrollOffset()"',
             ],
             'show' => [
                 'href' => 'act=show',
-                'icon' => 'show.gif',
+                'icon' => 'show.svg',
+            ],
+            'syncRemoteRss' => [
+                'href' => 'key=syncRemoteRss',
+                'icon' => 'modules.svg',
+                'button_callback' => [CategoryContainer::class, 'displaySyncRemoteRssButton'],
             ],
         ],
     ],
@@ -304,6 +309,9 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'inputType' => 'text',
             'eval' => ['rgxp' => 'url', 'mandatory' => true],
             'sql' => "varchar(255) NOT NULL default ''"
+        ],
+        'rssRemoteLastSync' => [
+            'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
     ],
 ];
