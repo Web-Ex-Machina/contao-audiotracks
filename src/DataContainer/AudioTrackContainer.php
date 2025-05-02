@@ -269,4 +269,23 @@ class AudioTrackContainer extends Backend
 
         return $varValue;
     }
+    
+    /**
+     * Update palette for remote tracks
+     */ 
+    public function updatePalettes(DataContainer $dc): void
+    {
+        if (!$dc->id) {
+            return;
+        }
+        
+        $objItem = AudioTrack::findByPk($dc->id);
+        $objCategory = $objItem->getRelated('pid');
+        
+        if ('remote' !== $objCategory->type && !$objCategory->rssRemoteUrl) {
+            return;
+        }
+
+        $GLOBALS['TL_DCA']['tl_wem_audiotrack']['palettes']['default'] = str_replace('audio', 'audioRemoteUrl', $GLOBALS['TL_DCA']['tl_wem_audiotrack']['palettes']['default']);
+    }
 }
