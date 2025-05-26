@@ -360,17 +360,6 @@ class RssFeed
             $data['entries'][] = $edata;
             $objTrack = $this->importTrack($entry, $objItem);
         }
-
-        // picture
-        // tags
-        // authors
-        // rssNamespace
-        // rssFilename
-        // rssHub
-
-        dump($feed);
-        dump($data);
-        die;
     }
 
     protected function importTrack($entry, $objCategory): AudioTrack
@@ -382,6 +371,8 @@ class RssFeed
             $objTrack = new AudioTrack();
             $objTrack->uuid = $entry->getId();
             $objTrack->pid = $objCategory->id;
+        } else {
+            $objTrack = $objTrack->current();
         }
 
         $objTrack->tstamp = $entry->getDateModified()->getTimestamp();
@@ -404,11 +395,20 @@ class RssFeed
             $objTrack->duration = ((int) $chunks[0] * 60 * 60) + ((int) $chunks[1] * 60) + (int) $chunks[2];
         }
 
-        // Update picture
+        // Update enclosure
         $enclosure = $entry->getEnclosure();
+
+            
         if ($enclosure) {
             // @todo
-            $objTrack->pictureText = $entry->getTitle();
+        }
+
+        // Update picture
+        $picture = $entry->getItunesImage();
+
+        if ($picture) {
+            $objTrack->pictureRemoteUrl = $picture;
+            $objTrack->pictureText = '';
         }
 
         // Update authors
