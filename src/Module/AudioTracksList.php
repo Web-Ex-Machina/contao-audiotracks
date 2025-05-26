@@ -459,12 +459,16 @@ class AudioTracksList extends Module
         $objTemplate->datetime = date('Y-m-d\TH:i:sP', (int) $objItem->date);
 
         // Retrieve and parse the picture
-        if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
-            $objTemplate->picture =  \Image::get($objFile->path, 300, 300);
-        }
+        if ('remote' === $objItem->getRelated('pid')->type && $objItem->pictureRemoteUrl) {
+            $objTemplate->picture =  $objItem->pictureRemoteUrl;
+        } else {
+            if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
+                $objTemplate->picture =  \Image::get($objFile->path, 300, 300);
+            }
 
-        if ($objItem->picture_mobile && $objFile = FilesModel::findByUuid($objItem->picture_mobile)) {
-            $objTemplate->picture_mobile = \Image::get($objFile->path, 300, 300);
+            if ($objItem->picture_mobile && $objFile = FilesModel::findByUuid($objItem->picture_mobile)) {
+                $objTemplate->picture_mobile = \Image::get($objFile->path, 300, 300);
+            }
         }
 
         
