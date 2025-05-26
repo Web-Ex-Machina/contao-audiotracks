@@ -209,6 +209,12 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Config::get('validImageTypes')],
             'sql' => 'binary(16) NULL',
         ],
+        'pictureRemoteUrl' => [
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => ['rgxp' => 'url', 'mandatory' => true, 'tl_class' => 'clr'],
+            'sql' => "varchar(255) NOT NULL default ''"
+        ],
         'pictureText' => [
             'exclude' => true,
             'search' => true,
