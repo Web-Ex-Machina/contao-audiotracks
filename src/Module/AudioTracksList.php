@@ -86,6 +86,11 @@ class AudioTracksList extends AudioTracksCore
             return $objTemplate->parse();
         }
 
+        // Hide if there is an auto_item
+        if (Input::get('auto_item')) {
+            return '';
+        }
+
         $this->loadDatacontainer('tl_wem_audiotrack');
         $this->loadLanguageFile('tl_wem_audiotrack');
 
