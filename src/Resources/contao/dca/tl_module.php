@@ -59,7 +59,7 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_links'] = [
     'sql' => 'blob NULL',
 ];
 $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_template'] = [
-    'default' => 'job_default',
+    'default' => 'wemaudiotrack_default',
     'exclude' => true,
     'inputType' => 'select',
     'options_callback' => [WEM\AudioTracksBundle\DataContainer\ModuleContainer::class, 'getTemplates'],
