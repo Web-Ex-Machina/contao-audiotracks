@@ -96,7 +96,26 @@ class AudioTracksList extends Module
             return '';
         }
 
+        // Check if we must sync remote feeds
+        foreach ($this->pids as $id) {
+            $this->syncFeedFromRemote($id);
+        }
+
         return parent::generate();
+    }
+
+    protected function syncFeedFromRemote($id)
+    {
+        $objFeed = Category::findByPk($id);
+
+        // Skip if the feed is not remote
+        // or if the feed has been updated during the last hour
+        if ('remote' !== $objFeed->type || $objFeed->rssRemoteLastSync > strtotime("-1 minute")) {
+            return;
+        }
+
+        // Launch service
+        System::getContainer()->get('wem.audiotracks.rss_feed')->import((int) $id);
     }
 
     public function updateAudiotrackFeedback($pid, $like = true): void
@@ -459,24 +478,34 @@ class AudioTracksList extends Module
         $objTemplate->datetime = date('Y-m-d\TH:i:sP', (int) $objItem->date);
 
         // Retrieve and parse the picture
-        if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
-            $objTemplate->picture =  \Image::get($objFile->path, 300, 300);
+        if ('remote' === $objItem->getRelated('pid')->type && $objItem->pictureRemoteUrl) {
+            $objTemplate->picture =  $objItem->pictureRemoteUrl;
+        } else {
+            if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
+                $objTemplate->picture =  \Image::get($objFile->path, 300, 300);
+            }
+
+            if ($objItem->picture_mobile && $objFile = FilesModel::findByUuid($objItem->picture_mobile)) {
+                $objTemplate->picture_mobile = \Image::get($objFile->path, 300, 300);
+            }
+        }
+        
+        // If item is from remote, file path is different
+        if ('remote' === $objItem->getRelated('pid')->type) {
+            $objTemplate->audio = $objItem->audioRemoteUrl;
+        } else {
+            // If there is no duration and an item
+            // Retrieve the duration and save it in the model
+            $objFile = FilesModel::findByUuid($objItem->audio);
+            if (!$objItem->duration && $objFile) {
+                $mp3file = new MP3File($objFile->path);
+                $objItem->duration = $mp3file->getDuration();
+                $objItem->save();
+            }
+
+            $objTemplate->audio = $objFile->path;
         }
 
-        if ($objItem->picture_mobile && $objFile = FilesModel::findByUuid($objItem->picture_mobile)) {
-            $objTemplate->picture_mobile = \Image::get($objFile->path, 300, 300);
-        }
-
-        // If there is no duration and an item
-        // Retrieve the duration and save it in the model
-        $objFile = FilesModel::findByUuid($objItem->audio);
-        if (!$objItem->duration && $objFile) {
-            $mp3file = new MP3File($objFile->path);
-            $objItem->duration = $mp3file->getDuration();
-            $objItem->save();
-        }
-
-        $objTemplate->audio = $objFile->path;
         $objTemplate->duration = ($objItem->duration > 3600) ?
             sprintf('%s h %s%s min', number_format($objItem->duration / 3600), $objItem->duration / 60 % 60 < 10 ? '0' : '', $objItem->duration / 60 % 60) :
             sprintf('%s min %s%s s', $objItem->duration / 60 % 60, $objItem->duration % 60 < 10 ? '0' : '', $objItem->duration % 60)

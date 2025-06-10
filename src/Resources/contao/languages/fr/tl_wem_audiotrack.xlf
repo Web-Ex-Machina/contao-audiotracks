@@ -42,6 +42,14 @@
 				<source>Select the track file (mp3).</source>
 				<target>Sélectionnez le fichier de la piste.</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.audioRemoteUrl.0">
+				<source>Remote file url</source>
+				<target>Adresse distante du fichier</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.audioRemoteUrl.1">
+				<source>Enter the track file absolute path (mp3).</source>
+				<target>Saisir l'adresse absolue de la piste.</target>
+			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.type.0">
 				<source>Type</source>
 				<target>Type</target>

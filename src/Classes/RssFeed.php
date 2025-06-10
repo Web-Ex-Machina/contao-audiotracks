@@ -161,7 +161,7 @@ class RssFeed
 
         // Itunes fields
         $feed->setItunesBlock("yes");
-        $feed->setItunesType($objItem->type);
+        $feed->setItunesType($objItem->tracksType);
         $feed->setItunesExplicit('1' === $objItem->explicit);
         $feed->setItunesComplete('1' === $objItem->complete);
 
@@ -183,7 +183,6 @@ class RssFeed
     protected function addTrackToRssFeed(AudioTrack $objItem, Category $objCategory, Feed $feed): Feed
     {
         $entry = $feed->createEntry();
-
 
         $entry->setId((string) $objItem->id);
         $entry->setTitle(html_entity_decode($objItem->title));
@@ -244,5 +243,185 @@ class RssFeed
         $feed->addEntry($entry);
 
         return $feed;
+    }
+
+    public function import(int $id): void
+    {
+        $objItem = Category::findByPk($id);
+
+        if ('remote' !== $objItem->type && !$objItem->rssRemoteUrl) {
+            return;
+        }
+
+        $feed = Reader::import($objItem->rssRemoteUrl);
+
+        // Update local columns
+        // @todo add controls
+        $objItem->title = $feed->getTitle();
+        $objItem->description = $feed->getDescription();
+        $objItem->language = $feed->getLanguage();
+        $objItem->rssLink = $feed->getLink();
+        $objItem->createdAt = $feed->getDateCreated()->getTimestamp();
+        $objItem->tstamp = $feed->getDateModified()->getTimestamp();
+        $objItem->rssRemoteLastSync = $feed->getDateModified()->getTimestamp();
+        $objItem->rssCopyright = $feed->getCopyright();
+        $objItem->tracksType = $feed->getPodcastType();
+        $objItem->complete = (bool) $feed->getPodcastType() ? '1' : '';
+        $objItem->explicit = (bool) $feed->getExplicit() ? '1' : '';
+
+        // Update picture
+        $picture = $feed->getImage();
+        if ($picture && !empty($picture)) {
+            // @todo retrieve picture
+            $objItem->pictureAlt = $picture['title'];
+            $objItem->pictureTitle = $picture['title'];
+        }
+
+        // Update categories
+        $categories = $feed->getItunesCategories();
+        if ($categories && !empty($categories)) {
+            $data = [];
+            foreach ($categories as $k => $c) {
+                $data[] = $k;
+            }
+
+            if (!empty($data)) {
+                $objItem->categories = serialize($data);
+            }
+        }
+
+        // Parse authors & owners
+        $arrAuthors = [];
+
+        // @todo Update authors
+        $authors = $feed->getAuthors();
+        if ($authors && !empty($authors)) {
+            foreach ($authors as $a) {
+
+            }
+        }
+
+        // Update owner
+        // @todo try with more formats?
+        $owner = $feed->getOwner();
+        if ($owner) {
+            $str = explode(' (', $owner);
+            $arrAuthors[] = [
+                'name' => substr($str[1], 0, -1),
+                'email' => $str[0],
+                'uri' => '',
+            ];
+        }
+
+        $objItem->authors = serialize($arrAuthors);
+
+        // Save item
+        $objItem->save();
+
+        $data = [
+            'getImage' => $feed->getImage(),
+            'getGenerator' => $feed->getGenerator(),
+            'getHubs' => $feed->getHubs(),
+            'entries'      => [],
+        ];
+
+        // Import tracks
+        foreach ($feed as $entry) {
+            $edata = [
+                'id'           => $entry->getId(),
+                'title'        => $entry->getTitle(),
+                'description'  => $entry->getDescription(),
+                'dateCreated'  => $entry->getDateCreated(),
+                'dateModified' => $entry->getDateModified(),
+                'authors'      => $entry->getAuthors(),
+                'link'         => $entry->getLink(),
+                'content'      => $entry->getContent(),
+                'enclosure'    => $entry->getEnclosure(),
+                'baseUrl'      => $entry->getBaseUrl(),
+                'links'        => $entry->getLinks(),
+                'permalink'    => $entry->getPermalink(),
+                'commentCount' => $entry->getCommentCount(),
+                'categories'   => $entry->getCategories(),
+                'source'       => $entry->getSource(),
+                'explicit'     => $entry->getPlayPodcastExplicit(),
+                'castAuthor'   => $entry->getCastAuthor(),
+                'duration'     => $entry->getDuration(),
+                'subtitle'     => $entry->getSubtitle(),
+                'itunesImage'  => $entry->getItunesImage(),
+                'episode'      => $entry->getEpisode(),
+                'episodeType'  => $entry->getEpisodeType(),
+                'isCC'         => $entry->isClosedCaptioned(),
+                'season'       => $entry->getSeason(),
+                'transcript'   => $entry->getTranscript(),
+                'chapters'     => $entry->getChapters(),
+                'soundBites'   => $entry->getSoundbites(),
+            ];
+            $data['entries'][] = $edata;
+            $objTrack = $this->importTrack($entry, $objItem);
+        }
+
+        $objItem->rssRemoteLastSync = time();
+        $objItem->save();
+    }
+
+    protected function importTrack($entry, $objCategory): AudioTrack
+    {
+        // Try to retrieve an existing track
+        $objTrack = AudioTrack::findItems(['pid' => $objCategory->id, 'uuid' => $entry->getId()], 1);
+
+        if (!$objTrack) {
+            $objTrack = new AudioTrack();
+            $objTrack->uuid = $entry->getId();
+            $objTrack->pid = $objCategory->id;
+        } else {
+            $objTrack = $objTrack->current();
+        }
+
+        $objTrack->tstamp = $entry->getDateModified()->getTimestamp();
+        $objTrack->createdAt = $entry->getDateCreated()->getTimestamp();
+        $objTrack->title = $entry->getTitle();
+        $objTrack->date = $entry->getDateCreated()->getTimestamp();
+        $objTrack->season = $entry->getSeason() ?: 1;
+        $objTrack->episode = $entry->getEpisode() ?: 1;
+        $objTrack->audioRemoteUrl = $entry->getLink();
+        $objTrack->type = $entry->getEpisodeType();
+        $objTrack->description = $entry->getDescription();
+        $objTrack->explicit = $objCategory->explicit;
+        // $objTrack->tags = $entry->getTitle();
+        $objTrack->published = 1;
+
+        // Parse duration
+        $duration = $entry->getDuration();
+        if ($duration) {
+            $chunks = explode(':', $duration);
+            $objTrack->duration = ((int) $chunks[0] * 60 * 60) + ((int) $chunks[1] * 60) + (int) $chunks[2];
+        }
+
+        // Update enclosure
+        $enclosure = $entry->getEnclosure();
+
+            
+        if ($enclosure) {
+            // @todo
+        }
+
+        // Update picture
+        $picture = $entry->getItunesImage();
+
+        if ($picture) {
+            $objTrack->pictureRemoteUrl = $picture;
+            $objTrack->pictureText = '';
+        }
+
+        // Update authors
+        $authors = $entry->getAuthors();
+        if ($authors) {
+            // @todo
+        }
+
+        // Save entry
+        $objTrack->save();
+
+        return $objTrack;
     }
 }

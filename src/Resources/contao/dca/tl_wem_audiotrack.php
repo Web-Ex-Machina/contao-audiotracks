@@ -15,6 +15,9 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'ctable' => ['tl_wem_audiotrack_feedback', 'tl_wem_audiotrack_tag', 'tl_wem_audiotrack_session'],
         'switchToEdit' => true,
         'enableVersioning' => true,
+        'onload_callback' => [
+            [AudioTrackContainer::class, 'updatePalettes']
+        ],
         'onsubmit_callback' => [
             [AudioTrackContainer::class, 'generateRssFeed']
         ],
@@ -93,6 +96,9 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'id' => [
             'sql' => 'int(10) unsigned NOT NULL auto_increment',
         ],
+        'uuid' => [
+            'sql' => "varchar(255) NOT NULL default ''",
+        ],
         'tstamp' => [
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
@@ -139,6 +145,12 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'inputType' => 'fileTree',
             'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => 'mp3,ogg,wav', 'mandatory'=>true],
             'sql' => 'binary(16) NULL',
+        ],
+        'audioRemoteUrl' => [
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => ['rgxp' => 'url', 'mandatory' => true, 'tl_class' => 'clr'],
+            'sql' => "varchar(255) NOT NULL default ''"
         ],
         'type' => [
             'exclude' => true,
@@ -196,6 +208,12 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'inputType' => 'fileTree',
             'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Config::get('validImageTypes')],
             'sql' => 'binary(16) NULL',
+        ],
+        'pictureRemoteUrl' => [
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => ['rgxp' => 'url', 'mandatory' => true, 'tl_class' => 'clr'],
+            'sql' => "varchar(255) NOT NULL default ''"
         ],
         'pictureText' => [
             'exclude' => true,

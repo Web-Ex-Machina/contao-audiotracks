@@ -8,6 +8,7 @@ declare(strict_types=1);
 Contao\ArrayUtil::arrayInsert($GLOBALS['BE_MOD']['content'], count($GLOBALS['BE_MOD']['content']), [
     'wemaudiotracks' => [
         'tables' => ['tl_wem_audiotrack_category', 'tl_wem_audiotrack', 'tl_wem_audiotrack_feedback', 'tl_wem_audiotrack_tag', 'tl_wem_audiotrack_session'],
+        'syncRemoteRss' => [WEM\AudioTracksBundle\DataContainer\CategoryContainer::class, 'syncRemoteRssFeed'],
     ],
 ]);
 
