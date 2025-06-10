@@ -96,7 +96,26 @@ class AudioTracksList extends Module
             return '';
         }
 
+        // Check if we must sync remote feeds
+        foreach ($this->pids as $id) {
+            $this->syncFeedFromRemote($id);
+        }
+
         return parent::generate();
+    }
+
+    protected function syncFeedFromRemote($id)
+    {
+        $objFeed = Category::findByPk($id);
+
+        // Skip if the feed is not remote
+        // or if the feed has been updated during the last hour
+        if ('remote' !== $objFeed->type || $objFeed->rssRemoteLastSync > strtotime("-1 minute")) {
+            return;
+        }
+
+        // Launch service
+        System::getContainer()->get('wem.audiotracks.rss_feed')->import((int) $id);
     }
 
     public function updateAudiotrackFeedback($pid, $like = true): void
@@ -470,7 +489,6 @@ class AudioTracksList extends Module
                 $objTemplate->picture_mobile = \Image::get($objFile->path, 300, 300);
             }
         }
-
         
         // If item is from remote, file path is different
         if ('remote' === $objItem->getRelated('pid')->type) {
