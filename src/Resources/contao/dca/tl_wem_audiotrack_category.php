@@ -311,6 +311,8 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'sql' => "varchar(255) NOT NULL default ''"
         ],
         'rssRemoteLastSync' => [
+            'default' => time(),
+            'flag' => 8,
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
     ],
