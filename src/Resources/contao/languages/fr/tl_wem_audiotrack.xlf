@@ -10,6 +10,14 @@
 				<source>Enter the track title.</source>
 				<target>Saisissez l'intitulé de la piste.</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.alias.0">
+				<source>Alias</source>
+				<target>Alias</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.alias.1">
+				<source>Enter the track alias.</source>
+				<target>Saisissez l'alias de la piste.</target>
+			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack.date.0">
 				<source>Date</source>
 				<target>Date</target>

@@ -83,7 +83,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     // Palettes
     'palettes' => [
         'default' => '
-            {title_legend},title,date,season,episode,audio,type,duration;
+            {title_legend},title,alias,date,season,episode,audio,type,duration;
             {content_legend},description,explicit,tags;
             {picture_legend},picture,picture_mobile,pictureText;
             {author_legend},authors;
@@ -118,6 +118,16 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'inputType' => 'text',
             'eval' => ['mandatory' => true, 'tl_class' => 'w50', 'maxlength' => 255],
             'sql' => "varchar(255) NOT NULL default ''",
+        ],
+        'alias' => [
+            'exclude' => true,
+            'inputType' => 'text',
+            'search' => true,
+            'eval' => ['rgxp' => 'alias', 'doNotCopy' => true, 'maxlength' => 255, 'tl_class' => 'w50'],
+            'save_callback' => [
+                [AudioTrackContainer::class, 'generateAlias'],
+            ],
+            'sql' => "varchar(255) BINARY NOT NULL default ''",
         ],
         'date' => [
             'exclude' => true,

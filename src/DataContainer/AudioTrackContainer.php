@@ -32,6 +32,24 @@ use WEM\UtilsBundle\Model\Model;
 class AudioTrackContainer extends Backend
 {
     /**
+     * Auto-generate an article alias if it has not been set yet.
+     * @throws Exception
+     */
+    public function generateAlias($varValue, DataContainer $dc): string
+    {
+        $aliasExists = fn(string $alias): bool => $this->Database->prepare('SELECT id FROM tl_wem_audiotrack WHERE alias=? AND id!=?')->execute($alias, $dc->id)->numRows > 0;
+
+        // Generate an alias if there is none
+        if (!$varValue) {
+            $varValue = System::getContainer()->get('contao.slug')->generate($dc->activeRecord->title, $dc->activeRecord->id, $aliasExists);
+        } elseif ($aliasExists($varValue)) {
+            throw new Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
+        }
+
+        return $varValue;
+    }
+
+    /**
      * Format items list.
      */
     public function listItems(array $r): string
