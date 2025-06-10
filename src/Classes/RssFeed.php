@@ -184,7 +184,6 @@ class RssFeed
     {
         $entry = $feed->createEntry();
 
-
         $entry->setId((string) $objItem->id);
         $entry->setTitle(html_entity_decode($objItem->title));
         $entry->setItunesTitle(html_entity_decode($objItem->title));
@@ -360,6 +359,9 @@ class RssFeed
             $data['entries'][] = $edata;
             $objTrack = $this->importTrack($entry, $objItem);
         }
+
+        $objItem->rssRemoteLastSync = time();
+        $objItem->save();
     }
 
     protected function importTrack($entry, $objCategory): AudioTrack
