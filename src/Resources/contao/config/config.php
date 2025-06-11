@@ -18,6 +18,7 @@ Contao\ArrayUtil::arrayInsert($GLOBALS['BE_MOD']['content'], count($GLOBALS['BE_
 Contao\ArrayUtil::arrayInsert($GLOBALS['FE_MOD'], 2, [
     'wemaudiotracks' => [
         'wemaudiotrackslist' => WEM\AudioTracksBundle\Module\AudioTracksList::class,
+        'wemaudiotracksreader' => WEM\AudioTracksBundle\Module\AudioTracksReader::class,
     ],
 ]);
 

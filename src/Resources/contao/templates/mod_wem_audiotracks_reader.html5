@@ -1,0 +1,13 @@
+<?php $this->extend('block_unsearchable'); ?>
+
+<?php $this->block('content'); ?>
+
+<?= $this->buffer ?>
+
+<?php if ($this->referer): ?>
+<!-- indexer::stop -->
+<p class="back"><a class="btn" href="<?= $this->referer ?>" title="<?= $this->back ?>"><?= $this->back ?></a></p>
+<!-- indexer::continue -->
+<?php endif; ?>
+
+<?php $this->endblock(); ?>
