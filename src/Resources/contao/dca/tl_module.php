@@ -6,7 +6,13 @@ $GLOBALS['TL_DCA']['tl_module']['palettes']['__selector__'][] = 'wemaudiotracks_
 $GLOBALS['TL_DCA']['tl_module']['palettes']['wemaudiotrackslist'] = '
     {title_legend},name,headline,type;
     {config_legend},wemaudiotracks_categories,wemaudiotracks_addFilters,wemaudiotracks_canDownload,wemaudiotracks_links;
-    {list_legend},numberOfItems,skipFirst,perPage;
+    {list_legend},jumpTo,numberOfItems,skipFirst,perPage;
+    {template_legend:hide},wemaudiotracks_template,customTpl;
+    {expert_legend:hide},guests,cssID
+';
+$GLOBALS['TL_DCA']['tl_module']['palettes']['wemaudiotracksreader'] = '
+    {title_legend},name,headline,type;
+    {config_legend},wemaudiotracks_canDownload,wemaudiotracks_links,overviewPage,customLabel;
     {template_legend:hide},wemaudiotracks_template,customTpl;
     {expert_legend:hide},guests,cssID
 ';
