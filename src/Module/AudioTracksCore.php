@@ -36,6 +36,58 @@ use Contao\System;
 
 abstract class AudioTracksCore extends Module
 {
+    protected function catchAjaxRequests()
+    {
+        // Catch Ajax Request
+        if (Input::post('TL_AJAX') && (int) $this->id === (int) Input::post('module')) {
+            try {
+                switch (Input::post('action')) {
+                    // Requires audiotrack ID
+                    case 'feedback':
+                        if (!Input::post('audiotrack')) {
+                            throw new Exception('No audiotrack provided');
+                        }
+
+                        $this->updateAudiotrackFeedback(
+                            Input::post('audiotrack'),
+                            'false' !== Input::post('liked'),
+                        );
+
+                        $arrResponse['status'] = 'success';
+                    break;
+
+                    // Requires audiotrack ID, currentTime, volume and complete
+                    case 'syncSession':
+                        if (!Input::post('audiotrack')) {
+                            throw new Exception('No audiotrack provided');
+                        }
+
+                        $this->updateAudiotrackSession(
+                            Input::post('audiotrack'),
+                            Input::post('currentTime') ?: 0,
+                            Input::post('volume') ?: 1,
+                            'true' === Input::post('complete'),
+                        );
+
+                        $arrResponse['status'] = 'success';
+                    break;
+
+                    default:
+                        throw new Exception($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['unknownAjaxAction'], Input::post('action'));
+                }
+            } catch (Exception $e) {
+                $arrResponse['status'] = 'error';
+                $arrResponse['message'] = $e->getMessage();
+            }
+
+            $contaoCsrfTokenManager = System::getContainer()->get('contao.csrf.token_manager');
+            $arrResponse['rt'] = $contaoCsrfTokenManager->getDefaultTokenValue();
+
+            echo json_encode($arrResponse);
+            exit;
+        }
+    }
+    
     protected function syncFeedFromRemote($id)
     {
         $objFeed = Category::findByPk($id);
