@@ -24,6 +24,7 @@ use Contao\Image;
 use Contao\Input;
 use Contao\Model\Collection;
 use Contao\Module;
+use Contao\PageModel;
 use Contao\Pagination;
 use Exception;
 use WEM\AudioTracksBundle\Model\AudioTrack;
@@ -87,7 +88,7 @@ abstract class AudioTracksCore extends Module
             exit;
         }
     }
-    
+
     protected function syncFeedFromRemote($id)
     {
         $objFeed = Category::findByPk($id);
@@ -357,6 +358,10 @@ abstract class AudioTracksCore extends Module
         // Let template know if we can download the item
         if ($this->wemaudiotracks_canDownload) {
             $objTemplate->canDownload = true;
+        }
+
+        if ($objTarget = PageModel::findWithDetails($this->jumpTo)) {
+            $objTemplate->jumpTo = $objTarget->getFrontendUrl('/' . $objItem->alias ?: $objItem->id);
         }
 
         // Hook system to customize item parsing
