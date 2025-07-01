@@ -305,6 +305,9 @@ abstract class AudioTracksCore extends Module
         $objTemplate->timestamp = $objItem->date;
         $objTemplate->datetime = date('Y-m-d\TH:i:sP', (int) $objItem->date);
 
+        // Prepare teaser
+        $objTemplate->teaser = StringUtil::substr($objItem->description, 300);
+
         // Retrieve and parse the picture
         if ('remote' === $objItem->getRelated('pid')->type && $objItem->pictureRemoteUrl) {
             $objTemplate->picture =  $objItem->pictureRemoteUrl;
