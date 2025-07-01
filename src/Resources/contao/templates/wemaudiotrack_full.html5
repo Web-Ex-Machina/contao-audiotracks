@@ -9,63 +9,64 @@
 	    'd MMMM Y'
 	);
 ?>
-<div class="audiotrack audiotrack_default <?= $this->class ?>"  data-audiotrack="<?= $this->id ?>" itemscope itemtype="http://schema.org/Article">
-	<div class="audiotrack__wrapper">
-		<?php if ($this->picture): ?>
-		<div class="audiotrack__figure img-container r_16-9 hidden-sm" style="background-image: url(<?= $this->picture ?>);">
-			<img src="<?= $this->picture ?>" alt="<?= $this->title ?>" />
-			<?php if ($this->pictureText): ?>
-				<div class="audiotrack__figure__text"><?= $this->pictureText ?></div>
-			<?php endif ?>
-		</div>
-		<?php endif; ?>
+<div class="audiotrack_full <?= $this->class ?>" data-audiotrack="<?= $this->id ?>" itemscope itemtype="http://schema.org/Article">
+	<h1 class="audiotrack__title" itemprop="name"><?= $this->title ?></h1>
 
-		<div class="audiotrack__content">
-			<?php if ($this->picture || $this->picture_mobile): ?>
-				<div class="audiotrack__figure img-container r_1-1 hidden visible-sm" style="background-image: url(<?= $this->picture_mobile?:$this->picture ?>);">
-					<img src="<?= $this->picture_mobile?:$this->picture ?>" alt="<?= $this->title ?>" />
-				</div>
-			<?php endif; ?>
-			<div class="audiotrack__text">
-				<div class="audiotrack__title h4" itemprop="name"><?= $this->title ?></div>
-				<?= $this->description ?>
-				<div class="audiotrack__listened<?php echo $this->session['complete']?' active':'' ?>"><i class="far fa-check ft-success ft-1-3-em"></i><span><?= $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['listened'] ?></span></div>
-			</div>
-			<div class="audiotrack__actions">
-				<div class="audiotrack__play audiotrack__button" 
-					data-id="<?php echo $this->id ?>" 
-					data-title="<?php echo $this->title ?>" 
-					data-src="<?php echo $this->audio ?>"
-					data-complete="<?php echo $this->session['complete'] ?>"
-					data-currentTime="<?php echo $this->session['currentTime'] ?>"
-					data-volume="<?php echo $this->session['volume'] ?>"
-				>
-				<i class="fas fa-play"></i><i class="fas fa-pause"></i></div>
-				<?php if ($this->canDownload): ?>
-				<div class="audiotrack__download audiotrack__button">
-					<a href="<?php echo $this->audio ?>" title="<?= $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['download'] ?>" target="_blank" download><i class="fas fa-download"></i></a>
-				</div>
-				<?php endif; ?>
-				<div class="audiotrack__duration"><?php echo $this->duration ?></div>
-				<?php if ($this->date): ?>
-					<div class="audiotrack__datetime"><?php  echo datefmt_format($formatter,$this->date); ?></div>
-				<?php endif ?>
-			</div>
+	<?php if ($this->picture): ?>
+	<div class="audiotrack__figure m-bottom img-container r_16-9 hidden-sm" style="background-image: url(<?= $this->picture ?>);">
+		<img src="<?= $this->picture ?>" alt="<?= $this->title ?>" />
+		<?php if ($this->pictureText): ?>
+			<div class="audiotrack__figure__text"><?= $this->pictureText ?></div>
+		<?php endif ?>
+	</div>
+	<?php endif; ?>
+
+	<?php if ($this->picture || $this->picture_mobile): ?>
+		<div class="audiotrack__figure m-bottom img-container r_1-1 hidden visible-sm" style="background-image: url(<?= $this->picture_mobile?:$this->picture ?>);">
+			<img src="<?= $this->picture_mobile?:$this->picture ?>" alt="<?= $this->title ?>" />
 		</div>
-		<div class="audiotrack__footer">
-			<div class="audiotrack__tags">
-			<?php if (null !== $this->tags && count(deserialize($this->tags))>0): ?>
-					<div class="h4 w-100 hidden-sm"><?= $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS'][count(deserialize($this->tags))>1?'themes':'theme'] ?></div>
-					<?php foreach (deserialize($this->tags) as $key => $tag): ?>
-						<span class="tag"><?php echo $tag; ?></span>
-					<?php endforeach ?>
+	<?php endif; ?>
+
+	<div class="audiotrack__content">
+		<div class="audiotrack__text">
+			<?= $this->description ?>
+			<div class="audiotrack__listened<?php echo $this->session['complete']?' active':'' ?>"><i class="far fa-check ft-success ft-1-3-em"></i><span><?= $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['listened'] ?></span></div>
+		</div>
+		<div class="audiotrack__actions">
+			<div class="audiotrack__play audiotrack__button" 
+				data-id="<?php echo $this->id ?>" 
+				data-title="<?php echo $this->title ?>" 
+				data-src="<?php echo $this->audio ?>"
+				data-complete="<?php echo $this->session['complete'] ?>"
+				data-currentTime="<?php echo $this->session['currentTime'] ?>"
+				data-volume="<?php echo $this->session['volume'] ?>"
+			>
+			<i class="fas fa-play"></i><i class="fas fa-pause"></i></div>
+			<?php if ($this->canDownload): ?>
+			<div class="audiotrack__download audiotrack__button">
+				<a href="<?php echo $this->audio ?>" title="<?= $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['download'] ?>" target="_blank" download><i class="fas fa-download"></i></a>
+			</div>
+			<?php endif; ?>
+			<div class="audiotrack__duration"><?php echo $this->duration ?></div>
+			<?php if ($this->date): ?>
+				<div class="audiotrack__datetime"><?php  echo datefmt_format($formatter,$this->date); ?></div>
 			<?php endif ?>
-			</div>
-			<div class="audiotrack__likes<?php echo $this->liked?' liked':''; ?>" data-id="<?php echo $this->id ?>" >
-				<i class="fal fa-heart empty"></i>
-				<i class="fas fa-heart full"></i>
-				<span class="count"><?php echo $this->nbLikes?:'' ?></span>
-			</div>
+		</div>
+	</div>
+
+	<div class="audiotrack__footer">
+		<div class="audiotrack__tags">
+		<?php if (null !== $this->tags && count(deserialize($this->tags))>0): ?>
+				<div class="h4 w-100 hidden-sm"><?= $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS'][count(deserialize($this->tags))>1?'themes':'theme'] ?></div>
+				<?php foreach (deserialize($this->tags) as $key => $tag): ?>
+					<span class="tag"><?php echo $tag; ?></span>
+				<?php endforeach ?>
+		<?php endif ?>
+		</div>
+		<div class="audiotrack__likes<?php echo $this->liked?' liked':''; ?>" data-id="<?php echo $this->id ?>" >
+			<i class="fal fa-heart empty"></i>
+			<i class="fas fa-heart full"></i>
+			<span class="count"><?php echo $this->nbLikes?:'' ?></span>
 		</div>
 	</div>
 </div>

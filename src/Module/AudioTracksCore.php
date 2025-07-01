@@ -361,7 +361,7 @@ abstract class AudioTracksCore extends Module
         }
 
         if ($objTarget = PageModel::findWithDetails($this->jumpTo)) {
-            $objTemplate->jumpTo = $objTarget->getFrontendUrl('/' . $objItem->alias ?: $objItem->id);
+            $objTemplate->jumpTo = $objTarget->getFrontendUrl('/' . $objItem->alias);
         }
 
         // Hook system to customize item parsing
