@@ -50,6 +50,11 @@
 				<?php if ($this->date): ?>
 					<div class="audiotrack__datetime"><?php  echo datefmt_format($formatter,$this->date); ?></div>
 				<?php endif ?>
+				<?php if ($this->jumpTo): ?>
+				<div class="audiotrack__jumpTo audiotrack__button">
+					<a href="<?php echo $this->jumpTo ?>" title="<?= $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['jumpTo'] ?>"><i class="fas fa-arrow-right"></i></a>
+				</div>	
+				<?php endif ?>
 			</div>
 		</div>
 		<div class="audiotrack__footer">
