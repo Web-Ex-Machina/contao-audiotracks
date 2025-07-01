@@ -316,6 +316,10 @@ abstract class AudioTracksCore extends Module
                 $objTemplate->picture =  \Image::get($objFile->path, 300, 300);
             }
 
+            if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
+                $objTemplate->picture_big =  \Image::get($objFile->path, 1920, 1080);
+            }
+
             if ($objItem->picture_mobile && $objFile = FilesModel::findByUuid($objItem->picture_mobile)) {
                 $objTemplate->picture_mobile = \Image::get($objFile->path, 300, 300);
             }

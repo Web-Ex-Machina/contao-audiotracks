@@ -12,9 +12,9 @@
 <div class="audiotrack_full <?= $this->class ?>" data-audiotrack="<?= $this->id ?>" itemscope itemtype="http://schema.org/Article">
 	<h1 class="audiotrack__title" itemprop="name"><?= $this->title ?></h1>
 
-	<?php if ($this->picture): ?>
+	<?php if ($this->picture || $this->picture_big): ?>
 	<div class="audiotrack__figure m-bottom img-container r_16-9 hidden-sm" style="background-image: url(<?= $this->picture ?>);">
-		<img src="<?= $this->picture ?>" alt="<?= $this->title ?>" />
+		<img src="<?= $this->picture_big ?: $this->picture ?>" alt="<?= $this->title ?>" />
 		<?php if ($this->pictureText): ?>
 			<div class="audiotrack__figure__text"><?= $this->pictureText ?></div>
 		<?php endif ?>
