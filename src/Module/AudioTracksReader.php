@@ -17,6 +17,7 @@ namespace WEM\AudioTracksBundle\Module;
 use Contao\BackendTemplate;
 use Contao\Config;
 use Contao\CoreBundle\Exception\PageNotFoundException;
+use Contao\CoreBundle\Routing\ResponseContext\HtmlHeadBag\HtmlHeadBag;
 use Contao\Environment;
 use Contao\FilesModel;
 use Contao\FrontendTemplate;
@@ -86,17 +87,31 @@ class AudioTracksReader extends AudioTracksCore
 
         global $objPage;
 
+
         if ($this->overviewPage) {
             $this->Template->referer = PageModel::findById($this->overviewPage)->getFrontendUrl();
             $this->Template->back = $this->customLabel ?: $GLOBALS['TL_LANG']['MSC']['newsOverview'];
         }
 
-        $feed = $this->track->getRelated('pid');
-
-        $objPage->pageTitle = $this->track->title.' - '.$feed->title;
-        $objPage->description = StringUtil::substr($this->track->description, 300);
+        $this->overwriteMetadata();
 
         $this->Template->buffer = $this->parseItem($this->track);
         $this->Template->moduleId = $this->id;
+    }
+
+    protected function overwriteMetadata(): void
+    {
+        $responseContext = System::getContainer()->get('contao.routing.response_context_accessor')->getResponseContext();
+        $feed = $this->track->getRelated('pid');
+
+        if ($responseContext && $responseContext->has(HtmlHeadBag::class)) {
+            /** @var HtmlHeadBag $htmlHeadBag */
+            $htmlHeadBag = $responseContext->get(HtmlHeadBag::class);
+            $htmlDecoder = System::getContainer()->get('contao.string.html_decoder');
+
+            $htmlHeadBag->setTitle($htmlDecoder->inputEncodedToPlainText($this->track->title.' - '.$feed->title));
+            $htmlHeadBag->setMetaDescription($htmlDecoder->htmlToPlainText($this->track->description));
+            $htmlHeadBag->setMetaRobots($this->track->robots ?: '');
+        }
     }
 }

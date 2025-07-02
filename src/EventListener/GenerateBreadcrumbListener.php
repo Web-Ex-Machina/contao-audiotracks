@@ -2,13 +2,11 @@
 
 namespace WEM\AudioTracksBundle\EventListener;
 
-use Contao\CoreBundle\DependencyInjection\Attribute\AsHook;
 use Contao\Environment;
 use Contao\Input;
 use Contao\Module;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 
-#[AsHook('generateBreadcrumb')]
 class GenerateBreadcrumbListener
 {
     public function __invoke(array $items, Module $module): array
