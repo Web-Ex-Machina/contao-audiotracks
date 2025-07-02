@@ -1,4 +1,8 @@
 services:
+    WEM\AudioTracksBundle\EventListener\GenerateBreadcrumbListener:
+        tags:
+            - { name: contao.hook, hook: generateBreadcrumb, method: __invoke, priority: 100 }
+
     wem.audiotracks.rss_feed:
         class: WEM\AudioTracksBundle\Classes\RssFeed
         arguments:
