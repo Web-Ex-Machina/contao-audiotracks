@@ -22,9 +22,9 @@
 	<?php endif; ?>
 
 	<?php if ($this->picture || $this->picture_mobile): ?>
-		<div class="audiotrack__figure m-bottom img-container r_1-1 hidden visible-sm" style="background-image: url(<?= $this->picture_mobile?:$this->picture ?>);">
-			<img src="<?= $this->picture_mobile?:$this->picture ?>" alt="<?= $this->title ?>" />
-		</div>
+	<div class="audiotrack__figure m-bottom img-container r_1-1 hidden visible-sm" style="background-image: url(<?= $this->picture_mobile?:$this->picture ?>);">
+		<img src="<?= $this->picture_mobile?:$this->picture ?>" alt="<?= $this->title ?>" />
+	</div>
 	<?php endif; ?>
 
 	<div class="audiotrack__content">
