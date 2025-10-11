@@ -1,0 +1,15 @@
+<?php $this->extend('block_unsearchable'); ?>
+
+<?php $this->block('content'); ?>
+
+<?= $this->buffer ?>
+
+<?php $this->insert('wemaudiotrack_inc_player', $this->getData()); ?>
+
+<?php if ($this->referer): ?>
+<!-- indexer::stop -->
+<p class="back"><a class="btn" href="<?= $this->referer ?>" title="<?= $this->back ?>"><?= $this->back ?></a></p>
+<!-- indexer::continue -->
+<?php endif; ?>
+
+<?php $this->endblock(); ?>

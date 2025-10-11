@@ -2,46 +2,61 @@
 
 <?php $this->block('content'); ?>
 
-  <?php if ($this->filters): ?>
+	<?php if ($this->links): ?>
+	<div class="audiotracks__links">
+		<?php foreach ($this->links as $feed): ?>
+			<div class="audiotracks__links__feed">
+				<p>
+					<span class="ft-b"><?= $feed['title'] ?></span>
+					<?php foreach ($feed['links'] as $l): ?>
+						<a href="<?= $l['href'] ?>" title="<?= $l['title'] ?>" target="_blank"><?= $l['icon'] ?></a>
+					<?php endforeach; ?>
+				</p>
+			</div>
+		<?php endforeach; ?>
+	</div>
+	<?php endif; ?>
+
+  <?php if ($this->addFilters): ?>
 	<form action="{{env::request}}" method="GET">
-	    <div class="filters m-bottom" data-container="audioTracks" data-items="item" data-autocomplete="false" data-count="false" data-reset="true" data-submit="true">
-	    	<div class="filters__line line--1">
-	    		<div class="filters__col col--left">
-			    	<?php foreach ($this->filters as $f): ?>
-							<?php if ('select' == $f['type']): ?>
-								<select class="filter" name="<?= $f['name']; ?>"<?= $f['multiple'] ? ' multiple' : ''; ?><?= $f['multiple'] ? ' placeholder="'. $f['label'] .'"' : ''; ?>>
-									<?php if (!$f['multiple']): ?>
-									<option value="">- <?= $f['label']; ?> -</option>
-									<?php endif; ?>
-									<?php foreach ($f['options'] as $o): ?>
-									<option value="<?= $o['value']; ?>"<?= $o['selected'] ? ' selected' : ''; ?>><?= $o['label']; ?></option>
-									<?php endforeach; ?>
-								</select>
-							<?php else: ?>
-								<input class="filter" type="text" name="<?= $f['name']; ?>" value="<?= $f['value']; ?>" placeholder="<?= $f['placeholder']; ?>" />
-							<?php endif; ?>
-			  		<?php endforeach; ?>
-		  		</div>
-		  		<div class="filters__col col--right">
-						<div class="input-group">
-							<button type="submit" class="squared btn"><i class="fal fa-search"></i></button>
-						</div>
-					</div>
+	    <div class="audiotracks__filters m-bottom" data-container="audioTracks">
+	    	<div class="audiotracks__filters__line">
+		    	<?php foreach ($this->filters as $f): ?>
+						<?php if ('select' == $f['type']): ?>
+							<div class="form-group">
+							<select class="filter" name="<?= $f['name']; ?>"<?= $f['multiple'] ? ' multiple' : ''; ?><?= $f['multiple'] ? ' placeholder="'. ($f['placeholder']?:$f['label']) .'"' : ''; ?> onchange="this.closest('form').submit()">
+								<?php if (!$f['multiple']): ?>
+								<option value="">- <?= $f['label']; ?> -</option>
+								<?php endif; ?>
+								<?php foreach ($f['options'] as $o): ?>
+								<option value="<?= $o['value']; ?>"<?= $o['selected'] ? ' selected' : ''; ?>><?= $o['label']; ?></option>
+								<?php endforeach; ?>
+							</select>
+							</div>
+						<?php else: ?>
+							<div class="form-group <?= $f['name']=='search'?'form-shrink input-group':'' ?>">
+								<input class="filter" type="text" name="<?= $f['name']; ?>" value="<?= $f['value']; ?>" placeholder="<?= ($f['placeholder']?:$f['label']) ?>" />
+								<?php if ($f['name']=='search'): ?>
+								<button type="submit" class="squared btn-bg-none"><i class="fal fa-search"></i></button>
+								<?php endif ?>
+							</div>
+						<?php endif; ?>
+		  		<?php endforeach; ?>
 		  	</div>
 	    </div>
 	</form>
   <?php endif; ?>
 
   <?php if (empty($this->items)): ?>
-    <p class="empty"><?= $this->empty; ?></p>
+  <p class="empty"><?= $this->empty; ?></p>
   <?php else: ?>
   	
-  <div class="" id="audioTracks">
+  <div class="audiotracks" id="audioTracks">
     <?= implode('', $this->items); ?>
 	</div>
-  
-  <?= $this->pagination; ?>
-  
+	<?= $this->pagination; ?>
+
+	<?php $this->insert('wemaudiotrack_inc_player',$this->getData()); ?>
   <?php endif; ?>
 
 

@@ -2,37 +2,64 @@
 
 declare(strict_types=1);
 
+/**
+ * Audiotracks for Contao Open Source CMS
+ * Copyright (c) 2023 Web ex Machina
+ *
+ * @category ContaoBundle
+ * @package  Web-Ex-Machina/contao-audiotracks
+ * @author   Web ex Machina <contact@webexmachina.fr>
+ * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ */
+
 namespace WEM\AudioTracksBundle\Module;
 
+use Contao\BackendTemplate;
+use Contao\Config;
+use Contao\CoreBundle\Exception\PageNotFoundException;
+use Contao\Environment;
+use Contao\FilesModel;
+use Contao\FrontendTemplate;
+use Contao\Image;
+use Contao\Input;
+use Contao\Model\Collection;
 use Contao\Module;
+use Contao\Pagination;
+use Exception;
 use WEM\AudioTracksBundle\Model\AudioTrack;
+use WEM\AudioTracksBundle\Model\Category;
+use WEM\AudioTracksBundle\Model\Feedback;
+use WEM\AudioTracksBundle\Model\Session;
+use WEM\AudioTracksBundle\Util\MP3File;
+use WEM\UtilsBundle\Classes\StringUtil;
+use Contao\System;
 
-class AudioTracksList extends Module
+class AudioTracksList extends AudioTracksCore
 {
     /**
      * List config.
      */
-    protected $config = [];
+    protected array $config = [];
 
     /**
      * List limit.
      */
-    protected $limit = 0;
+    protected ?int $limit = 0;
 
     /**
      * List offset.
      */
-    protected $offset = 0;
+    protected int $offset = 0;
 
     /**
      * List options.
      */
-    protected $options = [];
+    protected array $options = [];
 
     /**
      * List filters.
      */
-    protected $filters = [];
+    protected array $filters = [];
 
     /**
      * Template.
@@ -43,13 +70,14 @@ class AudioTracksList extends Module
 
     /**
      * Display a wildcard in the back end
-     * @return string
      */
-    public function generate()
+    public function generate(): string
     {
-        if (TL_MODE === 'BE') {
-            $objTemplate = new \BackendTemplate('be_wildcard');
-            $objTemplate->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['FMD']['wemaudiotrackslist'][0]).' ###';
+        $request = System::getContainer()->get('request_stack')->getCurrentRequest();
+
+        if ($request && System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest($request)) {
+            $objTemplate = new BackendTemplate('be_wildcard');
+            $objTemplate->wildcard = '### '. mb_strtoupper($GLOBALS['TL_LANG']['FMD']['wemaudiotrackslist'][0], 'UTF-8').' ###';
             $objTemplate->title = $this->headline;
             $objTemplate->id = $this->id;
             $objTemplate->link = $this->name;
@@ -58,14 +86,24 @@ class AudioTracksList extends Module
             return $objTemplate->parse();
         }
 
+        // Hide if there is an auto_item
+        if (Input::get('auto_item')) {
+            return '';
+        }
+
         $this->loadDatacontainer('tl_wem_audiotrack');
         $this->loadLanguageFile('tl_wem_audiotrack');
 
-        $this->pids = \StringUtil::deserialize($this->wemaudiotracks_categories);
+        $this->pids = StringUtil::deserialize($this->wemaudiotracks_categories);
 
         // Return if there are no archives
         if (empty($this->pids) || !\is_array($this->pids)) {
             return '';
+        }
+
+        // Check if we must sync remote feeds
+        foreach ($this->pids as $id) {
+            $this->syncFeedFromRemote($id);
         }
 
         return parent::generate();
@@ -73,11 +111,15 @@ class AudioTracksList extends Module
 
     /**
      * Compile list.
+     * @throws \Exception
      */
-    protected function compile()
+    protected function compile(): void
     {
+        $this->catchAjaxRequests();
+
         $this->limit = null;
         $this->offset = (int) $this->skipFirst;
+        $this->options = ['order' => 'date DESC'];
 
         // Maximum number of items
         if ($this->numberOfItems > 0) {
@@ -94,6 +136,38 @@ class AudioTracksList extends Module
         $this->buildFilters();
         $this->Template->filters = $this->filters;
 
+        // Retrieve links
+        if ($this->wemaudiotracks_links) {
+            $arrLinks = [];
+            $arrLinkTypes = unserialize($this->wemaudiotracks_links);
+            foreach ($this->pids as $pid) {
+                // Get the model
+                $objCategory = Category::findByPk($pid);
+
+                if (!array_key_exists($pid, $arrLinks)) {
+                    $arrLinks[$pid] = $objCategory->row();
+                    $arrLinks[$pid]['links'] = [];
+                }
+
+                foreach ($arrLinkTypes as $t) {
+                    switch ($t) {
+                        case 'rss':
+                            $arrLinks[$pid]['links'][$t] = [
+                                'href' => $objCategory->getRssFeedUrl(),
+                                'title' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['links'][$t],
+                                'icon' => '<i class="fa-solid fa-square-rss"></i>'
+                            ];
+                        break;
+
+                        default:
+                            // Nuthin'
+                    }
+                }
+            }
+
+            $this->Template->links = $arrLinks;
+        }
+
         // Get the total number of items
         $intTotal = AudioTrack::countItems($this->config);
 
@@ -101,7 +175,7 @@ class AudioTracksList extends Module
             return;
         }
 
-        $total = $intTotal - $offset;
+        $total = $intTotal - $this->offset;
 
         // Split the results
         if ($this->perPage > 0 && (!isset($this->limit) || $this->numberOfItems > $this->perPage)) {
@@ -112,11 +186,11 @@ class AudioTracksList extends Module
 
             // Get the current page
             $id = 'page_n'.$this->id;
-            $page = \Input::get($id) ?? 1;
+            $page = Input::get($id) ?? 1;
 
             // Do not index or cache the page if the page number is outside the range
             if ($page < 1 || $page > max(ceil($total / $this->perPage), 1)) {
-                throw new PageNotFoundException('Page not found: '.\Environment::get('uri'));
+                throw new PageNotFoundException('Page not found: '.Environment::get('uri'));
             }
 
             // Set limit and offset
@@ -130,177 +204,18 @@ class AudioTracksList extends Module
             }
 
             // Add the pagination menu
-            $objPagination = new \Pagination($total, $this->perPage, \Config::get('maxPaginationLinks'), $id);
+            $objPagination = new Pagination($total, $this->perPage, Config::get('maxPaginationLinks'), $id);
             $this->Template->pagination = $objPagination->generate("\n  ");
         }
 
-        $objItems = AudioTrack::findItems($this->config, ($this->limit ?: 0), ($this->offset ?: 0));
+        $objItems = AudioTrack::findItems($this->config, ($this->limit ?: 0), ($this->offset ?: 0), $this->options);
 
         // Add the articles
-        if (null !== $objItems) {
-            $this->Template->articles = $this->parseItems($objItems);
+        if ($objItems instanceof Collection) {
+            $this->Template->items = $this->parseItems($objItems);
         }
 
-        $this->Template->moduleId = $this->id;
-    }
-
-    /**
-     * Retrieve list filters.
-     *
-     * @return array [Array of available filters, parsed]
-     */
-    protected function buildFilters()
-    {
-        if (!$this->wemaudiotracks_filters) {
-            return;
-        }
-
-        // Retrieve and format dropdowns filters
-        $filters = deserialize($this->wemaudiotracks_filters);
-        if (\is_array($filters) && !empty($filters)) {
-            foreach ($filters as $f) {
-                $filter = [
-                    'type' => $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['inputType'],
-                    'name' => $f,
-                    'label' => $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['label'][0] ?: $GLOBALS['TL_LANG']['tl_wem_job'][$f][0],
-                    'value' => \Input::get($f) ?: '',
-                    'options' => [],
-                    'multiple' => $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['eval']['multiple'] ? true : false,
-                ];
-
-                switch ($GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['inputType']) {
-                    case 'select':
-                        if (\is_array($GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options_callback'])) {
-                            $strClass = $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options_callback'][0];
-                            $strMethod = $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options_callback'][1];
-
-                            $this->import($strClass);
-                            $options = $this->$strClass->$strMethod($this);
-                        } elseif (\is_callable($GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options_callback'])) {
-                            $options = $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options_callback']($this);
-                        } elseif (\is_array($GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options'])) {
-                            $options = $GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['options'];
-                        }
-
-                        foreach ($options as $value => $label) {
-                            $filter['options'][] = [
-                                'value' => $value,
-                                'label' => $label,
-                                'selected' => (null !== \Input::get($f) && (\Input::get($f) === $value || (\is_array(\Input::get($f)) && \in_array($value, \Input::get($f))))),
-                            ];
-                        }
-                        break;
-
-                    case 'text':
-                    default:
-                        $objOptions = AudioTrack::findItemsGroupByOneField($f);
-
-                        if ($objOptions && 0 < $objOptions->count()) {
-                            $filter['type'] = 'select';
-                            while ($objOptions->next()) {
-                                $filter['options'][] = [
-                                    'value' => $objOptions->{$f},
-                                    'label' => $objOptions->{$f},
-                                    'selected' => (null !== \Input::get($f) && \Input::get($f) === $objOptions->{$f}),
-                                ];
-                            }
-                        }
-                        break;
-                }
-
-                if (null !== \Input::get($f) && '' !== \Input::get($f)) {
-                    $this->config[$f] = \Input::get($f);
-                }
-
-                $this->filters[] = $filter;
-            }
-        }
-
-        // Add fulltext search if asked
-        if ($this->wemaudiotracks_addSearch) {
-            $this->filters[] = [
-                'type' => 'text',
-                'name' => 'search',
-                'label' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['search'],
-                'placeholder' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['searchPlaceholder'],
-                'value' => \Input::get('search') ?: '',
-            ];
-
-            if ('' !== \Input::get('search') && null !== \Input::get('search')) {
-                $this->config['search'] = StringUtil::formatKeywords(\Input::get('search'));
-            }
-        }
-    }
-
-    /**
-     * Parse one or more items and return them as array.
-     *
-     * @param Model\Collection $objItems
-     * @param bool             $blnAddArchive
-     *
-     * @return array
-     */
-    protected function parseItems($objItems, $blnAddArchive = false)
-    {
-        $limit = $objItems->count();
-
-        if ($limit < 1) {
-            return [];
-        }
-
-        $count = 0;
-        $arrArticles = [];
-
-        while ($objItems->next()) {
-            /** @var NewsModel $objArticle */
-            $objArticle = $objItems->current();
-
-            $arrArticles[] = $this->parseItem($objArticle, $blnAddArchive, ((1 === ++$count) ? ' first' : '').(($count === $limit) ? ' last' : '').((0 === ($count % 2)) ? ' odd' : ' even'), $count);
-        }
-
-        return $arrArticles;
-    }
-
-    /**
-     * Parse an item and return it as string.
-     *
-     * @param NewsModel $objItem
-     * @param bool      $blnAddArchive
-     * @param string    $strClass
-     * @param int       $intCount
-     *
-     * @return string
-     */
-    protected function parseItem($objItem, $blnAddArchive = false, $strClass = '', $intCount = 0)
-    {
-        $objTemplate = new \FrontendTemplate($this->wemaudiotracks_template);
-        $objTemplate->setData($objItem->row());
-
-        if ('' !== $objItem->cssClass) {
-            $strClass = ' '.$objItem->cssClass.$strClass;
-        }
-
-        $objTemplate->class = $strClass;
-        $objTemplate->count = $intCount; // see #5708
-
-        // Add the meta information
-        $objTemplate->date = (int) $objItem->date;
-        $objTemplate->timestamp = $objItem->date;
-        $objTemplate->datetime = date('Y-m-d\TH:i:sP', (int) $objItem->date);
-
-        // Retrieve and parse the picture
-        if ($objItem->picture && $objFile = \FilesModel::findByUuid($objItem->picture)) {
-            $objTemplate->picture = \Image::get($objFile->path, 300, 300);
-        }
-
-        // Fetch the audio file
-        if ($objFile = \FilesModel::findByUuid($objItem->audio)) {
-            $objTemplate->audio = $objFile->path;
-            $objTemplate->isImage = @is_array(getimagesize($objFile->path));
-        } else {
-            $objTemplate->audio = null;
-        }
-
-        return $objTemplate->parse();
+        $this->Template->module_id = $this->id;
+        $this->Template->addFilters = $this->wemaudiotracks_addFilters;
     }
 }

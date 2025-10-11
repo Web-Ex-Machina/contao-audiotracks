@@ -2,18 +2,57 @@
 
 declare(strict_types=1);
 
+/**
+ * Audiotracks for Contao Open Source CMS
+ * Copyright (c) 2023 Web ex Machina
+ *
+ * @category ContaoBundle
+ * @package  Web-Ex-Machina/contao-audiotracks
+ * @author   Web ex Machina <contact@webexmachina.fr>
+ * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ */
+
 namespace WEM\AudioTracksBundle\DataContainer;
 
-class AudioTrackContainer extends \Backend
+use Contao\Backend;
+use Contao\Database;
+use Contao\DataContainer;
+use Contao\FilesModel;
+use Contao\Input;
+use Contao\Image;
+use Contao\Message;
+use Contao\Versions;
+use Contao\System;
+use WEM\UtilsBundle\Classes\StringUtil;
+use WEM\AudioTracksBundle\Model\AudioTrack;
+use WEM\AudioTracksBundle\Model\Category;
+use WEM\AudioTracksBundle\Util\MP3File;
+use WEM\UtilsBundle\Model\Model;
+
+class AudioTrackContainer extends Backend
 {
     /**
-     * Format items list.
-     *
-     * @param array $r
-     *
-     * @return string
+     * Auto-generate an article alias if it has not been set yet.
+     * @throws Exception
      */
-    public function listItems($r)
+    public function generateAlias($varValue, DataContainer $dc): string
+    {
+        $aliasExists = fn(string $alias): bool => $this->Database->prepare('SELECT id FROM tl_wem_audiotrack WHERE alias=? AND id!=?')->execute($alias, $dc->id)->numRows > 0;
+
+        // Generate an alias if there is none
+        if (!$varValue) {
+            $varValue = System::getContainer()->get('contao.slug')->generate($dc->activeRecord->title, $dc->activeRecord->id, $aliasExists);
+        } elseif ($aliasExists($varValue)) {
+            throw new Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
+        }
+
+        return $varValue;
+    }
+
+    /**
+     * Format items list.
+     */
+    public function listItems(array $r): string
     {
         return sprintf(
             '%s',
@@ -23,20 +62,12 @@ class AudioTrackContainer extends \Backend
 
     /**
      * Return the "toggle visibility" button.
-     *
-     * @param array  $row
-     * @param string $href
-     * @param string $label
-     * @param string $title
-     * @param string $icon
-     * @param string $attributes
-     *
-     * @return string
      */
-    public function toggleIcon($row, $href, $label, $title, $icon, $attributes)
+    public function toggleIcon(array $row, ?string $href, string $label, string $title, string $icon, string $attributes): string
     {
-        if (!is_null(\Input::get('tid')) && \strlen(\Input::get('tid'))) {
-            $this->toggleVisibility(\Input::get('tid'), ('1' === \Input::get('state')), (@func_get_arg(12) ?: null));
+        if (null !== Input::get('tid') && \strlen(Input::get('tid'))) {
+            // TODO : check if is ok, added cast to int Input::get because toggleVisibility need an int
+            $this->toggleVisibility((int)Input::get('tid'), ('1' === Input::get('state')), (@func_get_arg(12) ?: null));
             $this->redirect($this->getReferer());
         }
 
@@ -46,23 +77,19 @@ class AudioTrackContainer extends \Backend
             $icon = 'invisible.svg';
         }
 
-        return '<a href="'.$this->addToUrl($href).'" title="'.\StringUtil::specialchars($title).'"'.$attributes.'>'.\Image::getHtml($icon, $label, 'data-state="'.($row['published'] ? 1 : 0).'"').'</a> ';
+        return '<a href="'.$this->addToUrl($href).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label, 'data-state="'.($row['published'] ? 1 : 0).'"').'</a> ';
     }
 
     /**
      * Disable/enable a job.
-     *
-     * @param int           $intId
-     * @param bool          $blnVisible
-     * @param DataContainer $dc
      */
-    public function toggleVisibility($intId, $blnVisible, \DataContainer $dc = null): void
+    public function toggleVisibility(int $intId, bool $blnVisible, DataContainer $dc = null): void
     {
         // Set the ID and action
-        \Input::setGet('id', $intId);
-        \Input::setGet('act', 'toggle');
+        Input::setGet('id', $intId);
+        Input::setGet('act', 'toggle');
 
-        if ($dc) {
+        if ($dc instanceof DataContainer) {
             $dc->id = $intId; // see #8043
         }
 
@@ -79,7 +106,7 @@ class AudioTrackContainer extends \Backend
         }
 
         // Set the current record
-        if ($dc) {
+        if ($dc instanceof DataContainer) {
             $objRow = $this->Database->prepare('SELECT * FROM tl_wem_audiotrack WHERE id=?')
                                      ->limit(1)
                                      ->execute($intId)
@@ -90,7 +117,7 @@ class AudioTrackContainer extends \Backend
             }
         }
 
-        $objVersions = new \Versions('tl_wem_audiotrack', $intId);
+        $objVersions = new Versions('tl_wem_audiotrack', $intId);
         $objVersions->initialize();
 
         // Trigger the save_callback
@@ -108,11 +135,11 @@ class AudioTrackContainer extends \Backend
         $time = time();
 
         // Update the database
-        $this->Database->prepare("UPDATE tl_wem_audiotrack SET tstamp=$time, published='".($blnVisible ? '1' : '')."' WHERE id=?")
+        $this->Database->prepare(sprintf('UPDATE tl_wem_audiotrack SET tstamp=%d, published=\'', $time).($blnVisible ? '1' : '')."' WHERE id=?")
                        ->execute($intId)
         ;
 
-        if ($dc) {
+        if ($dc instanceof DataContainer) {
             $dc->activeRecord->tstamp = $time;
             $dc->activeRecord->published = ($blnVisible ? '1' : '');
         }
@@ -130,5 +157,154 @@ class AudioTrackContainer extends \Backend
         }
 
         $objVersions->create();
+    }
+
+    /**
+     * Retrieve tags in the parent table.
+     *
+     * @return array ['tag1','tag2', ...]
+     * @throws \Exception
+     */
+    public function getTags(?DataContainer $dc, ?array $arrPids = null): array
+    {
+        if ($dc instanceof DataContainer) {
+            $objItem = AudioTrack::findByPk($dc->id);
+            $objCategory = $objItem->getRelated('pid');
+
+            if (!$objCategory->tags) {
+                return [];
+            }
+
+            return StringUtil::deserialize($objCategory->tags);
+        }
+
+        if (null !== $arrPids) {
+            $arrTags = [];
+            foreach ($arrPids as $id) {
+                $objCategory = Category::findByPk($id);
+
+                if (!$objCategory || !$objCategory->tags) {
+                    continue;
+                }
+
+                $arrTags = array_merge($arrTags, StringUtil::deserialize($objCategory->tags));
+            }
+
+            return array_unique($arrTags);
+        }
+
+        return [];
+    }
+
+    public function retrieveAudioTrackDuration($varValue, $dc)
+    {
+        if (!$varValue && $objFile = FilesModel::findByUuid($dc->activeRecord->audio)) {
+            // Use library to get file duration
+            $mp3file = new MP3File($objFile->path);
+            $varValue = $mp3file->getDuration();
+        }
+
+        return $varValue;
+    }
+
+    public function syncAudioTrackTagsPivotTable($varValue, $dc)
+    {
+        $this->syncData(StringUtil::deserialize($varValue), 'tl_wem_audiotrack_tag', (int) $dc->id, 'pid', 'tag');
+
+        return $varValue;
+    }
+
+    /**
+     * Sync basic data between pivot tables.
+     *
+     * @param array $varValues Usually an array of IDs
+     * @param string $strTable Table where to sync
+     * @param int $intParentId Parent ID
+     * @param string $strParentField  Parent Field
+     * @param string $strForeignField Foreign field where to sync values
+     */
+    public function syncData(?array $varValues, string $strTable, int $intParentId, string $strParentField, string $strForeignField): void
+    {
+        // Found Model class
+        $stdModel = Model::getClassFromTable($strTable);
+
+        // step 1 - update existing recipients, add new ones
+        foreach ($varValues as $id) {
+            $objModel = $stdModel::findItems([$strParentField => $intParentId, $strForeignField => $id], 1);
+
+            if (!$objModel) {
+                $objModel = new $stdModel();
+                $objModel->createdAt = time();
+                $objModel->$strParentField = $intParentId;
+                $objModel->$strForeignField = $id;
+            }
+
+            $objModel->tstamp = time();
+            $objModel->save();
+        }
+
+        // step 2 - remove all ids not in $varValues
+        if (null !== $varValues && $varValues !== []) {
+            Database::getInstance()->prepare(
+                sprintf(
+                    "DELETE FROM %s WHERE %s = %s AND %s NOT IN ('%s')",
+                    $strTable,
+                    $strParentField,
+                    $intParentId,
+                    $strForeignField,
+                    implode("','", $varValues)
+                )
+            )->execute();
+        }
+    }
+
+    /**
+     * Generate the RSS feed
+     */
+    public function generateRssFeed(DataContainer $dc): void
+    {
+        if (!$dc->id) {
+            return;
+        }
+        
+        $objItem = AudioTrack::findByPk($dc->id);
+
+        try {
+            System::getContainer()->get('wem.audiotracks.rss_feed')->generate($objItem->pid);
+            Message::addConfirmation('RSS Feed saved');
+        } catch(\Exception $e) {
+            Message::addError($e->getMessage());
+        }
+
+    }
+
+    public function getParentValue($varValue, DataContainer $dc)
+    {
+        if (!$varValue) {
+            $objItem = AudioTrack::findByPk($dc->id);
+            $varValue = $objItem->getRelated('pid')->authors;
+        }
+
+        return $varValue;
+    }
+    
+    /**
+     * Update palette for remote tracks
+     */ 
+    public function updatePalettes(DataContainer $dc): void
+    {
+        if (!$dc->id) {
+            return;
+        }
+        
+        $objItem = AudioTrack::findByPk($dc->id);
+        $objCategory = $objItem->getRelated('pid');
+        
+        if ('remote' !== $objCategory->type && !$objCategory->rssRemoteUrl) {
+            return;
+        }
+
+        $GLOBALS['TL_DCA']['tl_wem_audiotrack']['palettes']['default'] = str_replace('audio', 'audioRemoteUrl', $GLOBALS['TL_DCA']['tl_wem_audiotrack']['palettes']['default']);
+        $GLOBALS['TL_DCA']['tl_wem_audiotrack']['palettes']['default'] = str_replace('picture,picture_mobile', 'pictureRemoteUrl', $GLOBALS['TL_DCA']['tl_wem_audiotrack']['palettes']['default']);
     }
 }

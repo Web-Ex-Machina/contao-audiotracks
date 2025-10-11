@@ -1,0 +1,37 @@
+Extension "Audiotracks" for Contao Open Source CMS
+========
+
+1.1.0
+---
+- PHP 8.2 Compatibility
+- Contao 5.3 compatibility
+- Feat: Improve load time with audiotrack duration calculation and storage
+- Feat: Allow user to download audiotrack in the module settings
+- Feat: Sound level is now global and will be kept between audiotracks
+- Feat: System will display a confirm box if the tab/window is closed when a file is currently playing
+- Feat: You can now generate a public RSS Feed for each category
+
+1.0.3 - 2023-08-16
+---
+- ADDED : content in README [issue #5](https://github.com/Web-Ex-Machina/contao-audiotracks/issues/5)
+- UPDATED : bundle now requires [webexmachina/contao-utils](https://github.com/Web-Ex-Machina/contao-utils) ^1.0
+
+1.0.2 - 2023-08-08
+---
+- ADDED : better interaction with `marcel-mathias-nolte/contao-filesmanager-fileusage`'s bundle
+- FIXED : wrong `issues` & `source` URLs in `composer.json` [issue #4](https://github.com/Web-Ex-Machina/contao-audiotracks/issues/4#issue-1841268970)
+
+1.0.1 - 2023-08-08
+---
+- FIXED : audiotrack "like" button not working as intended
+
+1.0.0 - 2023-08-07
+---
+First release
+
+1.0.0-rc1 - 2023-07-25
+---
+- ADDED : documentation for our hooks
+- ADDED : documentation for using PHPStan
+- UPDATED : compatibility with PHP 8
+- FIXED : `WEMAUDIOTRACKSPARSEITEM` hook

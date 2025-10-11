@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use Contao\DataContainer;
 use Contao\DC_Table;
-use WEM\AudioTracksBundle\DataContainer\FeedbackContainer;
+use WEM\AudioTracksBundle\DataContainer\SessionContainer;
 
-$GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
+$GLOBALS['TL_DCA']['tl_wem_audiotrack_session'] = [
     // Config
     'config' => [
         'dataContainer' => DC_Table::class,
@@ -28,7 +28,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
             'fields' => ['ip ASC'],
             'headerFields' => ['title'],
             'panelLayout' => 'filter;sort,search,limit',
-            'child_record_callback' => [FeedbackContainer::class, 'listItems'],
+            'child_record_callback' => [SessionContainer::class, 'listItems'],
         ],
         'global_operations' => [
             'all' => [
@@ -57,7 +57,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
     // Palettes
     'palettes' => [
         'default' => '
-            {title_legend},ip
+            {title_legend},ip,volume,currentTime,complete
         ',
     ],
 
@@ -85,6 +85,28 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
             'inputType' => 'text',
             'eval' => ['mandatory' => true, 'tl_class' => 'w50', 'maxlength' => 255],
             'sql' => "varchar(255) NOT NULL default ''",
+        ],
+        'volume' => [
+            'exclude' => true,
+            'search' => true,
+            'inputType' => 'text',
+            'eval' => ['tl_class' => 'w50'],
+            'sql' => "decimal(10,2) NOT NULL default '0.00'",
+        ],
+        'currentTime' => [
+            'exclude' => true,
+            'search' => true,
+            'inputType' => 'text',
+            'eval' => ['tl_class' => 'w50'],
+            'sql' => "int(10) unsigned NOT NULL default '0'",
+        ],
+        'complete' => [
+            'exclude' => true,
+            'filter' => true,
+            'flag' => 1,
+            'inputType' => 'checkbox',
+            'eval' => ['doNotCopy' => true, 'tl_class' => 'w50 m12'],
+            'sql' => "char(1) NOT NULL default ''",
         ],
     ],
 ];

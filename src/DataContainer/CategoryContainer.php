@@ -2,27 +2,38 @@
 
 declare(strict_types=1);
 
+/**
+ * Audiotracks for Contao Open Source CMS
+ * Copyright (c) 2023 Web ex Machina
+ *
+ * @category ContaoBundle
+ * @package  Web-Ex-Machina/contao-audiotracks
+ * @author   Web ex Machina <contact@webexmachina.fr>
+ * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ */
+
 namespace WEM\AudioTracksBundle\DataContainer;
 
-use Exception;
 use Contao\Backend;
 use Contao\DataContainer;
+use Contao\DC_Table;
+use Contao\Image;
+use Contao\Message;
+use Contao\StringUtil;
 use Contao\System;
+use Exception;
+use WEM\AudioTracksBundle\Model\Category;
+use Symfony\Component\Uid\Uuid;
 
 class CategoryContainer extends Backend
 {
     /**
      * Auto-generate an article alias if it has not been set yet.
-     *
      * @throws Exception
-     *
-     * @return string
      */
-    public function generateAlias($varValue, DataContainer $dc)
+    public function generateAlias($varValue, DataContainer $dc): string
     {
-        $aliasExists = function (string $alias) use ($dc): bool {
-            return $this->Database->prepare('SELECT id FROM tl_wem_audiotrack_category WHERE alias=? AND id!=?')->execute($alias, $dc->id)->numRows > 0;
-        };
+        $aliasExists = fn(string $alias): bool => $this->Database->prepare('SELECT id FROM tl_wem_audiotrack_category WHERE alias=? AND id!=?')->execute($alias, $dc->id)->numRows > 0;
 
         // Generate an alias if there is none
         if (!$varValue) {
@@ -33,4 +44,92 @@ class CategoryContainer extends Backend
 
         return $varValue;
     }
+
+    /**
+     * Auto-generate an article alias if it has not been set yet.
+     * @throws Exception
+     */
+    public function generateNamespace($varValue, DataContainer $dc): string
+    {
+        if (!$varValue) {
+            $varValue = (string) Uuid::v4();
+        }
+
+        return $varValue;
+    }
+
+    /**
+     * Display the location of the rss feed
+     */
+    public function displayRssUrl(DataContainer $dc): void
+    {
+        if (!$dc->id) {
+            return;
+        }
+        
+        $objItem = Category::findByPk($dc->id);
+
+        if (!$objItem->rss) {
+            return;
+        }
+
+        $url = $objItem->getRssFeedUrl();
+
+        Message::addInfo('RSS Feed is located at: <a href="' . $url . '" title="Go to RSS Feed" target="_blank">' . $url . '</a>');
+    }
+
+    /**
+     * Generate the RSS feed
+     */
+    public function generateRssFeed(DataContainer $dc): void
+    {
+        if (!$dc->id) {
+            return;
+        }
+
+        $objItem = Category::findByPk($id);
+
+        if (!$objItem->rss) {
+            return;
+        }
+
+        try {
+            System::getContainer()->get('wem.audiotracks.rss_feed')->generate((int) $dc->id);
+
+            Message::addConfirmation('RSS Feed saved');
+        } catch(\Exception $e) {
+            Message::addError($e->getMessage());
+        }
+    }
+
+    public function displaySyncRemoteRssButton(array $row, ?string $href, string $label, string $title, string $icon, string $attributes): string
+    {
+        if ('remote' !== $row['type'] && !$row['rssRemoteUrl']) {
+            return '';
+        }
+
+        return '<a href="' . $this->addToUrl($href . '&amp;id=' . $row['id']) . '" title="' . StringUtil::specialchars($title) . '"' . $attributes . '>' . Image::getHtml($icon, $label) . '</a>';
+    }
+
+    public function syncRemoteRssFeed(DC_Table $dc)
+    {
+        if (!$dc->id) {
+            return;
+        }
+
+        $objItem = Category::findByPk($dc->id);
+
+        if ('remote' !== $objItem->type && !$objItem->rssRemoteUrl) {
+            return;
+        }
+
+        try {
+            System::getContainer()->get('wem.audiotracks.rss_feed')->import((int) $dc->id);
+
+            Message::addConfirmation('RSS Feed imported');
+        } catch(\Exception $e) {
+            Message::addError($e->getMessage());
+        }
+    }
 }
+

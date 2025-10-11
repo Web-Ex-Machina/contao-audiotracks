@@ -1,0 +1,225 @@
+<?xml version="1.0" ?>
+<xliff version="1.1">
+	<file datatype="php" original="system/modules/core/languages/en/tl_wem_audiotrack.php" source-language="en" target-language="fr">
+		<body>
+			<trans-unit id="tl_wem_audiotrack.title.0">
+				<source>Title</source>
+				<target>Intitulé</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.title.1">
+				<source>Enter the track title.</source>
+				<target>Saisissez l'intitulé de la piste.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.alias.0">
+				<source>Alias</source>
+				<target>Alias</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.alias.1">
+				<source>Enter the track alias.</source>
+				<target>Saisissez l'alias de la piste.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.date.0">
+				<source>Date</source>
+				<target>Date</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.date.1">
+				<source>Select the track date.</source>
+				<target>Sélectionnez la date de la piste.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.season.0">
+				<source>Season</source>
+				<target>Saison</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.season.1">
+				<source>Enter the track season number.</source>
+				<target>Saisissez le numéro de saison de la piste.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.episode.0">
+				<source>Episode</source>
+				<target>Épisode</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.episode.1">
+				<source>Enter the track episode number.</source>
+				<target>Saisissez le numéro d'épisode de la piste.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.audio.0">
+				<source>File</source>
+				<target>Fichier</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.audio.1">
+				<source>Select the track file (mp3).</source>
+				<target>Sélectionnez le fichier de la piste.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.audioRemoteUrl.0">
+				<source>Remote file url</source>
+				<target>Adresse distante du fichier</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.audioRemoteUrl.1">
+				<source>Enter the track file absolute path (mp3).</source>
+				<target>Saisir l'adresse absolue de la piste.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.type.0">
+				<source>Type</source>
+				<target>Type</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.type.1">
+				<source>Enter the track type.</source>
+				<target>Saisissez le type de la piste.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.type.full">
+				<source>Full</source>
+				<target>Entier</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.type.trailer">
+				<source>Trailer</source>
+				<target>Accroche</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.type.bonus">
+				<source>Bonus</source>
+				<target>Bonus</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.duration.0">
+				<source>Duration (in seconds)</source>
+				<target>Durée (en secondes)</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.duration.1">
+				<source>Enter the track duration (leave empty to let the system calculate).</source>
+				<target>Saisissez la durée de la piste (laissez vide pour laisser le système calculer).</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.description.0">
+				<source>Description</source>
+				<target>Description</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.description.1">
+				<source>Enter the track description.</source>
+				<target>Saisissez la description de la piste.</target>
+			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack.explicit.0">
+				<source>Explicit content</source>
+				<target>Contenu explicite</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.explicit.1">
+				<source>Check if the track contains explicit language.</source>
+				<target>Cochez si la piste contient du language explicite.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.tags.0">
+				<source>Tags</source>
+				<target>Tags</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.tags.1">
+				<source>Select the track tags.</source>
+				<target>Sélectionnez les tags de la piste.</target>
+			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack.picture.0">
+				<source>Picture</source>
+				<target>Illustration</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.picture.1">
+				<source>Select the track picture.</source>
+				<target>Sélectionnez l'illustration de la piste (format 2:1 ou 16:9).</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.picture_mobile.0">
+				<source>Picture mobile</source>
+				<target>Illustration mobile</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.picture_mobile.1">
+				<source>Select the track picture displayed on mobile resolution.</source>
+				<target>Sélectionnez l'illustration de la piste affichée sur résolution mobile (format 1:1).</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.pictureText.0">
+				<source>Text picture</source>
+				<target>Texte illustration</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.pictureText.1">
+				<source>Text displayed inside the track picture</source>
+				<target>Texte affiché dans l'illustration</target>
+			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack.authors.0">
+				<source>Authors</source>
+				<target>Auteurs &amp; Autrices</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.authors.1">
+				<source>Enter the feed authors.</source>
+				<target>Indiquez les auteurs et autrices du flux.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.authors.name">
+				<source>Name</source>
+				<target>Nom</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.authors.email">
+				<source>Email</source>
+				<target>Email</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.authors.uri">
+				<source>Website</source>
+				<target>Site internet</target>
+			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack.published.0">
+				<source>Published</source>
+				<target>Publié</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.published.1">
+				<source>Check to publish the track.</source>
+				<target>Cochez pour publier la piste.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.start.0">
+				<source>Published at</source>
+				<target>Publiée le</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.start.1">
+				<source>Select the track start publication date.</source>
+				<target>Sélectionnez la date de début de publication de la piste.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.stop.0">
+				<source>Published until</source>
+				<target>Publiée jusqu'au</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.stop.1">
+				<source>Select the track end publication date.</source>
+				<target>Sélectionnez la date de fin de publication de la piste.</target>
+			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack.title_legend">
+				<source>Global settings</source>
+				<target>Paramètres généraux</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.content_legend">
+				<source>Content settings</source>
+				<target>Paramètres de contenu</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.picture_legend">
+				<source>Picture settings</source>
+				<target>Paramètres de l'illustration</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.author_legend">
+				<source>Authors</source>
+				<target>Auteurs / Autrices</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.publish_legend">
+				<source>Publication settings</source>
+				<target>Paramètres de publication</target>
+			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack.feedbacks.0">
+				<source>See feedbacks</source>
+				<target>Voir les retours</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.feedbacks.1">
+				<source>See feedbacks of track ID %s</source>
+				<target>Voir les retours de la piste ID %s</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.sessions.0">
+				<source>See sessions</source>
+				<target>Voir les sessions</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.sessions.1">
+				<source>See sessions off track ID %s</source>
+				<target>Voir les sessions de la piste ID %s</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

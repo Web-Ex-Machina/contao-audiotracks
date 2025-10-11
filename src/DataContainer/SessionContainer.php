@@ -12,19 +12,20 @@ declare(strict_types=1);
  * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
-namespace WEM\AudioTracksBundle\Model;
+namespace WEM\AudioTracksBundle\DataContainer;
 
-use WEM\UtilsBundle\Model\Model;
+use Contao\Backend;
 
-/**
- * Reads and writes items.
- */
-class Feedback extends Model
+class SessionContainer extends Backend
 {
     /**
-     * Table name.
-     *
-     * @var string
+     * Format items list.
      */
-    protected static $strTable = 'tl_wem_audiotrack_feedback';
+    public function listItems(array $r): string
+    {
+        return sprintf(
+            '%s',
+            $r['ip']
+        );
+    }
 }

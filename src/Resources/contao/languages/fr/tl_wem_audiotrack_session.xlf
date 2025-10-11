@@ -1,0 +1,52 @@
+<?xml version="1.0" ?>
+<xliff version="1.1">
+	<file datatype="php" original="system/modules/core/languages/en/tl_wem_audiotrack_session.php" source-language="en" target-language="fr">
+		<body>
+			<trans-unit id="tl_wem_audiotrack_session.createdAt.0">
+				<source>Created at</source>
+				<target>Créé le</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.createdAt.1">
+				<source>Creation date of the session</source>
+				<target>Date de création de la session</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.ip.0">
+				<source>IP</source>
+				<target>IP</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.ip.1">
+				<source>Enter the session IP.</source>
+				<target>Saisissez l'IP de la session.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.volume.0">
+				<source>Volume</source>
+				<target>Volume</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.volume.1">
+				<source>Enter the session volume.</source>
+				<target>Saisissez le volume de la session.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.currentTime.0">
+				<source>Current timee</source>
+				<target>Temps d'écoute</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.currentTime.1">
+				<source>Enter the session current time.</source>
+				<target>Saisissez le temps d'écoute de la session.</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.complete.0">
+				<source>Complete</source>
+				<target>Complétée</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.complete.1">
+				<source>Check to mark this session as complete.</source>
+				<target>Cochez pour marquer la session comme complétée.</target>
+			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack_session.title_legend">
+				<source>Global settings</source>
+				<target>Paramètres généraux</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

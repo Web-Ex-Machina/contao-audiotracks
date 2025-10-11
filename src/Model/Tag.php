@@ -19,12 +19,12 @@ use WEM\UtilsBundle\Model\Model;
 /**
  * Reads and writes items.
  */
-class Feedback extends Model
+class Tag extends Model
 {
     /**
      * Table name.
      *
      * @var string
      */
-    protected static $strTable = 'tl_wem_audiotrack_feedback';
+    protected static $strTable = 'tl_wem_audiotrack_tag';
 }
