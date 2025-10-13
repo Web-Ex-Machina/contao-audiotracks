@@ -76,7 +76,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_session'] = [
         ],
         'createdAt' => [
             'default' => time(),
-            'flag' => 8,
+            'flag' => \Contao\DataContainer::SORT_MONTH_DESC,
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'ip' => [
@@ -103,7 +103,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_session'] = [
         'complete' => [
             'exclude' => true,
             'filter' => true,
-            'flag' => 1,
+            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'checkbox',
             'eval' => ['doNotCopy' => true, 'tl_class' => 'w50 m12'],
             'sql' => "char(1) NOT NULL default ''",

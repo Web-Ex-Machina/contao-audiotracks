@@ -109,7 +109,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         ],
         'createdAt' => [
             'default' => time(),
-            'flag' => 8,
+            'flag' => \Contao\DataContainer::SORT_MONTH_DESC,
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'type' => [
@@ -140,7 +140,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'categories' => [
             'exclude' => true,
             'inputType' => 'listWizard',
-            'eval' => ['tl_class'=>'clr', 'tl_class' => 'clr long'],
+            'eval' => ['tl_class' => 'clr long'],
             'sql' => "blob NULL"
         ],
         'description' => [
@@ -154,7 +154,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'picture' => [
             'exclude' => true,
             'inputType' => 'fileTree',
-            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Config::get('validImageTypes')],
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => '%contao.image.valid_extensions%'],
             'sql' => 'binary(16) NULL',
         ],
         'pictureAlt' => [
@@ -197,7 +197,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'explicit' => [
             'exclude' => true,
             'filter' => true,
-            'flag' => 1,
+            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'checkbox',
             'eval' => ['doNotCopy' => true, 'tl_class' => 'w50'],
             'sql' => "char(1) NOT NULL default ''",
@@ -205,7 +205,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'complete' => [
             'exclude' => true,
             'filter' => true,
-            'flag' => 1,
+            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'checkbox',
             'eval' => ['doNotCopy' => true, 'tl_class' => 'w50'],
             'sql' => "char(1) NOT NULL default ''",
@@ -246,7 +246,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'rss' => [
             'exclude' => true,
             'filter' => true,
-            'flag' => 1,
+            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'checkbox',
             'eval' => ['doNotCopy' => true, 'submitOnChange' => true],
             'sql' => "char(1) NOT NULL default ''",
@@ -312,7 +312,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         ],
         'rssRemoteLastSync' => [
             'default' => time(),
-            'flag' => 8,
+            'flag' => \Contao\DataContainer::SORT_MONTH_DESC,
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
     ],

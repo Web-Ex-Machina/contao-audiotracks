@@ -208,7 +208,7 @@ class AudioTracksList extends AudioTracksCore
             $this->Template->pagination = $objPagination->generate("\n  ");
         }
 
-        $objItems = AudioTrack::findItems($this->config, ($this->limit ?: 0), ($this->offset ?: 0), $this->options);
+        $objItems = AudioTrack::findItems($this->config, ($this->limit !== null && $this->limit !== 0 ? $this->limit : 0), ($this->offset), $this->options);
 
         // Add the articles
         if ($objItems instanceof Collection) {

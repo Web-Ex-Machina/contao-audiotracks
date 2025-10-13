@@ -284,7 +284,6 @@ abstract class AudioTracksCore extends Module
     /**
      * Parse an item and return it as string.
      *
-     * @param AudioTrack $objItem
      *
      * @throws Exception
      */
@@ -313,15 +312,15 @@ abstract class AudioTracksCore extends Module
             $objTemplate->picture =  $objItem->pictureRemoteUrl;
         } else {
             if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
-                $objTemplate->picture =  \Image::get($objFile->path, 300, 300);
+                $objTemplate->picture =  \Contao\Image::get($objFile->path, 300, 300);
             }
 
             if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
-                $objTemplate->picture_big =  \Image::get($objFile->path, 1920, 1080);
+                $objTemplate->picture_big =  \Contao\Image::get($objFile->path, 1920, 1080);
             }
 
             if ($objItem->picture_mobile && $objFile = FilesModel::findByUuid($objItem->picture_mobile)) {
-                $objTemplate->picture_mobile = \Image::get($objFile->path, 300, 300);
+                $objTemplate->picture_mobile = \Contao\Image::get($objFile->path, 300, 300);
             }
         }
         
@@ -349,7 +348,7 @@ abstract class AudioTracksCore extends Module
 
         // Retrieve the feedback from this IP
         $objTemplate->liked = 0 < Feedback::countItems(['pid' => $objItem->id, 'ip' => Environment::get('ip')]);
-        $objTemplate->nbLikes = Feedback::countItems(['pid' => $objItem->id]) ?: 0;
+        $objTemplate->nbLikes = Feedback::countItems(['pid' => $objItem->id]);
 
         // Retrieve user session if exists
         $objSession = Session::findItems(['pid' => $objItem->id, 'ip' => Environment::get('ip')], 1);

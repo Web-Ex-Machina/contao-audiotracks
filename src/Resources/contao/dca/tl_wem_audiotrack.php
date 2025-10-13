@@ -109,7 +109,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         ],
         'createdAt' => [
             'default' => time(),
-            'flag' => 8,
+            'flag' => \Contao\DataContainer::SORT_MONTH_DESC,
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'title' => [
@@ -132,7 +132,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'date' => [
             'exclude' => true,
             'inputType' => 'text',
-            'flag' => 8,
+            'flag' => \Contao\DataContainer::SORT_MONTH_DESC,
             'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
             'sql' => "varchar(10) NOT NULL default ''",
         ],
@@ -191,14 +191,14 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'explicit' => [
             'exclude' => true,
             'filter' => true,
-            'flag' => 1,
+            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'checkbox',
             'eval' => ['doNotCopy' => true],
             'sql' => "char(1) NOT NULL default ''",
         ],
         'tags' => [
             'exclude' => true,
-            'flag' => 1,
+            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'select',
             'options_callback' => [AudioTrackContainer::class, 'getTags'],
             'save_callback' => [
@@ -210,13 +210,13 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'picture' => [
             'exclude' => true,
             'inputType' => 'fileTree',
-            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Config::get('validImageTypes')],
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => '%contao.image.valid_extensions%'],
             'sql' => 'binary(16) NULL',
         ],
         'picture_mobile' => [
             'exclude' => true,
             'inputType' => 'fileTree',
-            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => Config::get('validImageTypes')],
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => '%contao.image.valid_extensions%'],
             'sql' => 'binary(16) NULL',
         ],
         'pictureRemoteUrl' => [
@@ -266,7 +266,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'published' => [
             'exclude' => true,
             'filter' => true,
-            'flag' => 1,
+            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'checkbox',
             'eval' => ['doNotCopy' => true],
             'sql' => "char(1) NOT NULL default ''",

@@ -76,7 +76,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
         ],
         'createdAt' => [
             'default' => time(),
-            'flag' => 8,
+            'flag' => \Contao\DataContainer::SORT_MONTH_DESC,
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'ip' => [

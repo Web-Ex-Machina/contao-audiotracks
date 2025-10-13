@@ -135,7 +135,7 @@ class AudioTrackContainer extends Backend
         $time = time();
 
         // Update the database
-        $this->Database->prepare(sprintf('UPDATE tl_wem_audiotrack SET tstamp=%d, published=\'', $time).($blnVisible ? '1' : '')."' WHERE id=?")
+        $this->Database->prepare(sprintf("UPDATE tl_wem_audiotrack SET tstamp=%d, published='", $time).($blnVisible ? '1' : '')."' WHERE id=?")
                        ->execute($intId)
         ;
 
@@ -182,8 +182,10 @@ class AudioTrackContainer extends Backend
             $arrTags = [];
             foreach ($arrPids as $id) {
                 $objCategory = Category::findByPk($id);
-
-                if (!$objCategory || !$objCategory->tags) {
+                if (!$objCategory) {
+                    continue;
+                }
+                if (!$objCategory->tags) {
                     continue;
                 }
 
@@ -272,8 +274,8 @@ class AudioTrackContainer extends Backend
         try {
             System::getContainer()->get('wem.audiotracks.rss_feed')->generate($objItem->pid);
             Message::addConfirmation('RSS Feed saved');
-        } catch(\Exception $e) {
-            Message::addError($e->getMessage());
+        } catch(\Exception $exception) {
+            Message::addError($exception->getMessage());
         }
 
     }

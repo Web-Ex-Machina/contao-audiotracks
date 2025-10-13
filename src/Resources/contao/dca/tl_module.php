@@ -7,14 +7,14 @@ $GLOBALS['TL_DCA']['tl_module']['palettes']['wemaudiotrackslist'] = '
     {title_legend},name,headline,type;
     {config_legend},wemaudiotracks_categories,wemaudiotracks_addFilters,wemaudiotracks_canDownload,wemaudiotracks_links;
     {list_legend},jumpTo,numberOfItems,skipFirst,perPage;
-    {template_legend:hide},wemaudiotracks_template,customTpl;
-    {expert_legend:hide},guests,cssID
+    {template_legend:collapsed},wemaudiotracks_template,customTpl;
+    {expert_legend:collapsed},guests,cssID
 ';
 $GLOBALS['TL_DCA']['tl_module']['palettes']['wemaudiotracksreader'] = '
     {title_legend},name,headline,type;
     {config_legend},wemaudiotracks_canDownload,wemaudiotracks_links,overviewPage,customLabel;
-    {template_legend:hide},wemaudiotracks_template,customTpl;
-    {expert_legend:hide},guests,cssID
+    {template_legend:collapsed},wemaudiotracks_template,customTpl;
+    {expert_legend:collapsed},guests,cssID
 ';
 $GLOBALS['TL_DCA']['tl_module']['subpalettes']['wemaudiotracks_addFilters'] = 'wemaudiotracks_filters,wemaudiotracks_addSearch';
 
@@ -28,7 +28,7 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_categories'] = [
 $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_addFilters'] = [
     'exclude' => true,
     'filter' => true,
-    'flag' => 1,
+    'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
     'inputType' => 'checkbox',
     'eval' => ['submitOnChange' => true, 'doNotCopy' => true],
     'sql' => "char(1) NOT NULL default ''",
@@ -43,7 +43,7 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_filters'] = [
 $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_addSearch'] = [
     'exclude' => true,
     'filter' => true,
-    'flag' => 1,
+    'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
     'inputType' => 'checkbox',
     'eval' => ['doNotCopy' => true],
     'sql' => "char(1) NOT NULL default ''",
@@ -51,7 +51,7 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_addSearch'] = [
 $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_canDownload'] = [
     'exclude' => true,
     'filter' => true,
-    'flag' => 1,
+    'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
     'inputType' => 'checkbox',
     'eval' => ['doNotCopy' => true],
     'sql' => "char(1) NOT NULL default ''",

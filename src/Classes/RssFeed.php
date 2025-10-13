@@ -37,13 +37,12 @@ class RssFeed
             return;
         }
 
-        $url = $objItem->getRssFeedUrl();
         $feed = $this->createRssFeed($objItem);
 
         // Retrieve item tracks
         $objTracks = AudioTrack::findItems(['pid' => $objItem->id, 'published' => 1], 0, 0, ['order' => 'date DESC']);
 
-        if (!$objTracks || 0 === $objTracks->count()) {
+        if (!$objTracks instanceof \Contao\Model\Collection || 0 === $objTracks->count()) {
             Message::addError('No tracks found, no RSS generated');
             return;
         }
@@ -67,11 +66,10 @@ class RssFeed
 
     /**
      * Generate the feed part of the RSS
-     * 
+     *
      * @var WEM\AudioTracksBundle\Model\Category
-     * 
-     * @return Laminas\Feed\Writer\Feed 
-     * 
+     *
+     *
      * @todo setItunesSubtitle
      */
     protected function createRssFeed($objItem): Feed
@@ -156,6 +154,7 @@ class RssFeed
                     "label" => $c,
                 ]);
             }
+
             $feed->setItunesCategories($arrCategories);
         }
 
@@ -170,13 +169,12 @@ class RssFeed
 
     /**
      * Generate an entry of the RSS
-     * 
+     *
      * @var WEM\AudioTracksBundle\Model\AudioTrack
      * @var WEM\AudioTracksBundle\Model\Category
      * @var Laminas\Feed\Writer\Feed
-     * 
-     * @return Laminas\Feed\Writer\Feed 
-     * 
+     *
+     *
      * @todo setItunesSubtitle
      * @todo setItunesIsClosedCaptioned
      */
@@ -369,7 +367,7 @@ class RssFeed
         // Try to retrieve an existing track
         $objTrack = AudioTrack::findItems(['pid' => $objCategory->id, 'uuid' => $entry->getId()], 1);
 
-        if (!$objTrack) {
+        if (!$objTrack instanceof \Contao\Model\Collection) {
             $objTrack = new AudioTrack();
             $objTrack->uuid = $entry->getId();
             $objTrack->pid = $objCategory->id;

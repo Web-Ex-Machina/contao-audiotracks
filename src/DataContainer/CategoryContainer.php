@@ -52,7 +52,7 @@ class CategoryContainer extends Backend
     public function generateNamespace($varValue, DataContainer $dc): string
     {
         if (!$varValue) {
-            $varValue = (string) Uuid::v4();
+            return (string) Uuid::v4();
         }
 
         return $varValue;
@@ -97,8 +97,8 @@ class CategoryContainer extends Backend
             System::getContainer()->get('wem.audiotracks.rss_feed')->generate((int) $dc->id);
 
             Message::addConfirmation('RSS Feed saved');
-        } catch(\Exception $e) {
-            Message::addError($e->getMessage());
+        } catch(\Exception $exception) {
+            Message::addError($exception->getMessage());
         }
     }
 
@@ -111,7 +111,7 @@ class CategoryContainer extends Backend
         return '<a href="' . $this->addToUrl($href . '&amp;id=' . $row['id']) . '" title="' . StringUtil::specialchars($title) . '"' . $attributes . '>' . Image::getHtml($icon, $label) . '</a>';
     }
 
-    public function syncRemoteRssFeed(DC_Table $dc)
+    public function syncRemoteRssFeed(DC_Table $dc): void
     {
         if (!$dc->id) {
             return;
@@ -127,8 +127,8 @@ class CategoryContainer extends Backend
             System::getContainer()->get('wem.audiotracks.rss_feed')->import((int) $dc->id);
 
             Message::addConfirmation('RSS Feed imported');
-        } catch(\Exception $e) {
-            Message::addError($e->getMessage());
+        } catch(\Exception $exception) {
+            Message::addError($exception->getMessage());
         }
     }
 }

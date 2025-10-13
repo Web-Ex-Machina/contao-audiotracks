@@ -46,7 +46,8 @@ class MP3File
             }  //looking for 1111 1111 111 (frame synchronization bits)
             elseif ($block[0]=="\xff" && (ord($block[1])&0xe0) ) {
                 $info = self::parseFrameHeader(substr($block, 0, 4));
-                if (empty($info['Framesize'])) { return $duration; } //some corrupt mp3 files
+                if (empty($info['Framesize'])) { return $duration; }
+                 //some corrupt mp3 files
                 fseek($fd, $info['Framesize']-10, SEEK_CUR);
                 $duration += ( $info['Samples'] / $info['Sampling Rate'] );
             }
@@ -72,7 +73,7 @@ class MP3File
         return round($datasize / $kbps);
     }
 
-    private function skipID3v2Tag(&$block)
+    private function skipID3v2Tag(&$block): int
     {
         if (substr($block, 0,3) === "ID3")
         {
@@ -87,7 +88,7 @@ class MP3File
             $z1 = ord($block[7]);
             $z2 = ord($block[8]);
             $z3 = ord($block[9]);
-            if ( (($z0&0x80)==0) && (($z1&0x80)==0) && (($z2&0x80)==0) && (($z3&0x80)==0) )
+            if ( (($z0 & 0x80) === 0) && (($z1 & 0x80) === 0) && (($z2 & 0x80) === 0) && (($z3 & 0x80) === 0) )
             {
                 $header_size = 10;
                 $tag_size = (($z0&0x7f) * 2097152) + (($z1&0x7f) * 16384) + (($z2&0x7f) * 128) + ($z3&0x7f);
@@ -142,12 +143,6 @@ class MP3File
         $sample_rate_idx = ($b2 & 0x0c) >> 2;//0xc => b1100
         $sample_rate = $sample_rates[$version][$sample_rate_idx] ?? 0;
         $padding_bit = ($b2 & 0x02) >> 1;
-        $private_bit = ($b2 & 0x01);
-        $channel_mode_bits = ($b3 & 0xc0) >> 6;
-        $mode_extension_bits = ($b3 & 0x30) >> 4;
-        $copyright_bit = ($b3 & 0x08) >> 3;
-        $original_bit = ($b3 & 0x04) >> 2;
-        $emphasis = ($b3 & 0x03);
 
         $info = [];
         $info['Version'] = $version;//MPEGVersion
@@ -171,9 +166,8 @@ class MP3File
     {
         if ($layer==1) {
             return intval(((12 * $bitrate*1000 /$sample_rate) + $padding_bit) * 4);
-        } else {
-            //layer 2, 3
-            return intval(((144 * $bitrate*1000)/$sample_rate) + $padding_bit);
         }
+        //layer 2, 3
+        return intval(((144 * $bitrate*1000)/$sample_rate) + $padding_bit);
     }
 }
