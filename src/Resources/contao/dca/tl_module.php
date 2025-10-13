@@ -60,7 +60,7 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_links'] = [
     'exclude' => true,
     'inputType' => 'checkboxWizard',
     'options' => ['rss'],
-    'reference' => $GLOBALS['TL_LANG']['tl_module']['wemaudiotracks_links'],
+    'reference' => &$GLOBALS['TL_LANG']['tl_module']['wemaudiotracks_links'],
     'eval' => ['multiple' => true,],
     'sql' => 'blob NULL',
 ];

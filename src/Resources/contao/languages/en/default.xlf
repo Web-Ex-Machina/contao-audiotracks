@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<xliff version="1.1">
+	<file datatype="php" original="system/modules/core/languages/en/default.php" source-language="en">
+		<body>
+			<trans-unit id="WEM.AUDIOTRACKS.unknownAjaxAction">
+			    <source>Unknown AJAX action</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.empty">
+			    <source>There is no audiotracks yet.</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.search">
+			    <source>Search</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.searchPlaceholder">
+			    <source>Search</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.listened">
+			    <source>Listened</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.download">
+			    <source>Download</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.theme">
+			    <source>Theme</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.themes">
+			    <source>Themes</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.FILE_USAGE.tableName">
+			    <source>Podcasts</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.links.rss">
+			    <source>RSS Feed</source>			    
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
