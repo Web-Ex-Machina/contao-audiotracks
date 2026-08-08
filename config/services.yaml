@@ -1,4 +1,9 @@
 services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
     WEM\AudioTracksBundle\EventListener\GenerateBreadcrumbListener:
         tags:
             - { name: contao.hook, hook: generateBreadcrumb, method: __invoke, priority: 100 }

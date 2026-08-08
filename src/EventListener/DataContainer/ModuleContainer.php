@@ -12,27 +12,31 @@ declare(strict_types=1);
  * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
-namespace WEM\AudioTracksBundle\DataContainer;
+namespace WEM\AudioTracksBundle\EventListener\DataContainer;
 
-use Contao\Backend;
+use Contao\CoreBundle\DependencyInjection\Attribute\AsCallback;
+use Contao\Controller;
+use Contao\Database;
 
-class ModuleContainer extends Backend
+class ModuleContainer
 {
     /**
      * Return all templates as array.
      */
+    #[AsCallback(table: 'tl_module', target: 'fields.wemaudiotracks_template.options')]
     public function getTemplates(): array
     {
-        return $this->getTemplateGroup('wemaudiotrack_');
+        return Controller::getTemplateGroup('wemaudiotrack_');
     }
 
     /**
      * Return all categories as array.
      */
+    #[AsCallback(table: 'tl_module', target: 'fields.wemaudiotracks_categories.options')]
     public function getCategories(): array
     {
         $arrItems = [];
-        $objItems = $this->Database->execute('SELECT id, title FROM tl_wem_audiotrack_category ORDER BY title');
+        $objItems = Database::getInstance()->execute('SELECT id, title FROM tl_wem_audiotrack_category ORDER BY title');
 
         if (!$objItems || 0 === $objItems->count()) {
             return $arrItems;
@@ -48,9 +52,10 @@ class ModuleContainer extends Backend
     /**
      * Return all available filters.
      */
+    #[AsCallback(table: 'tl_module', target: 'fields.wemaudiotracks_filters.options')]
     public function getFiltersOptions(): array
     {
-        $this->loadDataContainer('tl_wem_audiotrack');
+        Controller::loadDataContainer('tl_wem_audiotrack');
         $fields = [];
 
         foreach ($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'] as $k => $v) {

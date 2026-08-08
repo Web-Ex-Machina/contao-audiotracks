@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Contao\Config;
 use Contao\DataContainer;
 use Contao\DC_Table;
-use WEM\AudioTracksBundle\DataContainer\AudioTrackContainer;
 
 $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
     // Config
@@ -15,12 +14,6 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'ctable' => ['tl_wem_audiotrack_feedback', 'tl_wem_audiotrack_tag', 'tl_wem_audiotrack_session'],
         'switchToEdit' => true,
         'enableVersioning' => true,
-        'onload_callback' => [
-            [AudioTrackContainer::class, 'updatePalettes']
-        ],
-        'onsubmit_callback' => [
-            [AudioTrackContainer::class, 'generateRssFeed']
-        ],
         'sql' => [
             'keys' => [
                 'id' => 'primary',
@@ -36,39 +29,16 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'fields' => ['date ASC'],
             'headerFields' => ['title', 'tags'],
             'panelLayout' => 'filter;sort,search,limit',
-            'child_record_callback' => [AudioTrackContainer::class, 'listItems'],
         ],
         'global_operations' => [
-            'all' => [
-                'href' => 'act=select',
-                'class' => 'header_edit_all',
-                'attributes' => 'onclick="Backend.getScrollOffset()" accesskey="e"',
-            ],
+            'all',
         ],
         'operations' => [
-            'edit' => [
-                'href' => 'act=edit',
-                'icon' => 'edit.gif',
-            ],
-            'copy' => [
-                'href' => 'act=copy',
-                'icon' => 'copy.gif',
-            ],
-            'delete' => [
-                'href' => 'act=delete',
-                'icon' => 'delete.gif',
-                'attributes' => 'onclick="if(!confirm(\''.($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null).'\'))return false;Backend.getScrollOffset()"',
-            ],
-            'show' => [
-                'href' => 'act=show',
-                'icon' => 'show.gif',
-            ],
-            'toggle' => [
-                'icon' => 'visible.svg',
-                'attributes' => 'onclick="Backend.getScrollOffset();return AjaxRequest.toggleVisibility(this,%s)"',
-                'button_callback' => [AudioTrackContainer::class, 'toggleIcon'],
-                'showInHeader' => true,
-            ],
+            'edit',
+            'copy',
+            'delete',
+            'show',
+            'toggle',
             'feedbacks' => [
                 'href' => 'table=tl_wem_audiotrack_feedback',
                 'icon' => 'member.gif',
@@ -109,7 +79,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         ],
         'createdAt' => [
             'default' => time(),
-            'flag' => \Contao\DataContainer::SORT_MONTH_DESC,
+            'flag' => DataContainer::SORT_MONTH_DESC,
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'title' => [
@@ -124,15 +94,12 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'inputType' => 'text',
             'search' => true,
             'eval' => ['rgxp' => 'alias', 'doNotCopy' => true, 'maxlength' => 255, 'tl_class' => 'w50'],
-            'save_callback' => [
-                [AudioTrackContainer::class, 'generateAlias'],
-            ],
             'sql' => "varchar(255) BINARY NOT NULL default ''",
         ],
         'date' => [
             'exclude' => true,
             'inputType' => 'text',
-            'flag' => \Contao\DataContainer::SORT_MONTH_DESC,
+            'flag' => DataContainer::SORT_MONTH_DESC,
             'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
             'sql' => "varchar(10) NOT NULL default ''",
         ],
@@ -175,9 +142,6 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'search' => true,
             'inputType' => 'text',
             'eval' => ['tl_class' => 'w50', 'rgxp' => 'digit'],
-            'save_callback' => [
-                [AudioTrackContainer::class, 'retrieveAudioTrackDuration']
-            ],
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'description' => [
@@ -191,19 +155,15 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'explicit' => [
             'exclude' => true,
             'filter' => true,
-            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'checkbox',
             'eval' => ['doNotCopy' => true],
             'sql' => "char(1) NOT NULL default ''",
         ],
         'tags' => [
             'exclude' => true,
-            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'select',
-            'options_callback' => [AudioTrackContainer::class, 'getTags'],
-            'save_callback' => [
-                [AudioTrackContainer::class, 'syncAudioTrackTagsPivotTable']
-            ],
             'eval' => ['doNotCopy' => true, 'chosen' => true, 'includeBlankOption' => true, 'multiple' => true, 'tl_class' => 'w50', 'isAvailableForFilters'=>true],
             'sql' => "blob NULL",
         ],
@@ -236,9 +196,6 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'authors' => [
             'exclude' => true,
             'inputType' => 'multiColumnWizard',
-            'load_callback' => [
-                [AudioTrackContainer::class, 'getParentValue'],
-            ],
             'eval' => [
                 'columnFields' => [
                     'name' => [
@@ -266,7 +223,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'published' => [
             'exclude' => true,
             'filter' => true,
-            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'checkbox',
             'eval' => ['doNotCopy' => true],
             'sql' => "char(1) NOT NULL default ''",

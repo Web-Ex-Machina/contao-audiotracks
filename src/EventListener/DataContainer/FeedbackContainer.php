@@ -12,20 +12,21 @@ declare(strict_types=1);
  * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
-namespace WEM\AudioTracksBundle\DataContainer;
+namespace WEM\AudioTracksBundle\EventListener\DataContainer;
 
-use Contao\Backend;
+use Contao\CoreBundle\DependencyInjection\Attribute\AsCallback;
 
-class AudioTrackTagContainer extends Backend
+class FeedbackContainer
 {
     /**
      * Format items list.
      */
+    #[AsCallback(table: 'tl_wem_audiotrack_feedback', target: 'list.sorting.child_record')]
     public function listItems(array $r): string
     {
         return sprintf(
             '%s',
-            $r['tag']
+            $r['ip']
         );
     }
 }

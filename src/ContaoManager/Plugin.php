@@ -18,6 +18,7 @@ use Contao\CoreBundle\ContaoCoreBundle;
 use Contao\ManagerPlugin\Bundle\BundlePluginInterface;
 use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
 use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
+use Contao\ManagerPlugin\Routing\RoutingPluginInterface;
 use WEM\AudioTracksBundle\AudioTracksBundle;
 
 /**
@@ -25,7 +26,7 @@ use WEM\AudioTracksBundle\AudioTracksBundle;
  *
  * @author Web ex Machina <https://www.webexmachina.fr>
  */
-class Plugin implements BundlePluginInterface
+class Plugin implements BundlePluginInterface, RoutingPluginInterface
 {
     /**
      * {@inheritdoc}
@@ -39,5 +40,13 @@ class Plugin implements BundlePluginInterface
                 ])
                 ->setReplace(['wemaudiotracks']),
         ];
+    }
+
+    public function getRouteCollection(LoaderResolverInterface $resolver, KernelInterface $kernel): RouteCollection|null
+    {
+        return $resolver
+            ->resolve(__DIR__.'/../../config/routes.yaml')
+            ->load(__DIR__.'/../../config/routes.yaml')
+        ;
     }
 }

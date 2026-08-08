@@ -6,7 +6,6 @@ use Contao\Config;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\System;
-use WEM\AudioTracksBundle\DataContainer\CategoryContainer;
 
 $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
     // Config
@@ -15,12 +14,6 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'ctable' => ['tl_wem_audiotrack'],
         'switchToEdit' => true,
         'enableVersioning' => true,
-        'onload_callback' => [
-            [CategoryContainer::class, 'displayRssUrl']
-        ],
-        'onsubmit_callback' => [
-            [CategoryContainer::class, 'generateRssFeed']
-        ],
         'sql' => [
             'keys' => [
                 'id' => 'primary',
@@ -42,34 +35,16 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'format' => '%s',
         ],
         'global_operations' => [
-            'all' => [
-                'href' => 'act=select',
-                'class' => 'header_edit_all',
-                'attributes' => 'onclick="Backend.getScrollOffset()" accesskey="e"',
-            ],
+            'all'
         ],
         'operations' => [
-            'edit' => [
-                'href' => 'table=tl_wem_audiotrack',
-                'icon' => 'edit.svg',
-            ],
-            'header' => [
-                'href' => 'act=edit',
-                'icon' => 'header.svg',
-            ],
-            'delete' => [
-                'href' => 'act=delete',
-                'icon' => 'delete.svg',
-                'attributes' => 'onclick="if(!confirm(\''.($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null).'\'))return false;Backend.getScrollOffset()"',
-            ],
-            'show' => [
-                'href' => 'act=show',
-                'icon' => 'show.svg',
-            ],
+            'edit'
+            'children',
+            'delete',
+            'show',
             'syncRemoteRss' => [
                 'href' => 'key=syncRemoteRss',
                 'icon' => 'modules.svg',
-                'button_callback' => [CategoryContainer::class, 'displaySyncRemoteRssButton'],
             ],
         ],
     ],
@@ -109,7 +84,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         ],
         'createdAt' => [
             'default' => time(),
-            'flag' => \Contao\DataContainer::SORT_MONTH_DESC,
+            'flag' => DataContainer::SORT_MONTH_DESC,
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'type' => [
@@ -132,9 +107,6 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'inputType' => 'text',
             'search' => true,
             'eval' => ['rgxp' => 'alias', 'doNotCopy' => true, 'maxlength' => 255, 'tl_class' => 'w50'],
-            'save_callback' => [
-                [CategoryContainer::class, 'generateAlias'],
-            ],
             'sql' => "varchar(255) BINARY NOT NULL default ''",
         ],
         'categories' => [
@@ -197,7 +169,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'explicit' => [
             'exclude' => true,
             'filter' => true,
-            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'checkbox',
             'eval' => ['doNotCopy' => true, 'tl_class' => 'w50'],
             'sql' => "char(1) NOT NULL default ''",
@@ -205,7 +177,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'complete' => [
             'exclude' => true,
             'filter' => true,
-            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'checkbox',
             'eval' => ['doNotCopy' => true, 'tl_class' => 'w50'],
             'sql' => "char(1) NOT NULL default ''",
@@ -246,7 +218,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'rss' => [
             'exclude' => true,
             'filter' => true,
-            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'checkbox',
             'eval' => ['doNotCopy' => true, 'submitOnChange' => true],
             'sql' => "char(1) NOT NULL default ''",
@@ -262,9 +234,6 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         'rssNamespace' => [
             'exclude' => true,
             'inputType' => 'text',
-            'load_callback' => [
-                [CategoryContainer::class, 'generateNamespace'],
-            ],
             'eval' => ['tl_class'=>'w50'],
             'sql' => "varchar(255) NOT NULL default ''",
         ],
@@ -312,7 +281,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
         ],
         'rssRemoteLastSync' => [
             'default' => time(),
-            'flag' => \Contao\DataContainer::SORT_MONTH_DESC,
+            'flag' => DataContainer::SORT_MONTH_DESC,
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
     ],

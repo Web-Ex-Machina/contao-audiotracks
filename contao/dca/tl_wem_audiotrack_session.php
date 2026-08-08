@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Contao\DataContainer;
 use Contao\DC_Table;
-use WEM\AudioTracksBundle\DataContainer\SessionContainer;
 
 $GLOBALS['TL_DCA']['tl_wem_audiotrack_session'] = [
     // Config
@@ -31,26 +30,12 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_session'] = [
             'child_record_callback' => [SessionContainer::class, 'listItems'],
         ],
         'global_operations' => [
-            'all' => [
-                'href' => 'act=select',
-                'class' => 'header_edit_all',
-                'attributes' => 'onclick="Backend.getScrollOffset()" accesskey="e"',
-            ],
+            'all',
         ],
         'operations' => [
-            'edit' => [
-                'href' => 'act=edit',
-                'icon' => 'edit.gif',
-            ],
-            'delete' => [
-                'href' => 'act=delete',
-                'icon' => 'delete.gif',
-                'attributes' => 'onclick="if(!confirm(\''.($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null).'\'))return false;Backend.getScrollOffset()"',
-            ],
-            'show' => [
-                'href' => 'act=show',
-                'icon' => 'show.gif',
-            ],
+            'edit',
+            'delete',
+            'show',
         ],
     ],
 
@@ -76,7 +61,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_session'] = [
         ],
         'createdAt' => [
             'default' => time(),
-            'flag' => \Contao\DataContainer::SORT_MONTH_DESC,
+            'flag' => DataContainer::SORT_MONTH_DESC,
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'ip' => [
@@ -103,7 +88,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_session'] = [
         'complete' => [
             'exclude' => true,
             'filter' => true,
-            'flag' => \Contao\DataContainer::SORT_INITIAL_LETTER_ASC,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'checkbox',
             'eval' => ['doNotCopy' => true, 'tl_class' => 'w50 m12'],
             'sql' => "char(1) NOT NULL default ''",

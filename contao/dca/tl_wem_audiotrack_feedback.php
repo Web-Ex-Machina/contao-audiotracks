@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Contao\DataContainer;
 use Contao\DC_Table;
-use WEM\AudioTracksBundle\DataContainer\FeedbackContainer;
 
 $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
     // Config
@@ -28,29 +27,14 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
             'fields' => ['ip ASC'],
             'headerFields' => ['title'],
             'panelLayout' => 'filter;sort,search,limit',
-            'child_record_callback' => [FeedbackContainer::class, 'listItems'],
         ],
         'global_operations' => [
-            'all' => [
-                'href' => 'act=select',
-                'class' => 'header_edit_all',
-                'attributes' => 'onclick="Backend.getScrollOffset()" accesskey="e"',
-            ],
+            'all',
         ],
         'operations' => [
-            'edit' => [
-                'href' => 'act=edit',
-                'icon' => 'edit.gif',
-            ],
-            'delete' => [
-                'href' => 'act=delete',
-                'icon' => 'delete.gif',
-                'attributes' => 'onclick="if(!confirm(\''.($GLOBALS['TL_LANG']['MSC']['deleteConfirm'] ?? null).'\'))return false;Backend.getScrollOffset()"',
-            ],
-            'show' => [
-                'href' => 'act=show',
-                'icon' => 'show.gif',
-            ],
+            'edit',
+            'delete',
+            'show',
         ],
     ],
 
@@ -76,7 +60,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
         ],
         'createdAt' => [
             'default' => time(),
-            'flag' => \Contao\DataContainer::SORT_MONTH_DESC,
+            'flag' => DataContainer::SORT_MONTH_DESC,
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'ip' => [
