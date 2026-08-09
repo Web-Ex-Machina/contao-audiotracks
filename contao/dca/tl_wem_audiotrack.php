@@ -24,6 +24,10 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
 
     // List
     'list' => [
+        'label' => [
+            'fields' => ['title'],
+            'format' => '%s',
+        ],
         'sorting' => [
             'mode' => DataContainer::MODE_PARENT,
             'fields' => ['date ASC'],

@@ -38,7 +38,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'all'
         ],
         'operations' => [
-            'edit'
+            'edit',
             'children',
             'delete',
             'show',
@@ -197,19 +197,28 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
                         'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack_category']['authors']['name'],
                         'exclude' => true,
                         'inputType' => 'text',
-                        'eval' => ['mandatory' => true],
+                        'eval' => [
+                            'style' => 'width:250px',
+                            'mandatory' => true,
+                        ],
                     ],
                     'email' => [
                         'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack_category']['authors']['email'],
                         'exclude' => true,
                         'inputType' => 'text',
-                        'eval' => ['rgxp' => 'email', 'mandatory' => true],
+                        'eval' => [
+                            'rgxp' => 'email', 
+                            'mandatory' => true,
+                        ],
                     ],
                     'uri' => [
                         'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack_category']['authors']['uri'],
                         'exclude' => true,
                         'inputType' => 'text',
-                        'eval' => ['rgxp' => 'url', 'mandatory' => true],
+                        'eval' => [
+                            'rgxp' => 'url',
+                            'mandatory' => true,
+                        ],
                     ],
                 ]
             ],

@@ -2,31 +2,22 @@
 
 declare(strict_types=1);
 
+use Contao\Rector\Set\ContaoLevelSetList;
+use Rector\CodeQuality\Rector\If_\CombineIfRector;
 use Rector\Config\RectorConfig;
-use Contao\Rector\Set\ContaoSetList;
 use Rector\Set\ValueObject\SetList;
 
 return RectorConfig::configure()
-    ->withPaths([__DIR__ . '/src'])
-    ->withSets([
-        SetList::PHP_81,
-        SetList::PHP_82,
-        ContaoSetList::CONTAO_413,
-        ContaoSetList::CONTAO_50,
-        ContaoSetList::CONTAO_51,
-        ContaoSetList::CONTAO_53,
-        ContaoSetList::ANNOTATIONS_TO_ATTRIBUTES,
-        ContaoSetList::FQCN
+    ->withPaths([
+        __DIR__ . '/src',
     ])
-    ->withPreparedSets(
-        deadCode: true,
-        codeQuality: true,
-        codingStyle: true,
-        typeDeclarations: true,
-        privatization: true,
-        instanceOf: true,
-        earlyReturn: true,
-        strictBooleans: true,
-        doctrineCodeQuality: true,
-        symfonyCodeQuality: true
-    );
+    ->withSkip([
+        CombineIfRector::class
+    ])
+    ->withSets([
+        SetList::CODING_STYLE,
+        SetList::CODE_QUALITY,
+        SetList::DEAD_CODE,
+        SetList::TYPE_DECLARATION,
+        ContaoLevelSetList::UP_TO_CONTAO_53,
+    ]);

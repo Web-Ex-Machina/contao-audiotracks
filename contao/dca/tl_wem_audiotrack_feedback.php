@@ -22,9 +22,13 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
 
     // List
     'list' => [
+        'label' => [
+            'fields' => ['ip'],
+            'format' => '%s',
+        ],
         'sorting' => [
             'mode' => DataContainer::MODE_PARENT,
-            'fields' => ['ip ASC'],
+            'fields' => ['createdAt DESC'],
             'headerFields' => ['title'],
             'panelLayout' => 'filter;sort,search,limit',
         ],

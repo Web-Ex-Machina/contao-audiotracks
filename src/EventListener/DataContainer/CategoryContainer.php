@@ -88,7 +88,7 @@ class CategoryContainer
      * @throws Exception
      */
     #[AsCallback(table: 'tl_wem_audiotrack_category', target: 'fields.alias.save')]
-    public function generateAlias($varValue, DataContainer $dc): string
+    public function generateAlias(mixed $varValue, DataContainer $dc): string
     {
         $aliasExists = fn(string $alias): bool => $this->Database->prepare('SELECT id FROM tl_wem_audiotrack_category WHERE alias=? AND id!=?')->execute($alias, $dc->id)->numRows > 0;
 
@@ -107,8 +107,11 @@ class CategoryContainer
      * @throws Exception
      */
     #[AsCallback(table: 'tl_wem_audiotrack_category', target: 'fields.rssNamespace.load')]
-    public function generateNamespace($varValue, DataContainer $dc): string
+    public function generateNamespace(mixed $varValue, DataContainer $dc): string
     {
+        dump($varValue);
+        die;
+
         if (!$varValue) {
             return (string) Uuid::v4();
         }

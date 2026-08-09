@@ -179,6 +179,14 @@
 				<source>Atom</source>
 				<target>Atom</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssNamespace.0">
+				<source>Namespace</source>
+				<target>Namespace</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssNamespace.1">
+				<source>Enter the RSS feed namespace.</source>
+				<target>Saisissez le namespace du flux RSS.</target>
+			</trans-unit>
 			<trans-unit id="tl_wem_audiotrack_category.rssFilename.0">
 				<source>Filename</source>
 				<target>Nom du fichier</target>
