@@ -3,6 +3,10 @@ services:
         autowire: true
         autoconfigure: true
         public: true
+    
+    WEM\AudioTracksBundle\:
+        resource: ../src/
+        exclude: ../src/{ContaoManager,DependencyInjection,Module,Util}
 
     WEM\AudioTracksBundle\EventListener\GenerateBreadcrumbListener:
         tags:

@@ -14,8 +14,10 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\EventListener\DataContainer;
 
+use Contao\Controller;
 use Contao\CoreBundle\DataContainer\DataContainerOperation;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsCallback;
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\Message;
 use Contao\System;
@@ -56,7 +58,7 @@ class CategoryContainer
             return;
         }
 
-        $objItem = Category::findByPk($id);
+        $objItem = Category::findByPk($dc->id);
 
         if (!$objItem->rss) {
             return;
@@ -72,14 +74,14 @@ class CategoryContainer
     }
 
     #[AsCallback(table: 'tl_wem_audiotrack_category', target: 'list.operations.syncRemoteRss.button')]
-    public function (DataContainerOperation $operation): void
+    public function syncRemoteRssButton(DataContainerOperation $operation): void
     {
-        dump($operation);
-        if ('remote' !== $row['type'] && !$row['rssRemoteUrl']) {
+        $row = $operation->getRecord();
+        if ('remote' !== $row['type'] && !array_key_exists('rssRemoteUrl', $row) && "" !== $row['rssRemoteUrl']) {
             $operation->hide();
         }
 
-        $url = $this->addToUrl($href . '&amp;id=' . Input::get('id'));
+        $url = Controller::addToUrl($operation->getUrl() . '&amp;id=' .$row['id']);
         $operation->setUrl($url);
     }
 
@@ -90,7 +92,7 @@ class CategoryContainer
     #[AsCallback(table: 'tl_wem_audiotrack_category', target: 'fields.alias.save')]
     public function generateAlias(mixed $varValue, DataContainer $dc): string
     {
-        $aliasExists = fn(string $alias): bool => $this->Database->prepare('SELECT id FROM tl_wem_audiotrack_category WHERE alias=? AND id!=?')->execute($alias, $dc->id)->numRows > 0;
+        $aliasExists = fn(string $alias): bool => Database::getInstance()->prepare('SELECT id FROM tl_wem_audiotrack_category WHERE alias=? AND id!=?')->execute($alias, $dc->id)->numRows > 0;
 
         // Generate an alias if there is none
         if (!$varValue) {
@@ -109,9 +111,6 @@ class CategoryContainer
     #[AsCallback(table: 'tl_wem_audiotrack_category', target: 'fields.rssNamespace.load')]
     public function generateNamespace(mixed $varValue, DataContainer $dc): string
     {
-        dump($varValue);
-        die;
-
         if (!$varValue) {
             return (string) Uuid::v4();
         }

@@ -155,7 +155,7 @@ class AudiotrackContainer
     #[AsCallback(table: 'tl_wem_audiotrack', target: 'fields.tags.save')]
     public function syncAudioTrackTagsPivotTable($varValue, $dc)
     {
-        $this->syncData(StringUtil::deserialize($varValue), 'tl_wem_audiotrack_tag', (int) $dc->id, 'pid', 'tag');
+        $this->syncData(StringUtil::deserialize($varValue, true), 'tl_wem_audiotrack_tag', (int) $dc->id, 'pid', 'tag');
 
         return $varValue;
     }
