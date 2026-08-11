@@ -12,12 +12,14 @@ declare(strict_types=1);
  * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
-namespace WEM\AudioTracksBundle\Module;
+namespace WEM\AudioTracksBundle\Controller\Frontend;
 
 use Contao\BackendTemplate;
 use Contao\Config;
 use Contao\CoreBundle\Exception\PageNotFoundException;
+use Contao\CoreBundle\DependencyInjection\Attribute\AsFrontendModule;
 use Contao\CoreBundle\Routing\ResponseContext\HtmlHeadBag\HtmlHeadBag;
+use Contao\CoreBundle\Twig\FragmentTemplate;
 use Contao\Environment;
 use Contao\FilesModel;
 use Contao\FrontendTemplate;
@@ -25,9 +27,12 @@ use Contao\Image;
 use Contao\Input;
 use Contao\Model\Collection;
 use Contao\Module;
+use Contao\ModuleModel;
 use Contao\Pagination;
 use Contao\PageModel;
 use Exception;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
 use WEM\AudioTracksBundle\Model\Feedback;
@@ -36,67 +41,45 @@ use WEM\AudioTracksBundle\Util\MP3File;
 use WEM\UtilsBundle\Classes\StringUtil;
 use Contao\System;
 
-class AudioTracksReader extends AudioTracksCore
+#[AsFrontendModule(
+    ReaderController::TYPE, 
+    category: 'wem_audiotracks',
+    template: 'mod_wem_audiotracks_reader'
+)]
+class ReaderController extends ModuleController
 {
     /**
-     * Template.
-     *
-     * @var string
+     * Module name
      */
-    protected $strTemplate = 'mod_wem_audiotracks_reader';
+    public const TYPE = 'wem_audiotracks_reader';
 
     /**
-     * Display a wildcard in the back end
+     * Generate module response
      */
-    public function generate(): string
+    protected function getResponse(FragmentTemplate $template, ModuleModel $model, Request $request): Response
     {
-        $request = System::getContainer()->get('request_stack')->getCurrentRequest();
-
-        if ($request && System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest($request)) {
-            $objTemplate = new BackendTemplate('be_wildcard');
-            $objTemplate->wildcard = '### '. mb_strtoupper($GLOBALS['TL_LANG']['FMD']['wemaudiotrackslist'][0], 'UTF-8').' ###';
-            $objTemplate->title = $this->headline;
-            $objTemplate->id = $this->id;
-            $objTemplate->link = $this->name;
-            $objTemplate->href = 'contao/main.php?do=themes&amp;table=tl_module&amp;act=edit&amp;id='.$this->id;
-
-            return $objTemplate->parse();
+         // Return empty Response if there is no auto_item
+        if (!$request->query->has('auto_item')) {
+            return new Response('');
         }
 
-        // Hide if no auto_item
-        if (!Input::get('auto_item')) {
-            return '';
-        }
-
-        $this->track = AudioTrack::findByIdOrAlias(Input::get('auto_item'));
+        $this->track = AudioTrack::findByIdOrAlias($request->query->get('auto_item'));
 
         if (!$this->track) {
             throw new PageNotFoundException('Page not found: ' . Environment::get('uri'));
         }
 
-        return parent::generate();
-    }
-
-    /**
-     * Compile list.
-     * @throws \Exception
-     */
-    protected function compile(): void
-    {
-        $this->catchAjaxRequests();
-
-        global $objPage;
-
-
-        if ($this->overviewPage) {
-            $this->Template->referer = PageModel::findById($this->overviewPage)->getFrontendUrl();
-            $this->Template->back = $this->customLabel ?: $GLOBALS['TL_LANG']['MSC']['newsOverview'];
+        if ($model->overviewPage) {
+            $template->referer = PageModel::findById($model->overviewPage)->getFrontendUrl();
+            $template->back = $model->customLabel ?: $GLOBALS['TL_LANG']['MSC']['newsOverview'];
         }
 
         $this->overwriteMetadata();
 
-        $this->Template->buffer = $this->parseItem($this->track);
-        $this->Template->moduleId = $this->id;
+        $template->buffer = $this->parseItem($this->track);
+        $template->moduleId = $model->id;
+
+        return $template->getResponse();
     }
 
     protected function overwriteMetadata(): void

@@ -12,10 +12,11 @@ declare(strict_types=1);
  * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
-namespace WEM\AudioTracksBundle\Module;
+namespace WEM\AudioTracksBundle\Controller\Frontend;
 
 use Contao\BackendTemplate;
 use Contao\Config;
+use Contao\CoreBundle\Controller\FrontendModule\AbstractFrontendModuleController;
 use Contao\CoreBundle\Exception\PageNotFoundException;
 use Contao\Environment;
 use Contao\FilesModel;
@@ -23,7 +24,6 @@ use Contao\FrontendTemplate;
 use Contao\Image;
 use Contao\Input;
 use Contao\Model\Collection;
-use Contao\Module;
 use Contao\PageModel;
 use Contao\Pagination;
 use Exception;
@@ -35,7 +35,7 @@ use WEM\AudioTracksBundle\Util\MP3File;
 use WEM\UtilsBundle\Classes\StringUtil;
 use Contao\System;
 
-abstract class AudioTracksCore extends Module
+abstract class ModuleController extends AbstractFrontendModuleController
 {
     protected function catchAjaxRequests()
     {
@@ -163,8 +163,8 @@ abstract class AudioTracksCore extends Module
         }
 
         // Retrieve and format dropdowns filters
-        $filters = StringUtil::deserialize($this->wemaudiotracks_filters);
-        if (\is_array($filters) && $filters !== []) {
+        $filters = StringUtil::deserialize($this->wemaudiotracks_filters, true);
+        if (!empty($filters)) {
             foreach ($filters as $f) {
                 $strName = $f;
 

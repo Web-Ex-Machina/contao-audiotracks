@@ -6,7 +6,7 @@ services:
     
     WEM\AudioTracksBundle\:
         resource: ../src/
-        exclude: ../src/{ContaoManager,DependencyInjection,Module,Util}
+        exclude: ../src/{ContaoManager,DependencyInjection,Util}
 
     WEM\AudioTracksBundle\EventListener\GenerateBreadcrumbListener:
         tags:
