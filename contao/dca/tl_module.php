@@ -5,14 +5,14 @@ declare(strict_types=1);
 use Contao\DataContainer;
 
 $GLOBALS['TL_DCA']['tl_module']['palettes']['__selector__'][] = 'wemaudiotracks_addFilters';
-$GLOBALS['TL_DCA']['tl_module']['palettes']['wemaudiotrackslist'] = '
+$GLOBALS['TL_DCA']['tl_module']['palettes']['wem_audiotracks_list'] = '
     {title_legend},name,headline,type;
     {config_legend},wemaudiotracks_categories,wemaudiotracks_addFilters,wemaudiotracks_canDownload,wemaudiotracks_links;
     {list_legend},jumpTo,numberOfItems,skipFirst,perPage;
     {template_legend:collapsed},wemaudiotracks_template,customTpl;
     {expert_legend:collapsed},guests,cssID
 ';
-$GLOBALS['TL_DCA']['tl_module']['palettes']['wemaudiotracksreader'] = '
+$GLOBALS['TL_DCA']['tl_module']['palettes']['wem_audiotracks_reader'] = '
     {title_legend},name,headline,type;
     {config_legend},wemaudiotracks_canDownload,wemaudiotracks_links,overviewPage,customLabel;
     {template_legend:collapsed},wemaudiotracks_template,customTpl;
