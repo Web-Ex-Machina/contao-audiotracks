@@ -90,19 +90,16 @@ class ListController extends ModuleController
             return new Response('');
         }
 
+        $this->model = $model;
+
         // Check if we must sync remote feeds
         foreach ($this->pids as $id) {
             $this->syncFeedFromRemote($id);
         }
 
-        $this->limit = null;
+        $this->limit = $model->numberOfItems > 0 ? $model->numberOfItems : null;
         $this->offset = (int) $model->skipFirst;
         $this->options = ['order' => 'date DESC'];
-
-        // Maximum number of items
-        if ($this->numberOfItems > 0) {
-            $this->limit = $this->numberOfItems;
-        }
 
         $template->articles = [];
         $template->empty = $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['empty'];

@@ -24,6 +24,7 @@ use Contao\FrontendTemplate;
 use Contao\Image;
 use Contao\Input;
 use Contao\Model\Collection;
+use Contao\ModuleModel;
 use Contao\PageModel;
 use Contao\Pagination;
 use Exception;
@@ -37,6 +38,8 @@ use Contao\System;
 
 abstract class ModuleController extends AbstractFrontendModuleController
 {
+    protected ModuleModel $model;
+
     protected function catchAjaxRequests()
     {
         // Catch Ajax Request
@@ -148,7 +151,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
     protected function buildFilters(): void
     {
         // Add fulltext search if asked
-        if ($this->wemaudiotracks_addSearch) {
+        if ($this->model->wemaudiotracks_addSearch) {
             $this->filters[] = [
                 'type' => 'text',
                 'name' => 'search',
@@ -163,7 +166,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
         }
 
         // Retrieve and format dropdowns filters
-        $filters = StringUtil::deserialize($this->wemaudiotracks_filters, true);
+        $filters = StringUtil::deserialize($this->model->wemaudiotracks_filters, true);
         if (!empty($filters)) {
             foreach ($filters as $f) {
                 $strName = $f;
@@ -289,7 +292,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
      */
     protected function parseItem(AudioTrack $objItem, bool $blnAddArchive = false, string $strClass = '', int $intCount = 0): string
     {
-        $objTemplate = new FrontendTemplate($this->wemaudiotracks_template);
+        $objTemplate = new FrontendTemplate($this->model->wemaudiotracks_template);
         $objTemplate->setData($objItem->row());
 
         if ('' !== $objItem->cssClass) {
@@ -311,7 +314,20 @@ abstract class ModuleController extends AbstractFrontendModuleController
         if ('remote' === $objItem->getRelated('pid')->type && $objItem->pictureRemoteUrl) {
             $objTemplate->picture =  $objItem->pictureRemoteUrl;
         } else {
-            if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
+            $figure = System::getContainer()
+                ->get('contao.image.studio')
+                ->createFigureBuilder()
+                ->from($objItem->picture)
+                ->setSize($objItem->size)
+                ->enableLightbox((bool) $objItem->fullsize)
+                ->buildIfResourceExists()
+            ;
+
+            if (null !== $figure) {
+                $figure->applyLegacyTemplateData($objTemplate, $objItem->imagemargin, $objItem->floating);
+            }
+
+            /**if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
                 $objTemplate->picture =  \Contao\Image::get($objFile->path, 300, 300);
             }
 
@@ -321,7 +337,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
 
             if ($objItem->picture_mobile && $objFile = FilesModel::findByUuid($objItem->picture_mobile)) {
                 $objTemplate->picture_mobile = \Contao\Image::get($objFile->path, 300, 300);
-            }
+            }**/
         }
         
         // If item is from remote, file path is different
@@ -352,21 +368,24 @@ abstract class ModuleController extends AbstractFrontendModuleController
 
         // Retrieve user session if exists
         $objSession = Session::findItems(['pid' => $objItem->id, 'ip' => Environment::get('ip')], 1);
+        $arrSession = [];
 
         if ($objSession instanceof Collection) {
-            $objTemplate->session = [
+            $arrSession = [
                 'currentTime' => $objSession->currentTime,
                 'volume' => $objSession->volume,
                 'complete' => 1 === (int) $objSession->complete,
             ];
         }
 
+        $objTemplate->session = $arrSession;
+
         // Let template know if we can download the item
-        if ($this->wemaudiotracks_canDownload) {
+        if ($this->model->wemaudiotracks_canDownload) {
             $objTemplate->canDownload = true;
         }
 
-        if ($objTarget = PageModel::findWithDetails($this->jumpTo)) {
+        if ($objTarget = PageModel::findWithDetails($this->model->jumpTo)) {
             $objTemplate->jumpTo = $objTarget->getFrontendUrl('/' . $objItem->alias);
         }
 

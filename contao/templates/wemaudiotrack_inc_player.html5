@@ -162,8 +162,8 @@
       	  type: 'post',
       	  data:{
       	    'TL_AJAX':true ,
-      	    'REQUEST_TOKEN':"<?php echo \RequestToken::get() ?>" ,
-      	    'module': "<?php echo $this->module_id ?>" ,
+      	    'REQUEST_TOKEN':"<?= Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>" ,
+      	    'module': "<?= $this->module_id ?>" ,
       	    'action': 'feedback',
       	    'liked': !el.hasClass('liked'),
       	    'audiotrack': el.data('id'),
@@ -257,8 +257,8 @@
     	      type: 'post',
     	      data:{
     	        'TL_AJAX':true ,
-    	        'REQUEST_TOKEN':"<?php echo \RequestToken::get() ?>" ,
-    	        'module': "<?php echo $this->module_id ?>" ,
+    	        'REQUEST_TOKEN':"<?= Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue() ?>" ,
+    	        'module': "<?= $this->module_id ?>" ,
     	        'action': 'syncSession',
     	        'audiotrack': currentTrack.id,
     	        'currentTime': audioElement.currentTime,
