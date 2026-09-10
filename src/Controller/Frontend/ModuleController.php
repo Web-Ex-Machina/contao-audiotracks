@@ -300,7 +300,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
         }
 
         $objTemplate->class = $strClass;
-        $objTemplate->count = $intCount; // see #5708
+        $objTemplate->count = $intCount;
 
         // Add the meta information
         $objTemplate->date = (int) $objItem->date;
@@ -312,7 +312,16 @@ abstract class ModuleController extends AbstractFrontendModuleController
 
         // Retrieve and parse the picture
         if ('remote' === $objItem->getRelated('pid')->type && $objItem->pictureRemoteUrl) {
-            $objTemplate->picture =  $objItem->pictureRemoteUrl;
+             $figure = System::getContainer()
+                ->get('contao.image.studio')
+                ->createFigureBuilder()
+                ->from($objItem->pictureRemoteUrl)
+                ->buildIfResourceExists()
+            ;
+
+            if (null !== $figure) {
+                $figure->applyLegacyTemplateData($objTemplate);
+            }
         } else {
             $figure = System::getContainer()
                 ->get('contao.image.studio')
