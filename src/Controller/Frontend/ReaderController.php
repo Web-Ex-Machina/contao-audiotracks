@@ -58,16 +58,18 @@ class ReaderController extends ModuleController
      */
     protected function getResponse(FragmentTemplate $template, ModuleModel $model, Request $request): Response
     {
-         // Return empty Response if there is no auto_item
-        if (!$request->query->has('auto_item')) {
+        // Return empty Response if there is no auto_item
+        if (!Input::get('auto_item')) {
             return new Response('');
         }
 
-        $this->track = AudioTrack::findByIdOrAlias($request->query->get('auto_item'));
+        $this->track = AudioTrack::findByIdOrAlias(Input::get('auto_item'));
 
         if (!$this->track) {
             throw new PageNotFoundException('Page not found: ' . Environment::get('uri'));
         }
+
+         $this->model = $model;
 
         if ($model->overviewPage) {
             $template->referer = PageModel::findById($model->overviewPage)->getFrontendUrl();
