@@ -16,7 +16,7 @@ use Contao\CoreBundle\Migration\AbstractMigration;
 use Contao\CoreBundle\Migration\MigrationResult;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Filesystem\Path;
-use WEM\AudioTracksBundle\Util\MP3File;
+use WEM\AudioTracksBundle\Util\AudioDuration;
 
 /**
  * The duration of a track is computed when it is saved in the back end. It used
@@ -41,7 +41,7 @@ class DurationMigration extends AbstractMigration
         $done = 0;
 
         foreach ($this->getMissing() as $id => $path) {
-            $duration = (int) round((new MP3File($path))->getDuration());
+            $duration = AudioDuration::forFile($path);
 
             if ($duration > 0) {
                 $this->connection->update('tl_wem_audiotrack', ['duration' => $duration], ['id' => $id]);
@@ -53,7 +53,7 @@ class DurationMigration extends AbstractMigration
     }
 
     /**
-     * @return array<int, string> [id => absolute path of the mp3] of the tracks without duration
+     * @return array<int, string> [id => absolute path of the audio file] of the tracks without duration
      */
     private function getMissing(): array
     {
@@ -64,7 +64,7 @@ class DurationMigration extends AbstractMigration
         }
 
         $rows = $this->connection->fetchAllKeyValue(
-            "SELECT t.id, f.path FROM tl_wem_audiotrack t INNER JOIN tl_files f ON f.uuid = t.audio WHERE t.duration = 0 AND f.path LIKE '%.mp3'",
+            "SELECT t.id, f.path FROM tl_wem_audiotrack t INNER JOIN tl_files f ON f.uuid = t.audio WHERE t.duration = 0 AND f.extension IN ('mp3', 'wav', 'ogg', 'oga', 'opus')",
         );
 
         $missing = [];

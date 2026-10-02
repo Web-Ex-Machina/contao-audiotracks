@@ -18,11 +18,12 @@ use Contao\DataContainer;
 use Contao\FilesModel;
 use Contao\Message;
 use Contao\System;
+use Symfony\Component\Filesystem\Path;
 use WEM\AudioTracksBundle\Classes\FeedWithoutTracksException;
 use WEM\AudioTracksBundle\Classes\TagSynchronizer;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
-use WEM\AudioTracksBundle\Util\MP3File;
+use WEM\AudioTracksBundle\Util\AudioDuration;
 use WEM\UtilsBundle\Classes\StringUtil;
 
 class AudiotrackContainer
@@ -112,9 +113,8 @@ class AudiotrackContainer
     public function retrieveAudioTrackDuration($varValue, $dc)
     {
         if (!$varValue && $objFile = FilesModel::findByUuid($dc->activeRecord->audio)) {
-            // Use library to get file duration
-            $mp3file = new MP3File($objFile->path);
-            $varValue = $mp3file->getDuration();
+            // Read from the header of the file (mp3, wav, ogg)
+            $varValue = AudioDuration::forFile(Path::join(System::getContainer()->getParameter('kernel.project_dir'), $objFile->path)) ?: $varValue;
         }
 
         return $varValue;
