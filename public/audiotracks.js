@@ -38,12 +38,18 @@
     /**
      * The request token is not in the (cached) page: it comes with the state of the tracks.
      */
+    let tokenRequest = null;
+
     const ensureToken = async (player) => {
         if (!player.dataset.requestToken) {
-            const response = await fetch(player.dataset.urlState, { credentials: 'same-origin', cache: 'no-store' });
-            const { requestToken } = await response.json();
+            // One request at a time, even if the visitor acts before the state is loaded
+            tokenRequest ??= fetch(player.dataset.urlState, { credentials: 'same-origin', cache: 'no-store' })
+                .then((response) => response.json())
+                .finally(() => {
+                    tokenRequest = null;
+                });
 
-            player.dataset.requestToken = requestToken;
+            player.dataset.requestToken = (await tokenRequest).requestToken;
         }
 
         return player.dataset.requestToken;
@@ -134,7 +140,7 @@
         }
     };
 
-    const loadState = async (playerEl) => {
+    const loadState = async (playerEl, player) => {
         const ids = [...new Set([...document.querySelectorAll('.audiotrack__play')].map((b) => b.dataset.id))];
 
         if (!ids.length || !playerEl.dataset.urlState) {
@@ -159,7 +165,10 @@
 
             playerEl.dataset.requestToken = requestToken;
 
-            Object.entries(tracks).forEach(([id, state]) => applyTrackState(id, state));
+            Object.entries(tracks).forEach(([id, state]) => {
+                applyTrackState(id, state);
+                player?.applySession(id, state.session);
+            });
         } catch (e) {
             // The player still works with the default values and the local storage
             console.warn(e);
@@ -184,6 +193,8 @@
 
         const findTrack = (id) => trackList.find((t) => t.id === String(id));
         let localData = readStorage(STORAGE_DATA);
+        // The progress kept in the browser wins over the one of the server
+        const storedIds = new Set();
 
         if (!Array.isArray(localData) || localData.length !== trackList.length) {
             localData = trackList.map((t) => ({ ...t }));
@@ -192,6 +203,7 @@
                 const track = findTrack(stored.id);
 
                 if (track) {
+                    storedIds.add(track.id);
                     track.currentTime = stored.currentTime;
                     track.volume = stored.volume;
                     track.complete = stored.complete;
@@ -424,6 +436,30 @@
                 e.preventDefault();
             }
         });
+
+        return {
+            /**
+             * The sessions of the server arrive after the player is ready: they only fill in the tracks
+             * that have no progress kept in the browser and that the visitor did not start meanwhile.
+             */
+            applySession(id, session) {
+                const track = findTrack(id);
+
+                if (!session || !track || track === currentTrack || storedIds.has(track.id)) {
+                    return;
+                }
+
+                track.currentTime = session.currentTime;
+                track.volume = session.volume;
+                track.complete = !!session.complete;
+
+                const data = localData.find((t) => t.id === track.id);
+
+                if (data) {
+                    Object.assign(data, { currentTime: track.currentTime, volume: track.volume, complete: track.complete });
+                }
+            },
+        };
     };
 
     const init = () => {
@@ -432,8 +468,8 @@
         const playerEl = document.querySelector('[data-audiotracks-player]');
 
         if (playerEl) {
-            // The player needs the listening sessions to start where the visitor stopped
-            loadState(playerEl).finally(() => initPlayer(playerEl));
+            // The player is usable at once, the state of the visitor (likes, sessions) is applied when it arrives
+            loadState(playerEl, initPlayer(playerEl));
         }
     };
 
