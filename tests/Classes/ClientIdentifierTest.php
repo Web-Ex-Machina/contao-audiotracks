@@ -40,6 +40,37 @@ class ClientIdentifierTest extends TestCase
         $this->assertSame($identifier->fromIp('unknown'), $identifier->fromIp(''));
     }
 
+    public function testHmacIdentifierIsADeterministicHash(): void
+    {
+        $identifier = $this->hmac();
+
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{64}$/', $identifier->fromIp('203.0.113.7'));
+        $this->assertSame($identifier->fromIp('203.0.113.7'), $identifier->fromIp('203.0.113.7'));
+        $this->assertNotSame($identifier->fromIp('203.0.113.7'), $identifier->fromIp('203.0.113.8'));
+        $this->assertNotSame($identifier->fromIp('203.0.113.7'), $this->hmac('other')->fromIp('203.0.113.7'));
+        $this->assertTrue($identifier->isHashOrPurged($identifier->fromIp('203.0.113.7')));
+    }
+
+    public function testToCurrentConvertsOnlyWhatMustBe(): void
+    {
+        $encryption = $this->identifier();
+        $hmac = $this->hmac();
+        $encrypted = $encryption->fromIp('203.0.113.7');
+
+        // raw IP: converted in both modes
+        $this->assertSame($encrypted, $encryption->toCurrent('203.0.113.7'));
+        $this->assertSame($hmac->fromIp('203.0.113.7'), $hmac->toCurrent('203.0.113.7'));
+        // encrypted identifier: already current in encryption mode, hashed in hmac mode
+        $this->assertNull($encryption->toCurrent($encrypted));
+        $this->assertSame($hmac->fromIp('203.0.113.7'), $hmac->toCurrent($encrypted));
+        $this->assertSame($hmac->fromIp(''), $hmac->toCurrent($encryption->fromIp('')));
+        // hash, placeholder, empty, garbage: untouched
+        $this->assertNull($hmac->toCurrent($hmac->fromIp('203.0.113.7')));
+        $this->assertNull($hmac->toCurrent('purged-3'));
+        $this->assertNull($hmac->toCurrent(''));
+        $this->assertNull($hmac->toCurrent('not-an-identifier'));
+    }
+
     #[DataProvider('rawIps')]
     public function testIsRawIp(string $value, bool $expected): void
     {
@@ -53,6 +84,11 @@ class ClientIdentifierTest extends TestCase
         yield 'purged placeholder' => ['purged-12', false];
         yield 'empty' => ['', false];
         yield 'garbage' => ['abc', false];
+    }
+
+    private function hmac(string $key = 'k'): ClientIdentifier
+    {
+        return new ClientIdentifier(new Encryption('test-secret', true), ClientIdentifier::MODE_HMAC, $key);
     }
 
     private function identifier(string $secret = 'test-secret'): ClientIdentifier

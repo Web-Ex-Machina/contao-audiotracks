@@ -18,8 +18,10 @@ use Doctrine\DBAL\Connection;
 use WEM\AudioTracksBundle\Classes\ClientIdentifier;
 
 /**
- * Encrypts the IP addresses stored in clear by the previous versions (feedbacks
- * and sessions).
+ * Converts the visitors stored by the previous versions (feedbacks and sessions) to the
+ * current identifier mode: the IP addresses stored in clear are encrypted (or hashed in
+ * "hmac" mode), and the encrypted identifiers are hashed when the "hmac" mode is
+ * enabled (the opposite is not possible: a hash cannot be reversed).
  */
 class EncryptIpMigration extends AbstractMigration
 {
@@ -34,7 +36,7 @@ class EncryptIpMigration extends AbstractMigration
     public function shouldRun(): bool
     {
         foreach (self::TABLES as $table) {
-            if ([] !== $this->getRawIps($table, 1)) {
+            if ([] !== $this->getConvertible($table, 1)) {
                 return true;
             }
         }
@@ -47,19 +49,19 @@ class EncryptIpMigration extends AbstractMigration
         $count = 0;
 
         foreach (self::TABLES as $table) {
-            foreach ($this->getRawIps($table) as $id => $ip) {
-                $this->connection->update($table, ['ip' => $this->clientIdentifier->fromIp($ip)], ['id' => $id]);
+            foreach ($this->getConvertible($table) as $id => $identifier) {
+                $this->connection->update($table, ['ip' => $identifier], ['id' => $id]);
                 ++$count;
             }
         }
 
-        return $this->createResult(true, \sprintf('Encrypted %d IP address(es) of the audiotracks feedbacks and sessions.', $count));
+        return $this->createResult(true, \sprintf('Converted %d visitor(s) of the audiotracks feedbacks and sessions to the "%s" identifier.', $count, $this->clientIdentifier->getMode()));
     }
 
     /**
-     * @return array<int, string> [id => ip]
+     * @return array<int, string> [id => new identifier]
      */
-    private function getRawIps(string $table, int|null $limit = null): array
+    private function getConvertible(string $table, int|null $limit = null): array
     {
         $schemaManager = $this->connection->createSchemaManager();
 
@@ -67,11 +69,27 @@ class EncryptIpMigration extends AbstractMigration
             return [];
         }
 
-        // An IPv4 / IPv6 only contains these characters, the encrypted values contain
-        // more (base64)
-        $rows = $this->connection->fetchAllKeyValue("SELECT id, ip FROM $table WHERE ip REGEXP '^[0-9a-fA-F:.]+\$'");
-        $raw = array_filter($rows, fn (string $ip): bool => $this->clientIdentifier->isRawIp($ip));
+        if (ClientIdentifier::MODE_HMAC === $this->clientIdentifier->getMode()) {
+            // Everything that is not a hash yet (raw IP, encrypted identifier)
+            $sql = "SELECT id, ip FROM $table WHERE ip != '' AND ip NOT REGEXP '^[0-9a-f]{64}\$' AND ip NOT LIKE 'purged-%'";
+        } else {
+            // An IPv4 / IPv6 only contains these characters, the encrypted values contain
+            // more (base64)
+            $sql = "SELECT id, ip FROM $table WHERE ip REGEXP '^[0-9a-fA-F:.]+\$'";
+        }
 
-        return null === $limit ? $raw : \array_slice($raw, 0, $limit, true);
+        $converted = [];
+
+        foreach ($this->connection->fetchAllKeyValue($sql) as $id => $ip) {
+            if (null !== ($identifier = $this->clientIdentifier->toCurrent((string) $ip))) {
+                $converted[(int) $id] = $identifier;
+
+                if (null !== $limit && \count($converted) >= $limit) {
+                    break;
+                }
+            }
+        }
+
+        return $converted;
     }
 }

@@ -21,6 +21,14 @@ Or use the Contao Manager to do the same thing if you do not have a command-line
 
 Likes and listening sessions are linked to a visitor, but the IP address is never stored in clear: it is encrypted with the `wem.encryption_util` service of [webexmachina/contao-utils](https://github.com/Web-Ex-Machina/contao-utils). The encryption key is `wem_contao_encryption.encryption_key` (`kernel.secret` by default), **if you change it, the visitors already stored are not recognized anymore** (their likes / sessions are not lost, but they cannot be matched to their owner).
 
+By default the IP address is encrypted, which is reversible with the key. If you want that nobody, even with the key, can get the IP back, switch to a one-way keyed hash (HMAC-SHA256, same key). Likes and sessions keep working, a visitor is still recognized. Run `contao:migrate` afterwards, it converts the visitors already stored. **This cannot be reverted** (a hash cannot be reversed): going back to `encryption` leaves the converted visitors unrecognized.
+
+```yaml
+# config/config.yaml
+audio_tracks:
+    identifier: hmac   # encryption (default) | hmac
+```
+
 A daily cron can limit the retention: it deletes the listening sessions not updated for the configured number of months, and detaches the older likes from the visitor (the counters do not change). **It is disabled by default**, so nothing is deleted until you choose a value (12 is a common one):
 
 ```yaml

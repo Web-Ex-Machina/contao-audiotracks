@@ -52,6 +52,24 @@ class EncryptIpMigrationTest extends DatabaseTestCase
         $this->assertFalse($migration->shouldRun(), 'The migration must be idempotent');
     }
 
+    public function testHmacModeConvertsRawAndEncryptedVisitors(): void
+    {
+        $hmac = new ClientIdentifier(new Encryption('test-secret', true), ClientIdentifier::MODE_HMAC, 'k');
+        $this->connection->insert('tl_wem_audiotrack_feedback', ['pid' => 1, 'ip' => '203.0.113.7']);
+        $this->connection->insert('tl_wem_audiotrack_feedback', ['pid' => 2, 'ip' => $this->identifier->fromIp('203.0.113.7')]);
+        $this->connection->insert('tl_wem_audiotrack_feedback', ['pid' => 3, 'ip' => 'purged-9']);
+        $this->connection->insert('tl_wem_audiotrack_session', ['pid' => 1, 'ip' => $hmac->fromIp('198.51.100.1')]);
+
+        $migration = new EncryptIpMigration($this->connection, $hmac);
+        $this->assertTrue($migration->shouldRun());
+        $this->assertTrue($migration->run()->isSuccessful());
+
+        $expected = $hmac->fromIp('203.0.113.7');
+        $this->assertSame([$expected, $expected, 'purged-9'], $this->connection->fetchFirstColumn('SELECT ip FROM tl_wem_audiotrack_feedback ORDER BY id'));
+        $this->assertSame([$hmac->fromIp('198.51.100.1')], $this->connection->fetchFirstColumn('SELECT ip FROM tl_wem_audiotrack_session'));
+        $this->assertFalse($migration->shouldRun(), 'The migration must be idempotent');
+    }
+
     public function testMissingTablesAreIgnored(): void
     {
         $this->connection->executeStatement('DROP TABLE tl_wem_audiotrack_feedback');

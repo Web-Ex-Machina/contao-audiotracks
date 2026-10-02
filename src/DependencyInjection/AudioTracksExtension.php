@@ -33,6 +33,7 @@ class AudioTracksExtension extends Extension
     {
         $config = $this->processConfiguration(new Configuration(), $mergedConfig);
         $container->setParameter('wem_audiotracks.retention_months', $config['retention_months']);
+        $container->setParameter('wem_audiotracks.identifier', $config['identifier']);
 
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
         $loader->load('services.yaml');
