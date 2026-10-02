@@ -80,7 +80,7 @@ class AudioTrack extends Model
                     $varValue = [$varValue];
                 }
 
-                $arrColumns[] = \sprintf(\sprintf("%s.pid IN('%%s')", $t), implode("','", $varValue));
+                $arrColumns[] = \sprintf('%s.pid IN(%s)', $t, implode(',', array_map('intval', $varValue)));
                 break;
 
             // Respect the publication state and the start / stop dates (not in preview mode)
@@ -94,12 +94,20 @@ class AudioTrack extends Model
                 break;
 
             case 'tags':
-                $arrColumns[] = \sprintf(\sprintf("%s.id IN(SELECT twat.pid FROM tl_wem_audiotrack_tag twat WHERE twat.tag IN('%%s'))", $t), implode("','", $varValue));
+                $arrColumns[] = \sprintf('%s.id IN(SELECT twat.pid FROM tl_wem_audiotrack_tag twat WHERE twat.tag IN(%s))', $t, static::quoteList((array) $varValue));
                 break;
 
             case 'search':
-                $strKeywords = implode('|', $varValue);
-                $arrColumns[] = \sprintf("(%s.title REGEXP '%s' OR %s.description REGEXP '%s')", $t, $strKeywords, $t, $strKeywords);
+                // The keywords come from the visitor: they are searched as text (no regular
+                // expression), and quoted
+                $keywords = array_filter(array_map(static fn ($k): string => preg_quote(trim((string) $k)), (array) $varValue), static fn (string $k): bool => '' !== $k);
+
+                if ([] === $keywords) {
+                    break;
+                }
+
+                $regexp = static::quote(implode('|', $keywords));
+                $arrColumns[] = \sprintf('(%s.title REGEXP %s OR %s.description REGEXP %s)', $t, $regexp, $t, $regexp);
                 break;
 
             // Load parent
@@ -125,6 +133,22 @@ class AudioTrack extends Model
         return '1' === (string) $this->published
             && (!$this->start || (int) $this->start <= $time)
             && (!$this->stop || (int) $this->stop > $time);
+    }
+
+    /**
+     * Quote a value to use it in a statement.
+     */
+    protected static function quote(mixed $value): string
+    {
+        return System::getContainer()->get('database_connection')->quote((string) $value);
+    }
+
+    /**
+     * Quote a list of values: 'a','b'.
+     */
+    protected static function quoteList(array $values): string
+    {
+        return implode(',', array_map(static fn ($v): string => static::quote($v), $values)) ?: "''";
     }
 
     protected static function inPreviewMode(): bool

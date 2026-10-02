@@ -18,6 +18,8 @@ use Contao\DataContainer;
 use Contao\FilesModel;
 use Contao\Message;
 use Contao\System;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\ParameterType;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
 use WEM\AudioTracksBundle\Util\MP3File;
@@ -202,18 +204,19 @@ class AudiotrackContainer
             $objModel->save();
         }
 
-        // step 2 - remove all ids not in $varValues
-        if (null !== $varValues && [] !== $varValues) {
-            Database::getInstance()->prepare(
-                \sprintf(
-                    "DELETE FROM %s WHERE %s = %s AND %s NOT IN ('%s')",
-                    $strTable,
-                    $strParentField,
-                    $intParentId,
-                    $strForeignField,
-                    implode("','", $varValues),
-                ),
-            )->execute();
+        // step 2 - remove all the values not in $varValues (all of them if there
+        // is none anymore)
+        $connection = System::getContainer()->get('database_connection');
+        $sql = \sprintf('DELETE FROM %s WHERE %s = ?', $connection->quoteIdentifier($strTable), $connection->quoteIdentifier($strParentField));
+        $params = [$intParentId];
+        $types = [ParameterType::INTEGER];
+
+        if ([] !== ($varValues ?? [])) {
+            $sql .= \sprintf(' AND %s NOT IN (?)', $connection->quoteIdentifier($strForeignField));
+            $params[] = array_map('strval', array_values($varValues));
+            $types[] = ArrayParameterType::STRING;
         }
+
+        $connection->executeStatement($sql, $params, $types);
     }
 }
