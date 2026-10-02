@@ -21,6 +21,8 @@ Extension "Audiotracks" for Contao Open Source CMS
 - CHANGED: the `date` of a track is an integer column (`DateColumnMigration`, like the news), `start` and `stop` stay `varchar(10)` as in Contao
 - CHANGED: the item templates of the modules are renamed by `TemplateNameMigration` (`wemaudiotrack_default` -> `audiotracks/item`, `wemaudiotrack_full` -> `audiotracks/item/full`), an unknown template falls back to the default one
 - CHANGED: the palette of the tracks of a remote category is a real DCA palette (`remote`), `Category::getRssFeedUrl()` and `getRssFeedPath()` return `null` without RSS filename, `RssFeed` does not initialize the framework in its constructor anymore and uses `StringUtil::deserialize()`
+- CHANGED (cache): the pages of the list and of the reader do not depend on the visitor anymore (no `liked`, no listening `session`, no request token in the HTML), so they can be cached and shared. The player loads the likes and the listening sessions from a private, never cached endpoint (`StateController`, `GET /_wem_audiotracks/state?ids=`), which also gives the request token used by the AJAX calls. The `liked` and `session` variables are no longer given to the item templates: custom templates and `WEMAUDIOTRACKSPARSEITEM` hooks that use them must be adapted
+- CHANGED (performance): the remote RSS feeds are imported by an hourly cron (`SyncRemoteFeedsCron`) and no longer during a visitor request. A feed that fails is logged and does not stop the others. The "sync" button of the back end still works
 - UPDATED: Requires PHP ^8.3 and `contao/core-bundle` ^5.7
 
 1.1.0

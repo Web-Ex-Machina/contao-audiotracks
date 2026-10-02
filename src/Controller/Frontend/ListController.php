@@ -74,11 +74,6 @@ class ListController extends ModuleController
 
         $this->model = $model;
 
-        // Check if we must sync remote feeds
-        foreach ($this->pids as $id) {
-            $this->syncFeedFromRemote($id);
-        }
-
         $this->limit = $model->numberOfItems > 0 ? $model->numberOfItems : null;
         $this->offset = (int) $model->skipFirst;
         $this->options = ['order' => 'date DESC'];

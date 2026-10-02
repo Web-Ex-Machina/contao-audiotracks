@@ -1,6 +1,6 @@
 {% trans_default_domain 'contao_default' %}
 
-<div class="audioPlayer" data-audiotracks-player data-request-token="{{ contao.request_token }}" data-url-feedback="{{ path('wem_audiotracks_ajax', {action: 'feedback'}) }}" data-url-sync-session="{{ path('wem_audiotracks_ajax', {action: 'syncSession'}) }}">
+<div class="audioPlayer" data-audiotracks-player data-url-state="{{ path('wem_audiotracks_state') }}" data-url-feedback="{{ path('wem_audiotracks_ajax', {action: 'feedback'}) }}" data-url-sync-session="{{ path('wem_audiotracks_ajax', {action: 'syncSession'}) }}">
     <div class="container audioPlayer__wrapper">
         <div class="audioPlayer__nowplaying">
             <img class="audioPlayer__cover" src="" alt="" hidden>

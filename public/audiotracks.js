@@ -35,6 +35,19 @@
 
         return `${String(minutes).padStart(2, '0')}:${String(rest).padStart(2, '0')}`;
     };
+    /**
+     * The request token is not in the (cached) page: it comes with the state of the tracks.
+     */
+    const ensureToken = async (player) => {
+        if (!player.dataset.requestToken) {
+            const response = await fetch(player.dataset.urlState, { credentials: 'same-origin', cache: 'no-store' });
+            const { requestToken } = await response.json();
+
+            player.dataset.requestToken = requestToken;
+        }
+
+        return player.dataset.requestToken;
+    };
 
     /**
      * POST to the bundle ajax route, answers with JSON.
@@ -42,7 +55,7 @@
     const post = async (player, action, data) => {
         const body = new URLSearchParams({
             TL_AJAX: '1',
-            REQUEST_TOKEN: player.dataset.requestToken,
+            REQUEST_TOKEN: await ensureToken(player),
             ...data,
         });
 
@@ -74,6 +87,87 @@
         });
     };
 
+    const listenedEl = (id) => document.querySelector(`.audiotrack[data-audiotrack="${id}"] .audiotrack__listened`);
+    const rowEl = (id) => document.querySelector(`[data-audiotrack="${id}"].audiotrack, [data-audiotrack="${id}"].audiotrack_full`);
+
+    // Row state: "started" once some progress exists, "complete" once listened
+    const markRow = (id, started, complete) => {
+        const row = rowEl(id);
+
+        if (row) {
+            row.classList.toggle('started', (started || complete) && !complete);
+            row.classList.toggle('complete', complete);
+        }
+    };
+
+    /**
+     * The pages do not contain anything that depends on the visitor (so they can be cached),
+     * the likes and the listening sessions are loaded here, once the page is displayed.
+     */
+    const applyTrackState = (id, state) => {
+        document.querySelectorAll(`.audiotrack__likes[data-id="${id}"]`).forEach((button) => {
+            button.classList.toggle('liked', !!state.liked);
+
+            const count = button.querySelector('.count');
+
+            if (count) {
+                count.textContent = state.likes > 0 ? state.likes : '';
+            }
+        });
+
+        const session = state.session;
+
+        if (!session) {
+            return;
+        }
+
+        document.querySelectorAll(`.audiotrack__play[data-id="${id}"]`).forEach((button) => {
+            button.dataset.currentTime = session.currentTime;
+            button.dataset.volume = session.volume;
+            button.dataset.complete = session.complete ? '1' : '0';
+        });
+
+        markRow(id, session.currentTime > 0, session.complete);
+
+        if (session.complete) {
+            listenedEl(id)?.classList.add('active');
+        }
+    };
+
+    const loadState = async (playerEl) => {
+        const ids = [...new Set([...document.querySelectorAll('.audiotrack__play')].map((b) => b.dataset.id))];
+
+        if (!ids.length || !playerEl.dataset.urlState) {
+            return;
+        }
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+
+        try {
+            const response = await fetch(`${playerEl.dataset.urlState}?ids=${ids.join(',')}`, {
+                credentials: 'same-origin',
+                cache: 'no-store',
+                signal: controller.signal,
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const { requestToken, tracks } = await response.json();
+
+            playerEl.dataset.requestToken = requestToken;
+
+            Object.entries(tracks).forEach(([id, state]) => applyTrackState(id, state));
+        } catch (e) {
+            // The player still works with the default values and the local storage
+            console.warn(e);
+        } finally {
+            clearTimeout(timeout);
+        }
+    };
+
     const initPlayer = (playerEl) => {
         const playButtons = [...document.querySelectorAll('.audiotrack__play')];
 
@@ -89,19 +183,6 @@
         }));
 
         const findTrack = (id) => trackList.find((t) => t.id === String(id));
-        const listenedEl = (id) => document.querySelector(`.audiotrack[data-audiotrack="${id}"] .audiotrack__listened`);
-        const rowEl = (id) => document.querySelector(`[data-audiotrack="${id}"].audiotrack, [data-audiotrack="${id}"].audiotrack_full`);
-
-        // Row state: "started" once some progress exists, "complete" once listened
-        const markRow = (id, started, complete) => {
-            const row = rowEl(id);
-
-            if (row) {
-                row.classList.toggle("started", (started || complete) && !complete);
-                row.classList.toggle("complete", complete);
-            }
-        };
-
         let localData = readStorage(STORAGE_DATA);
 
         if (!Array.isArray(localData) || localData.length !== trackList.length) {
@@ -351,7 +432,8 @@
         const playerEl = document.querySelector('[data-audiotracks-player]');
 
         if (playerEl) {
-            initPlayer(playerEl);
+            // The player needs the listening sessions to start where the visitor stopped
+            loadState(playerEl).finally(() => initPlayer(playerEl));
         }
     };
 

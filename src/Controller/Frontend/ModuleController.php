@@ -24,12 +24,10 @@ use Contao\Model\Collection;
 use Contao\ModuleModel;
 use Contao\PageModel;
 use Exception;
-use WEM\AudioTracksBundle\Classes\ClientIdentifier;
 use WEM\AudioTracksBundle\Classes\SchemaOrgBuilder;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
 use WEM\AudioTracksBundle\Model\Feedback;
-use WEM\AudioTracksBundle\Model\Session;
 use WEM\AudioTracksBundle\Util\MP3File;
 use Symfony\Component\HttpFoundation\Request;
 use WEM\UtilsBundle\Classes\StringUtil;
@@ -41,7 +39,6 @@ abstract class ModuleController extends AbstractFrontendModuleController
 
     public function __construct(
         protected readonly SchemaOrgBuilder $schemaOrgBuilder,
-        protected readonly ClientIdentifier $clientIdentifier,
     )
     {
     }
@@ -65,20 +62,6 @@ abstract class ModuleController extends AbstractFrontendModuleController
      * List filters.
      */
     protected array $filters = [];
-
-    protected function syncFeedFromRemote($id)
-    {
-        $objFeed = Category::findByPk($id);
-
-        // Skip if the feed is not remote
-        // or if the feed has been updated during the last hour
-        if ('remote' !== $objFeed->type || $objFeed->rssRemoteLastSync > strtotime("-1 minute")) {
-            return;
-        }
-
-        // Launch service
-        System::getContainer()->get('wem.audiotracks.rss_feed')->import((int) $id);
-    }
 
     /**
      * Retrieve list filters.
@@ -296,23 +279,9 @@ abstract class ModuleController extends AbstractFrontendModuleController
         ;
         $arrData['durationRaw'] = $objItem->duration;
 
-        // Retrieve the feedback from this IP
-        $arrData['liked'] = 0 < Feedback::countItems(['pid' => $objItem->id, 'ip' => $this->clientIdentifier->get()]);
+        // Nothing that depends on the visitor (liked, listening session) is rendered here, the page can be cached:
+        // the player gets it from the StateController. The likes counter is the same for everybody.
         $arrData['nbLikes'] = Feedback::countItems(['pid' => $objItem->id]);
-
-        // Retrieve user session if exists
-        $objSession = Session::findItems(['pid' => $objItem->id, 'ip' => $this->clientIdentifier->get()], 1);
-        $arrSession = [];
-
-        if ($objSession instanceof Collection) {
-            $arrSession = [
-                'currentTime' => $objSession->currentTime,
-                'volume' => $objSession->volume,
-                'complete' => 1 === (int) $objSession->complete,
-            ];
-        }
-
-        $arrData['session'] = $arrSession;
 
         // Let template know if we can download the item
         $arrData['canDownload'] = (bool) $this->model->wemaudiotracks_canDownload;

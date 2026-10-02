@@ -1,10 +1,8 @@
 {% trans_default_domain 'contao_default' %}
 
-{% set session = session|default({}) %}
-
 {% set episode_label %}{% if season %}{{ 'WEM.AUDIOTRACKS.seasonShort'|trans }}{{ season }}{% endif %}{% if season and episode %} · {% endif %}{% if episode %}{{ 'WEM.AUDIOTRACKS.episodeShort'|trans }}{{ episode }}{% endif %}{% endset %}
 
-<tr class="audiotrack audiotrack_default{{ class|default('') }}{{ session.complete|default(false) ? ' complete' : (session.currentTime|default(0) > 0 ? ' started') }}"
+<tr class="audiotrack audiotrack_default{{ class|default('') }}"
     data-id="{{ id }}"
     data-audiotrack="{{ id }}">
     <td data-name="picture">
@@ -17,7 +15,7 @@
             <span>{{ title }}</span>
         {% if jumpTo|default %}</a>{% endif %}
 
-        <div class="audiotrack__listened{{ session.complete|default(false) ? ' active' }}">
+        <div class="audiotrack__listened">
             <i class="fas fa-circle-check ft-success ft-1-3-em"></i>
             <span>{{ 'WEM.AUDIOTRACKS.listened'|trans }}</span>
         </div>
@@ -36,9 +34,9 @@
             data-subtitle="{{ episode_label|trim }}"
             data-picture="{{ picture }}"
             data-src="{{ audio }}"
-            data-complete="{{ session.complete|default(false) ? 1 : 0 }}"
-            data-current-time="{{ session.currentTime|default(0) }}"
-            data-volume="{{ session.volume|default(1) }}"
+            data-complete="0"
+            data-current-time="0"
+            data-volume="1"
             aria-label="{{ 'WEM.AUDIOTRACKS.play'|trans }}">
             <i class="fas fa-play"></i><i class="fas fa-pause"></i>
         </button>
@@ -49,7 +47,7 @@
             </a>
         {% endif %}
 
-        <button type="button" class="audiotrack__likes audiotrack__button{{ liked ? ' liked' }}" data-id="{{ id }}" aria-label="{{ 'WEM.AUDIOTRACKS.like'|trans }}">
+        <button type="button" class="audiotrack__likes audiotrack__button" data-id="{{ id }}" aria-label="{{ 'WEM.AUDIOTRACKS.like'|trans }}">
             <i class="fas fa-heart empty"></i>
             <i class="fas fa-heart full"></i>
             <span class="count">{{ nbLikes ?: '' }}</span>

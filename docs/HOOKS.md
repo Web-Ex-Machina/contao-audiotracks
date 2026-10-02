@@ -96,7 +96,7 @@ This hook is called when parsing an item. Since the Twig migration, it receives 
 **Arguments**:
 Name | Type | Description
 --- | --- | ---
-$data | `array` | The item template data (DB row + `date`, `picture`, `audio`, `duration`, `liked`, `nbLikes`, `session`, `canDownload`, `jumpTo`...)
+$data | `array` | The item template data (DB row + `date`, `picture`, `audio`, `duration`, `nbLikes`, `canDownload`, `jumpTo`...). Nothing that depends on the visitor (liked, listening session) is in it, so the pages can be cached
 $item | `\WEM\AudioTracksBundle\Model\AudioTrack` | The item
 $caller | `\WEM\AudioTracksBundle\Controller\Frontend\ModuleController` | The calling object
 
