@@ -20,6 +20,7 @@ use Contao\DataContainer;
 use Contao\Message;
 use Contao\System;
 use Symfony\Component\Uid\Uuid;
+use WEM\AudioTracksBundle\Classes\FeedWithoutTracksException;
 use WEM\AudioTracksBundle\Model\Category;
 
 class CategoryContainer
@@ -62,9 +63,11 @@ class CategoryContainer
         }
 
         try {
-            System::getContainer()->get('wem.audiotracks.rss_feed')->generate((int) $dc->id);
-
-            Message::addConfirmation($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssSaved']);
+            if (System::getContainer()->get('wem.audiotracks.rss_feed')->generate((int) $dc->id)) {
+                Message::addConfirmation($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssSaved']);
+            }
+        } catch (FeedWithoutTracksException) {
+            Message::addError($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssNoTracks']);
         } catch (\Exception $exception) {
             Message::addError($exception->getMessage());
         }

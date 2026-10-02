@@ -8,7 +8,6 @@ use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Contao\Environment;
 use Contao\FilesModel;
-use Contao\Message;
 use Contao\Model\Collection;
 use Contao\StringUtil;
 use Contao\System;
@@ -34,16 +33,20 @@ class RssFeed
     }
 
     /**
-     * Generate the RSS feed.
+     * Generate the RSS feed of a category.
+     *
+     * @return bool False if there is nothing to generate (unknown category, feed not enabled)
+     *
+     * @throws FeedWithoutTracksException If the category has no published track
      */
-    public function generate(int $id): void
+    public function generate(int $id): bool
     {
         $this->framework->initialize();
 
         $objItem = Category::findById($id);
 
         if (!$objItem || !$objItem->rss || !$objItem->rssFilename) {
-            return;
+            return false;
         }
 
         $feed = $this->createRssFeed($objItem);
@@ -52,9 +55,7 @@ class RssFeed
         $objTracks = AudioTrack::findItems(['pid' => $objItem->id, 'published' => 1], 0, 0, ['order' => 'date DESC']);
 
         if (!$objTracks instanceof Collection || 0 === $objTracks->count()) {
-            Message::addError($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssNoTracks']);
-
-            return;
+            throw new FeedWithoutTracksException(\sprintf('The category %d has no published track', $id));
         }
 
         $totalDuration = 0;
@@ -70,6 +71,8 @@ class RssFeed
 
         // The feed is written in the web directory (public/), where the feed URL points to
         (new Filesystem())->dumpFile($objItem->getRssFeedPath(), $buffer);
+
+        return true;
     }
 
     /**

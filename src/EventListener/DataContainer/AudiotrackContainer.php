@@ -18,6 +18,7 @@ use Contao\DataContainer;
 use Contao\FilesModel;
 use Contao\Message;
 use Contao\System;
+use WEM\AudioTracksBundle\Classes\FeedWithoutTracksException;
 use WEM\AudioTracksBundle\Classes\TagSynchronizer;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
@@ -64,8 +65,12 @@ class AudiotrackContainer
         $objItem = AudioTrack::findById($dc->id);
 
         try {
-            System::getContainer()->get('wem.audiotracks.rss_feed')->generate($objItem->pid);
-            Message::addConfirmation($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssSaved']);
+            // Nothing is said if the feed is not enabled for the category
+            if (System::getContainer()->get('wem.audiotracks.rss_feed')->generate((int) $objItem->pid)) {
+                Message::addConfirmation($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssSaved']);
+            }
+        } catch (FeedWithoutTracksException) {
+            Message::addError($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssNoTracks']);
         } catch (\Exception $exception) {
             Message::addError($exception->getMessage());
         }
