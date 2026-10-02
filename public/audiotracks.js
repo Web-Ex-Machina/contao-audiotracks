@@ -246,6 +246,15 @@
             nextButton.title = nextTrack ? nextTrack.title : '';
             prevButton.classList.toggle('disabled', !prevTrack);
             prevButton.title = prevTrack ? prevTrack.title : '';
+
+            if ('mediaSession' in navigator) {
+                try {
+                    navigator.mediaSession.setActionHandler('previoustrack', prevTrack ? () => playTrack(prevTrack) : null);
+                    navigator.mediaSession.setActionHandler('nexttrack', nextTrack ? () => playTrack(nextTrack) : null);
+                } catch (e) {
+                    // Action not supported by this browser
+                }
+            }
         };
 
         const playTrack = (track) => {
@@ -400,6 +409,161 @@
             }
 
             currentEl.textContent = formatTime(audio.currentTime);
+        });
+
+        // Media Session: title and cover on the lock screen / notifications, headphones and keyboard media keys
+        const mediaSession = 'mediaSession' in navigator ? navigator.mediaSession : null;
+
+        const updateMediaSession = () => {
+            if (!mediaSession || !currentTrack) {
+                return;
+            }
+
+            const artwork = currentTrack.picture ? [{ src: new URL(currentTrack.picture, window.location.href).href }] : [];
+
+            mediaSession.metadata = new MediaMetadata({
+                title: currentTrack.title,
+                artist: currentTrack.subtitle,
+                album: document.title,
+                artwork,
+            });
+        };
+
+        const updatePositionState = () => {
+            if (mediaSession && currentTrack && Number.isFinite(audio.duration) && audio.duration > 0) {
+                try {
+                    mediaSession.setPositionState({
+                        duration: audio.duration,
+                        playbackRate: audio.playbackRate || 1,
+                        position: Math.min(audio.currentTime, audio.duration),
+                    });
+                } catch (e) {
+                    // Some browsers refuse an inconsistent position, the lock screen just shows no progress
+                }
+            }
+        };
+
+        if (mediaSession) {
+            const seekBy = (offset) => {
+                if (currentTrack) {
+                    audio.currentTime = Math.max(0, Math.min(audio.duration || Infinity, audio.currentTime + offset));
+                }
+            };
+            const handlers = {
+                play: () => audio.play(),
+                pause: () => audio.pause(),
+                previoustrack: () => prevTrack && playTrack(prevTrack),
+                nexttrack: () => nextTrack && playTrack(nextTrack),
+                seekbackward: (details) => seekBy(-(details.seekOffset || 15)),
+                seekforward: (details) => seekBy(details.seekOffset || 30),
+                seekto: (details) => {
+                    if (currentTrack && Number.isFinite(details.seekTime)) {
+                        audio.currentTime = details.seekTime;
+                    }
+                },
+            };
+
+            Object.entries(handlers).forEach(([action, handler]) => {
+                try {
+                    mediaSession.setActionHandler(action, handler);
+                } catch (e) {
+                    // Action not supported by this browser
+                }
+            });
+
+            audio.addEventListener('play', () => {
+                mediaSession.playbackState = 'playing';
+                updateMediaSession();
+            });
+            audio.addEventListener('pause', () => {
+                mediaSession.playbackState = 'paused';
+            });
+            audio.addEventListener('loadedmetadata', updatePositionState);
+            audio.addEventListener('seeked', updatePositionState);
+            audio.addEventListener('ratechange', updatePositionState);
+        }
+
+        // Keyboard shortcuts, only when the visitor is not typing or using a control that already handles the key
+        document.addEventListener('keydown', (e) => {
+            if (!currentTrack || e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey) {
+                return;
+            }
+
+            const target = e.target;
+
+            if (target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"]')) {
+                return;
+            }
+
+            // Space / Enter press the focused button or link themselves
+            const onControl = target instanceof Element && !!target.closest('button, a, summary, [role="button"]');
+            const seekBy = (offset) => {
+                audio.currentTime = Math.max(0, Math.min(audio.duration || Infinity, audio.currentTime + offset));
+            };
+            const setVolume = (value) => {
+                audio.volume = Math.max(0, Math.min(1, Math.round(value * 100) / 100));
+                volumeBar.value = audio.volume;
+            };
+            let handled = true;
+
+            if (e.shiftKey) {
+                switch (e.key) {
+                    case 'N':
+                        nextTrack && playTrack(nextTrack);
+                        break;
+                    case 'P':
+                        prevTrack && playTrack(prevTrack);
+                        break;
+                    default:
+                        handled = false;
+                }
+            } else if (/^[0-9]$/.test(e.key)) {
+                if (Number.isFinite(audio.duration)) {
+                    audio.currentTime = audio.duration * (Number(e.key) / 10);
+                }
+            } else {
+                switch (e.key) {
+                    case ' ':
+                        if (onControl) {
+                            return;
+                        }
+                    // falls through
+                    case 'k':
+                    case 'K':
+                        playButton.click();
+                        break;
+                    case 'j':
+                    case 'J':
+                        seekBy(-10);
+                        break;
+                    case 'l':
+                    case 'L':
+                        seekBy(10);
+                        break;
+                    case 'ArrowLeft':
+                        seekBy(-5);
+                        break;
+                    case 'ArrowRight':
+                        seekBy(5);
+                        break;
+                    case 'ArrowUp':
+                        setVolume(audio.volume + 0.05);
+                        break;
+                    case 'ArrowDown':
+                        setVolume(audio.volume - 0.05);
+                        break;
+                    case 'm':
+                    case 'M':
+                        muteButton.click();
+                        break;
+                    default:
+                        handled = false;
+                }
+            }
+
+            if (handled) {
+                e.preventDefault();
+            }
         });
 
         // Likes
