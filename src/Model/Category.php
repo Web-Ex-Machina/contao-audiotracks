@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\Model;
 
-use Contao\Environment;
 use Contao\System;
 use Symfony\Component\Filesystem\Path;
+use WEM\AudioTracksBundle\Classes\BaseUrl;
 use WEM\UtilsBundle\Model\Model;
 
 /**
@@ -45,7 +45,7 @@ class Category extends Model
             return null;
         }
 
-        return Environment::get('base').static::$strRssFolder.$this->rssFilename;
+        return BaseUrl::get().static::$strRssFolder.$this->rssFilename;
     }
 
     /**

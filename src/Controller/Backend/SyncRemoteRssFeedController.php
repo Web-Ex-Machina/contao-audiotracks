@@ -16,6 +16,7 @@ use Contao\CoreBundle\Controller\AbstractController;
 use Contao\DataContainer;
 use Contao\Message;
 use Contao\System;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use WEM\AudioTracksBundle\Model\Category;
 
 /**
@@ -23,16 +24,18 @@ use WEM\AudioTracksBundle\Model\Category;
  */
 class SyncRemoteRssFeedController extends AbstractController
 {
-    public function run(DataContainer $dc): void
+    public function run(DataContainer $dc): RedirectResponse
     {
+        $redirect = new RedirectResponse(System::getContainer()->get('router')->generate('contao_backend', ['do' => 'wemaudiotracks']));
+
         if (!$dc->id) {
-            return;
+            return $redirect;
         }
 
         $objItem = Category::findById($dc->id);
 
         if (!$objItem || 'remote' !== $objItem->type || !$objItem->rssRemoteUrl) {
-            return;
+            return $redirect;
         }
 
         try {
@@ -42,5 +45,7 @@ class SyncRemoteRssFeedController extends AbstractController
         } catch (\Exception $exception) {
             Message::addError(\sprintf($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssImportError'], $exception->getMessage()));
         }
+
+        return $redirect;
     }
 }

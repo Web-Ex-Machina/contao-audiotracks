@@ -35,7 +35,11 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'format' => '%s',
         ],
         'global_operations' => [
-            'all'
+            'all',
+            'generateFeeds' => [
+                'href' => 'key=generateFeeds',
+                'icon' => 'sync.svg',
+            ],
         ],
         'operations' => [
             'edit',

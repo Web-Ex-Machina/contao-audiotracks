@@ -110,6 +110,12 @@
 			<trans-unit id="WEM.AUDIOTRACKS.rssImportError">
 			    <source>The remote feed could not be imported: %s</source>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssAllGenerated">
+			    <source>%d RSS feed(s) written, %d already up to date, %d without published track</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssGenerateError">
+			    <source>RSS feed of the category %d: %s</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

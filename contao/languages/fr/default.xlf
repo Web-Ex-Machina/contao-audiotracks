@@ -147,6 +147,14 @@
 			    <source>The remote feed could not be imported: %s</source>
 			    <target>Le flux distant n’a pas pu être importé : %s</target>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssAllGenerated">
+			    <source>%d RSS feed(s) written, %d already up to date, %d without published track</source>
+			    <target>%d flux RSS écrit(s), %d déjà à jour, %d sans épisode publié</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssGenerateError">
+			    <source>RSS feed of the category %d: %s</source>
+			    <target>Flux RSS de la catégorie %d : %s</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

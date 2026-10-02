@@ -204,6 +204,12 @@
 			<trans-unit id="tl_wem_audiotrack_category.syncRemoteRss.1">
 				<source>Import the tracks from the remote RSS feed.</source>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.generateFeeds.0">
+				<source>Generate all RSS feeds</source>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.generateFeeds.1">
+				<source>Generates the RSS feeds of all the local categories again.</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

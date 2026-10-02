@@ -269,6 +269,14 @@
 				<source>Import the tracks from the remote RSS feed.</source>
 				<target>Importer les épisodes depuis le flux RSS distant.</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.generateFeeds.0">
+				<source>Generate all RSS feeds</source>
+				<target>Générer tous les flux RSS</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.generateFeeds.1">
+				<source>Generates the RSS feeds of all the local categories again.</source>
+				<target>Régénère les flux RSS de toutes les catégories locales.</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

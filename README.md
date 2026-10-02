@@ -39,6 +39,23 @@ audio_tracks:
 
 After an update from a previous version, run `contao:migrate`: it encrypts the IP addresses already stored, removes the duplicated likes / sessions, converts the `date` column, renames the module templates and creates the unique keys.
 
+## RSS feeds of the local categories
+
+A feed is generated when a category or a track is saved in the back end. It is also generated again **every hour** by the Contao cron (`GenerateFeedsCron`): without it, a track published or unpublished by its start / stop date, or deleted, would not be taken into account until the next save. A feed that did not change is not rewritten (the dates of the feed are the ones of its last change, not "now").
+
+- **Back end**: the "Generate all RSS feeds" button of the list of the categories.
+- **Command line**: `php vendor/bin/contao-console wem:audiotracks:generate-feeds` (exit code 1 if a feed failed).
+
+The feeds contain absolute URLs. During a request they use the address of the request, but the cron (if the system cron calls `contao:cron`) and the command have no request. The address is then the domain of the root pages if they all have the same one, else **you have to give it**:
+
+```yaml
+# config/config.yaml
+audio_tracks:
+    base_url: https://www.example.org/   # a "%env(AUDIOTRACKS_BASE_URL)%" placeholder is accepted
+```
+
+If it is needed and missing, the generation fails with a message saying so, nothing wrong is written. When this setting is given, it is also used for the requests (the address of the feeds does not depend on the domain used to open the back end).
+
 ## Rate limit
 
 The endpoints used by the player (likes, listening sessions and state of the visitor) accept 120 requests per minute and per visitor, the player sends about 6 per minute while it plays. Beyond that, they answer with a `429` and a `Retry-After` header. The limit can be changed, `0` disables it:
