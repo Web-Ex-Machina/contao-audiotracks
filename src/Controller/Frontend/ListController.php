@@ -190,8 +190,13 @@ class ListController extends ModuleController
             foreach ($types as $t) {
                 switch ($t) {
                     case 'rss':
+                        // No link if the category has no feed
+                        if (!$objCategory->rss || !($href = $objCategory->getRssFeedUrl())) {
+                            break;
+                        }
+
                         $links[$pid]['links'][$t] = [
-                            'href' => $objCategory->getRssFeedUrl(),
+                            'href' => $href,
                             'title' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['links'][$t],
                             'icon' => '<i class="fa-solid fa-square-rss"></i>'
                         ];

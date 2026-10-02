@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace WEM\AudioTracksBundle\Controller;
 
 use Contao\Model\Collection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -62,7 +63,6 @@ class AjaxController
 
         return new JsonResponse(['status' => 'success']);
     }
-
     private function updateFeedback(int $pid, bool $like): void
     {
         $strIp = $this->clientIdentifier->get();
@@ -77,26 +77,44 @@ class AjaxController
             $objFeedback->createdAt = time();
             $objFeedback->pid = $pid;
             $objFeedback->ip = $strIp;
-            $objFeedback->save();
+
+            try {
+                $objFeedback->save();
+            } catch (UniqueConstraintViolationException) {
+                // A parallel request already stored this like
+            }
         }
     }
 
     private function updateSession(int $pid, float $currentTime, float $volume, bool $markAsComplete): void
     {
         $strIp = $this->clientIdentifier->get();
-        $objSession = Session::findItems(['pid' => $pid, 'ip' => $strIp], 1);
 
-        if (!$objSession instanceof Collection) {
-            $objSession = new Session();
-            $objSession->createdAt = time();
-            $objSession->pid = $pid;
-            $objSession->ip = $strIp;
+        // The (pid, ip) key is unique: if a parallel request created the session meanwhile, we update it
+        for ($attempt = 1; $attempt <= 2; ++$attempt) {
+            $objSession = Session::findItems(['pid' => $pid, 'ip' => $strIp], 1);
+
+            if (!$objSession instanceof Collection) {
+                $objSession = new Session();
+                $objSession->createdAt = time();
+                $objSession->pid = $pid;
+                $objSession->ip = $strIp;
+            }
+
+            $objSession->tstamp = time();
+            $objSession->volume = $volume;
+            $objSession->currentTime = $currentTime;
+            $objSession->complete = $markAsComplete ? 1 : '';
+
+            try {
+                $objSession->save();
+
+                return;
+            } catch (UniqueConstraintViolationException $e) {
+                if (2 === $attempt) {
+                    throw $e;
+                }
+            }
         }
-
-        $objSession->tstamp = time();
-        $objSession->volume = $volume;
-        $objSession->currentTime = $currentTime;
-        $objSession->complete = $markAsComplete ? 1 : '';
-        $objSession->save();
     }
 }

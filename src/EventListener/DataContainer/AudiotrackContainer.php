@@ -47,8 +47,7 @@ class AudiotrackContainer
             return;
         }
 
-        $GLOBALS['TL_DCA']['tl_wem_audiotrack']['palettes']['default'] = str_replace('audio', 'audioRemoteUrl', $GLOBALS['TL_DCA']['tl_wem_audiotrack']['palettes']['default']);
-        $GLOBALS['TL_DCA']['tl_wem_audiotrack']['palettes']['default'] = str_replace('picture,picture_mobile', 'pictureRemoteUrl', $GLOBALS['TL_DCA']['tl_wem_audiotrack']['palettes']['default']);
+        $GLOBALS['TL_DCA']['tl_wem_audiotrack']['palettes']['default'] = $GLOBALS['TL_DCA']['tl_wem_audiotrack']['palettes']['remote'];
     }
 
     /**

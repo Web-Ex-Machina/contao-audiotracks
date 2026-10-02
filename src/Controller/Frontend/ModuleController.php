@@ -223,18 +223,14 @@ abstract class ModuleController extends AbstractFrontendModuleController
 
     /**
      * Resolve the item template identifier (e.g. "audiotracks/item/full").
-     * Handles the legacy "wemaudiotrack_*" values saved before the Twig migration.
+     * Falls back to the default one if the template of the module does not exist (anymore).
      */
     protected function getItemTemplate(): string
     {
         $template = (string) $this->model->wemaudiotracks_template;
 
-        if ('' === $template || 'wemaudiotrack_default' === $template) {
+        if ('' === $template || !$this->container->get('twig')->getLoader()->exists('@Contao/'.$template.'.html.twig')) {
             return 'audiotracks/item';
-        }
-
-        if (str_starts_with($template, 'wemaudiotrack_')) {
-            return 'audiotracks/item/'.substr($template, \strlen('wemaudiotrack_'));
         }
 
         return $template;

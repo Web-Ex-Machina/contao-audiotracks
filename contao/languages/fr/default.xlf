@@ -123,10 +123,6 @@
 			    <source>No tracks found, no RSS generated</source>
 			    <target>Aucun épisode trouvé, aucun flux RSS généré</target>
 			</trans-unit>
-			<trans-unit id="WEM.AUDIOTRACKS.rssNoFilename">
-			    <source>Cannot generate RSS Feed url as category does not have a RSS filename setup</source>
-			    <target>Impossible de générer l'URL du flux RSS : la catégorie n'a pas de nom de fichier RSS</target>
-			</trans-unit>
 			<trans-unit id="WEM.AUDIOTRACKS.noAudiotrack">
 			    <source>No audiotrack provided</source>
 			    <target>Aucun épisode fourni</target>

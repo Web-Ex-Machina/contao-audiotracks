@@ -63,6 +63,14 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             {author_legend},authors;
             {publish_legend},published,start,stop
         ',
+        // Tracks of a remote category: no local files, only the urls (the palette is selected in AudiotrackContainer::updatePalettes)
+        'remote' => '
+            {title_legend},title,alias,date,season,episode,audioRemoteUrl,type,duration;
+            {content_legend},description,explicit,tags;
+            {picture_legend},pictureRemoteUrl,pictureText;
+            {author_legend},authors;
+            {publish_legend},published,start,stop
+        ',
     ],
 
     // Fields
@@ -105,7 +113,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'inputType' => 'text',
             'flag' => DataContainer::SORT_MONTH_DESC,
             'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
-            'sql' => "varchar(10) NOT NULL default ''",
+            'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'season' => [
             'exclude' => true,

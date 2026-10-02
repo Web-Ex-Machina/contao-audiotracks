@@ -9,7 +9,7 @@
 
     {% if links|default %}
         <div class="audiotracks__links">
-            {% for feed in links %}
+            {% for feed in links|filter(f => f.links) %}
                 <div class="audiotracks__links__feed">
                     <p>
                         <span class="audiotracks__links__title">{{ feed.title }}</span>

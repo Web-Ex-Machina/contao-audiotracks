@@ -39,24 +39,24 @@ class Category extends Model
     protected static $strRssFolder = 'share/audiotracks/rss/';
 
     /**
-     * Generate URL for RSS
+     * Generate URL for RSS, null if the category has no RSS filename
      */
-    public function getRssFeedUrl(): string
+    public function getRssFeedUrl(): ?string
     {
         if (!$this->rssFilename) {
-            return $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssNoFilename'];
+            return null;
         }
 
         return Environment::get('base') . static::$strRssFolder . $this->rssFilename;
     }
 
     /**
-     * Generate the absolute path for RSS (inside the web directory, ie: public/)
+     * Generate the absolute path for RSS (inside the web directory, ie: public/), null if the category has no RSS filename
      */
-    public function getRssFeedPath(): string
+    public function getRssFeedPath(): ?string
     {
         if (!$this->rssFilename) {
-            return $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssNoFilename'];
+            return null;
         }
 
         return Path::join(System::getContainer()->getParameter('contao.web_dir'), static::$strRssFolder, $this->rssFilename);

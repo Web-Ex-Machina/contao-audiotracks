@@ -16,11 +16,12 @@ namespace WEM\AudioTracksBundle\Cron;
 
 use Contao\CoreBundle\DependencyInjection\Attribute\AsCronJob;
 use Doctrine\DBAL\Connection;
+use WEM\AudioTracksBundle\Migration\UniqueTrackingDataMigration;
 
 /**
- * Limits the retention of the visitors data (configuration: audio_tracks.retention_months, 0 = keep forever).
+ * Limits the retention of the visitors data (configuration: audio_tracks.retention_months, 0 = keep forever, which is the default).
  *  - the listening sessions not updated since then are deleted
- *  - the feedbacks (likes) are kept, so the counters do not change, but they are detached from the visitor
+ *  - the feedbacks (likes) are kept, so the counters do not change, but they are detached from the visitor (unique placeholder)
  */
 #[AsCronJob('daily')]
 class PurgeTrackingDataCron
@@ -40,6 +41,6 @@ class PurgeTrackingDataCron
         $limit = (new \DateTimeImmutable(sprintf('-%d months', $this->retentionMonths)))->getTimestamp();
 
         $this->connection->executeStatement('DELETE FROM tl_wem_audiotrack_session WHERE tstamp < ?', [$limit]);
-        $this->connection->executeStatement("UPDATE tl_wem_audiotrack_feedback SET ip = '' WHERE tstamp < ? AND ip != ''", [$limit]);
+        $this->connection->executeStatement("UPDATE tl_wem_audiotrack_feedback SET ip = CONCAT(?, id) WHERE tstamp < ? AND ip NOT LIKE ?", [UniqueTrackingDataMigration::PURGED_PREFIX, $limit, UniqueTrackingDataMigration::PURGED_PREFIX.'%']);
     }
 }

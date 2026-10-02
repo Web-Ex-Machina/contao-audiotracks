@@ -39,11 +39,11 @@ class CategoryContainer
         
         $objItem = Category::findByPk($dc->id);
 
-        if (!$objItem->rss) {
+        $url = $objItem->rss ? $objItem->getRssFeedUrl() : null;
+
+        if (!$url) {
             return;
         }
-
-        $url = $objItem->getRssFeedUrl();
 
         Message::addInfo(sprintf($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssLocation'], sprintf('<a href="%1$s" title="%2$s" target="_blank">%1$s</a>', $url, $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssGoTo'])));
     }

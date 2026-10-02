@@ -16,8 +16,8 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_session'] = [
             'keys' => [
                 'id' => 'primary',
                 'pid' => 'index',
-                // Lookups of a visitor's like / session on a track
-                'pid,ip' => 'index',
+                // A visitor has at most one like / session per track (and it is the lookup key)
+                'pid,ip' => 'unique',
             ],
         ],
     ],

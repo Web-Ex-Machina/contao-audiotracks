@@ -8,6 +8,7 @@ use Contao\Environment;
 use Symfony\Component\Filesystem\Filesystem;
 use Contao\FilesModel;
 use Contao\Message;
+use Contao\StringUtil;
 use Exception;
 use Laminas\Feed\Reader\Reader;
 use Laminas\Feed\Writer\Feed;
@@ -24,14 +25,15 @@ class RssFeed
     )
     {
         $this->framework = $framework;
-        $this->framework->initialize();
     }
 
     /**
      * Generate the RSS feed
      */
     public function generate(int $id): void
-    {        
+    {
+        $this->framework->initialize();
+
         $objItem = Category::findByPk($id);
 
         if (!$objItem || !$objItem->rss || !$objItem->rssFilename) {
@@ -105,7 +107,7 @@ class RssFeed
 
         // Feed Authors
         if ($objItem->authors) {
-            $authors = unserialize($objItem->authors);
+            $authors = StringUtil::deserialize($objItem->authors, true);
             $names = [];
             $feed->addAuthors($authors);
 
@@ -144,8 +146,8 @@ class RssFeed
         }
 
         // Feed categories
-        $arrCategories = unserialize($objItem->categories);
-        if (is_iterable($arrCategories)) {
+        $arrCategories = StringUtil::deserialize($objItem->categories, true);
+        if ([] !== $arrCategories) {
             foreach ($arrCategories as $c) {
                 $feed->addCategory([
                     "term" => $c,
@@ -186,7 +188,7 @@ class RssFeed
         $entry->setItunesTitle(html_entity_decode($objItem->title));
         
         if ($objItem->authors) {
-            $authors = unserialize($objItem->authors);
+            $authors = StringUtil::deserialize($objItem->authors, true);
             $entry->addAuthors($authors);
 
             foreach ($authors as $a) {
@@ -207,8 +209,8 @@ class RssFeed
             $entry->setItunesImage(Environment::get('base') . $objFile->path);
         }
 
-        $arrCategories = unserialize($objCategory->categories);
-        if (is_iterable($arrCategories)) {
+        $arrCategories = StringUtil::deserialize($objCategory->categories, true);
+        if ([] !== $arrCategories) {
             foreach ($arrCategories as $c) {
                 $entry->addCategory([
                     "term" => $c,
@@ -239,6 +241,8 @@ class RssFeed
 
     public function import(int $id): void
     {
+        $this->framework->initialize();
+
         $objItem = Category::findByPk($id);
 
         // Only remote categories with a remote url can be imported
@@ -344,6 +348,7 @@ class RssFeed
             $objTrack = $objTrack->current();
         }
 
+        // The feed is the source of truth: the editorial fields are overwritten at each import
         $objTrack->tstamp = $entry->getDateModified()->getTimestamp();
         $objTrack->createdAt = $entry->getDateCreated()->getTimestamp();
         $objTrack->title = $entry->getTitle();

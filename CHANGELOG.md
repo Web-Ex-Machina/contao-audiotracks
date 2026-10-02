@@ -16,8 +16,11 @@ Extension "Audiotracks" for Contao Open Source CMS
 - CHANGED: `WEMAUDIOTRACKSPARSEITEM` now receives and returns the template data array (see docs/HOOKS.md)
 - ADDED: schema.org JSON-LD (`SchemaOrgBuilder`): `PodcastEpisode` with `PodcastSeason`, `PodcastSeries` (category), `AudioObject`, authors, keywords, duration, likes on the reader; a single `ItemList` on the list. The inline microdata has been removed. The data is available in the item template data as `schemaOrg` (and can be altered in the `WEMAUDIOTRACKSPARSEITEM` hook)
 - CHANGED (privacy): visitors (likes, listening sessions) are no longer identified by their IP in clear. The IP is encrypted with the `wem.encryption_util` service of `webexmachina/contao-utils` (`ClientIdentifier`). The IPs already stored are encrypted by a migration (`contao:migrate`)
-- ADDED: daily cron (`PurgeTrackingDataCron`) deleting the listening sessions not updated for `audio_tracks.retention_months` months (default 12, `0` = keep forever) and detaching the older likes from the visitor (the likes counters do not change)
-- ADDED: composite index `pid, ip` on the feedbacks and sessions tables
+- ADDED: daily cron (`PurgeTrackingDataCron`) deleting the listening sessions not updated for `audio_tracks.retention_months` months (default `0` = keep forever, nothing is purged unless you configure it) and detaching the older likes from the visitor (the likes counters do not change)
+- ADDED: unique key `pid, ip` on the feedbacks and sessions tables (one like / session per visitor and track), the AJAX endpoint handles parallel requests. The duplicates and the likes detached from their visitor are handled by `UniqueTrackingDataMigration`
+- CHANGED: the `date` of a track is an integer column (`DateColumnMigration`, like the news), `start` and `stop` stay `varchar(10)` as in Contao
+- CHANGED: the item templates of the modules are renamed by `TemplateNameMigration` (`wemaudiotrack_default` -> `audiotracks/item`, `wemaudiotrack_full` -> `audiotracks/item/full`), an unknown template falls back to the default one
+- CHANGED: the palette of the tracks of a remote category is a real DCA palette (`remote`), `Category::getRssFeedUrl()` and `getRssFeedPath()` return `null` without RSS filename, `RssFeed` does not initialize the framework in its constructor anymore and uses `StringUtil::deserialize()`
 - UPDATED: Requires PHP ^8.3 and `contao/core-bundle` ^5.7
 
 1.1.0
