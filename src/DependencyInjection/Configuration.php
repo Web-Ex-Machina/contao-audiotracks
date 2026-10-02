@@ -37,6 +37,18 @@ class Configuration implements ConfigurationInterface
             ->min(0)
             ->defaultValue(120)
             ->end()
+            ->arrayNode('compression')
+            ->addDefaultsIfNotSet()
+            ->info('Re-encodes the MP3 files of the tracks with ffmpeg when a track is saved (the wem:audiotracks:compress command does it for the files already uploaded).')
+            ->children()
+            ->booleanNode('enabled')->info('Compress the MP3 when a track is saved. Needs ffmpeg with libmp3lame.')->defaultFalse()->end()
+            ->integerNode('bitrate')->info('Target bit rate in kbps (64 is right for speech, use 128 or more for music).')->min(16)->max(320)->defaultValue(64)->end()
+            ->integerNode('channels')->info('1 = mono, 2 = stereo.')->min(1)->max(2)->defaultValue(1)->end()
+            ->booleanNode('keep_original')->info('Keep a copy of the original in var/audiotracks-originals (outside of the public directory).')->defaultTrue()->end()
+            ->scalarNode('ffmpeg')->info('Path or name of the ffmpeg binary.')->defaultValue('ffmpeg')->end()
+            ->integerNode('timeout')->info('Seconds ffmpeg may take for one file.')->min(10)->defaultValue(600)->end()
+            ->end()
+            ->end()
             ->end()
         ;
 

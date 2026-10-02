@@ -32,3 +32,17 @@ services:
     WEM\AudioTracksBundle\Migration\DurationMigration:
         arguments:
             $projectDir: '%kernel.project_dir%'
+
+    WEM\AudioTracksBundle\Classes\Mp3Compressor:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $ffmpeg: '%wem_audiotracks.compression.ffmpeg%'
+            $bitrate: '%wem_audiotracks.compression.bitrate%'
+            $channels: '%wem_audiotracks.compression.channels%'
+            $keepOriginal: '%wem_audiotracks.compression.keep_original%'
+            $timeout: '%wem_audiotracks.compression.timeout%'
+
+    WEM\AudioTracksBundle\Classes\AudioOptimizer:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $enabled: '%wem_audiotracks.compression.enabled%'

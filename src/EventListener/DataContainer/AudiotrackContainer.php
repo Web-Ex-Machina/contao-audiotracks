@@ -19,6 +19,7 @@ use Contao\FilesModel;
 use Contao\Message;
 use Contao\System;
 use Symfony\Component\Filesystem\Path;
+use WEM\AudioTracksBundle\Classes\AudioOptimizer;
 use WEM\AudioTracksBundle\Classes\FeedWithoutTracksException;
 use WEM\AudioTracksBundle\Classes\PublicationPeriod;
 use WEM\AudioTracksBundle\Classes\TagSynchronizer;
@@ -29,8 +30,35 @@ use WEM\UtilsBundle\Classes\StringUtil;
 
 class AudiotrackContainer
 {
-    public function __construct(private readonly TagSynchronizer $tagSynchronizer)
+    public function __construct(
+        private readonly TagSynchronizer $tagSynchronizer,
+        private readonly AudioOptimizer $audioOptimizer,
+    ) {
+    }
+
+    /**
+     * Compress the MP3 (if enabled). It runs before the feed is generated, so the
+     * feed has the size of the final file.
+     */
+    #[AsCallback(table: 'tl_wem_audiotrack', target: 'config.onsubmit', priority: 10)]
+    public function compressAudio(DataContainer $dc): void
     {
+        if (!$dc->id || !$this->audioOptimizer->isEnabled() || !($objItem = AudioTrack::findById($dc->id))) {
+            return;
+        }
+
+        try {
+            if (null !== ($result = $this->audioOptimizer->optimize($objItem))) {
+                Message::addConfirmation(\sprintf($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['audioCompressed'], self::formatSize($result['before']), self::formatSize($result['after'])));
+            }
+        } catch (\RuntimeException $runtimeException) {
+            Message::addError(\sprintf($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['audioCompressError'], $runtimeException->getMessage()));
+        }
+    }
+
+    public static function formatSize(int $bytes): string
+    {
+        return round($bytes / 1048576, 1).' MB';
     }
 
     /**

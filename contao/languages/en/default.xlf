@@ -92,6 +92,12 @@
 			<trans-unit id="WEM.AUDIOTRACKS.rssNoTracks">
 			    <source>No tracks found, no RSS generated</source>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.audioCompressed">
+			    <source>The audio file was compressed: %s → %s</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.audioCompressError">
+			    <source>The audio file could not be compressed (the original is kept): %s</source>
+			</trans-unit>
 			<trans-unit id="WEM.AUDIOTRACKS.noAudiotrack">
 			    <source>No audiotrack provided</source>
 			</trans-unit>

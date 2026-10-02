@@ -57,6 +57,28 @@ class MP3File
         return \sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
     }
 
+    /**
+     * Header of the first audio frame (bit rate, channels, sampling rate), empty if
+     * the file cannot be read or has no audio frame.
+     *
+     * @return array{Version: string, Layer: int, Bitrate: int, 'Sampling Rate': int, Framesize: int, Samples: int, Channels: int}|array{}
+     */
+    public function getFirstFrame(): array
+    {
+        if (!$this->filename || !is_file($this->filename) || !($fd = @fopen($this->filename, 'r'))) {
+            return [];
+        }
+
+        try {
+            $start = $this->skipID3v2Tag((string) fread($fd, 10));
+            $position = $this->findFrame($fd, $start, $this->audioEnd($fd, (int) filesize($this->filename)));
+
+            return $position[0] ?? [];
+        } finally {
+            fclose($fd);
+        }
+    }
+
     // Only the first frame is read: right for the constant bit rate files
     public function getDurationEstimate(): float|int
     {

@@ -7,6 +7,7 @@ namespace WEM\AudioTracksBundle\Tests\Classes;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use PHPUnit\Framework\TestCase;
+use WEM\AudioTracksBundle\Classes\AudioOptimizer;
 use WEM\AudioTracksBundle\Classes\TagSynchronizer;
 use WEM\AudioTracksBundle\EventListener\DataContainer\AudiotrackContainer;
 
@@ -46,7 +47,7 @@ class StopDateCallbackTest extends TestCase
 
     private function container(): AudiotrackContainer
     {
-        return new AudiotrackContainer($this->createStub(TagSynchronizer::class));
+        return new AudiotrackContainer($this->createStub(TagSynchronizer::class), $this->createStub(AudioOptimizer::class));
     }
 
     private function dc(int|string $start): DataContainer

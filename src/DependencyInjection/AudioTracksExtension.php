@@ -36,6 +36,10 @@ class AudioTracksExtension extends Extension
         $container->setParameter('wem_audiotracks.identifier', $config['identifier']);
         $container->setParameter('wem_audiotracks.base_url', $config['base_url']);
 
+        foreach ($config['compression'] as $key => $value) {
+            $container->setParameter('wem_audiotracks.compression.'.$key, $value);
+        }
+
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
         $loader->load('services.yaml');
 

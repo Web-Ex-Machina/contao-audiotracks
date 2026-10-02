@@ -76,6 +76,34 @@ audio_tracks:
 - What is imported: the show (title, description, language, owner, categories, the url of its cover), and the episodes (title, date, season / episode, duration, audio, the url of the cover, authors from `author` / `dc:creator` / `itunes:author`, tags from the `category` and `itunes:keywords` elements). Images are not downloaded, the remote url is used; an episode without cover shows the cover of the show. Authors and tags are only replaced when the feed gives some, so the ones you entered are kept otherwise. The tags are also added to the tags of the show.
 - After an update, run `contao:migrate` (or the schema update): three columns were added to the categories.
 
+## MP3 compression
+
+A spoken episode does not need more than 64 kbps mono, which is 3 to 5 times smaller than the 192 / 320 kbps stereo MP3 often uploaded: the page loads faster and it costs less bandwidth. The compression is **disabled by default** and needs `ffmpeg` (with `libmp3lame`) on the server:
+
+```yaml
+# config/config.yaml
+audio_tracks:
+    compression:
+        enabled: true         # compress when a track is saved in the back end
+        bitrate: 64           # kbps, 64 is right for speech, use 128 or more for music
+        channels: 1           # 1 = mono, 2 = stereo
+        keep_original: true   # copy of the original in var/audiotracks-originals (not public)
+        ffmpeg: ffmpeg        # name or path of the binary
+        timeout: 600          # seconds allowed for one file
+```
+
+- Only MP3 files above the target are re-encoded (average bit rate, so the variable bit rate files are right; a stereo file is also converted when the target is mono). A file already small enough is never touched, so saving a track again does nothing.
+- The new file is written beside the original and checked before it replaces it: same duration (2 seconds tolerance) and really smaller. If ffmpeg fails or the check does not pass, the original is untouched and an error is displayed. The file manager record (size, hash) is updated. The embedded cover of the MP3 is dropped (the page uses the cover of the track), the tags (title, artist...) are kept.
+- It runs during the save of the track, a one hour episode takes about 20 seconds. For the files already uploaded, use the command, `--dry-run` lists what would be compressed:
+
+```bash
+php vendor/bin/contao-console wem:audiotracks:compress --dry-run
+php vendor/bin/contao-console wem:audiotracks:compress
+```
+
+- The command works even if `enabled` is false (it is an explicit action), but needs ffmpeg. The remote feeds are not concerned, their audio is not ours.
+- The copies of the originals are not deleted by the bundle: remove `var/audiotracks-originals` when you are happy with the result.
+
 ## Development
 
 ```bash

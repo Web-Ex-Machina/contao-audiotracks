@@ -123,6 +123,14 @@
 			    <source>No tracks found, no RSS generated</source>
 			    <target>Aucun épisode trouvé, aucun flux RSS généré</target>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.audioCompressed">
+			    <source>The audio file was compressed: %s → %s</source>
+			    <target>Le fichier audio a été compressé : %s → %s</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.audioCompressError">
+			    <source>The audio file could not be compressed (the original is kept): %s</source>
+			    <target>Le fichier audio n'a pas pu être compressé (l'original est conservé) : %s</target>
+			</trans-unit>
 			<trans-unit id="WEM.AUDIOTRACKS.noAudiotrack">
 			    <source>No audiotrack provided</source>
 			    <target>Aucun épisode fourni</target>
