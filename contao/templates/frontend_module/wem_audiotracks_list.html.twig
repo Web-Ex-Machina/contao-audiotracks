@@ -1,4 +1,5 @@
 {% extends '@Contao/frontend_module/_base.html.twig' %}
+{% use '@Contao/component/_pagination.html.twig' %}
 {% trans_default_domain 'contao_default' %}
 
 {% block content %}
@@ -78,7 +79,9 @@
             </div>
         </div>
 
-        {{ pagination|default|raw }}
+        {% if pagination|default %}
+            {% with {pagination} %}{{ block('pagination_component') }}{% endwith %}
+        {% endif %}
 
         {% include '@Contao/audiotracks/_player.html.twig' only %}
     {% endif %}

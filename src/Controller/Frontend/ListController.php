@@ -14,17 +14,17 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\Controller\Frontend;
 
-use Contao\Config;
 use Contao\CoreBundle\Exception\PageNotFoundException;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsFrontendModule;
+use Contao\CoreBundle\Pagination\PaginationConfig;
+use Contao\CoreBundle\Pagination\PaginationFactoryInterface;
+use Contao\CoreBundle\Exception\PageOutOfRangeException;
 use Contao\CoreBundle\Twig\FragmentTemplate;
-use Contao\Environment;
-use Contao\Input;
 use Contao\Model\Collection;
 use Contao\ModuleModel;
-use Contao\Pagination;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use WEM\AudioTracksBundle\Classes\SchemaOrgBuilder;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
 use WEM\UtilsBundle\Classes\StringUtil;
@@ -41,20 +41,12 @@ class ListController extends ModuleController
      */
     public const TYPE = 'wem_audiotracks_list';
 
-    /**
-     * List limit.
-     */
-    protected ?int $limit = 0;
-
-    /**
-     * List offset.
-     */
-    protected int $offset = 0;
-
-    /**
-     * Current page.
-     */
-    protected int $page = 1;
+    public function __construct(
+        SchemaOrgBuilder $schemaOrgBuilder,
+        private readonly PaginationFactoryInterface $paginationFactory,
+    ) {
+        parent::__construct($schemaOrgBuilder);
+    }
 
     /**
      * Generate module response
@@ -74,11 +66,8 @@ class ListController extends ModuleController
 
         $this->model = $model;
 
-        $this->limit = $model->numberOfItems > 0 ? $model->numberOfItems : null;
-        $this->offset = (int) $model->skipFirst;
         $this->options = ['order' => 'date DESC'];
 
-        $template->articles = [];
         $template->empty = $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['empty'];
 
         // Build config
@@ -95,53 +84,41 @@ class ListController extends ModuleController
             $template->links = $this->getLinks($types);
         }
 
-        // Get the total number of items
-        $intTotal = AudioTrack::countItems($this->config);
+        // Number of items to skip at the beginning, and maximum number of items displayed (all the pages included)
+        $skip = (int) $model->skipFirst;
+        $maxItems = $model->numberOfItems > 0 ? (int) $model->numberOfItems : 0;
 
-        if ($intTotal < 1) {
+        // Total of the items of the list
+        $total = max(0, AudioTrack::countItems($this->config) - $skip);
+
+        if ($maxItems > 0) {
+            $total = min($maxItems, $total);
+        }
+
+        if ($total < 1) {
             return $template->getResponse();
         }
 
-        $this->page = 1;
-        $total = $intTotal - $model->offset;
+        $offset = $skip;
+        $length = $maxItems;
+        $pagination = null;
 
-        // Split the results
-        if ($model->perPage > 0 && (!isset($model->limit) || $model->numberOfItems > $model->perPage)) {
-            // Adjust the overall limit
-            if (isset($this->limit)) {
-                $total = min($model->limit, $total);
+        // Split the results in pages
+        if ($model->perPage > 0) {
+            try {
+                // The parameter name is the same as before, the urls of the pages do not change
+                $pagination = $this->paginationFactory->create(new PaginationConfig('page_n'.$model->id, $total, (int) $model->perPage));
+            } catch (PageOutOfRangeException $e) {
+                throw new PageNotFoundException('Page not found', previous: $e);
             }
 
-            // Get the current page
-            $id = 'page_n'.$model->id;
-            $this->page = (int) (Input::get($id) ?? 1);
-
-            // Do not index or cache the page if the page number is outside the range
-            if ($this->page < 1 || $this->page > max(ceil($total / $model->perPage), 1)) {
-                throw new PageNotFoundException('Page not found: '.Environment::get('uri'));
-            }
-
-            // Set limit and offset
-            $this->limit = $model->perPage;
-            $this->offset += (max($this->page, 1) - 1) * $model->perPage;
-            $skip = (int) $model->skipFirst;
-
-            // Overall limit
-            if ($model->offset + $model->limit > $total + $skip) {
-                $model->limit = $total + $skip - $model->offset;
-            }
-
-            // Add the pagination menu
-            $objPagination = new Pagination($total, $model->perPage, Config::get('maxPaginationLinks'), $id);
-            $template->pagination = $objPagination->generate("\n  ");
+            $offset += $pagination->getOffset();
+            // The last page can be shorter, and the maximum number of items applies to the whole list
+            $length = min((int) $model->perPage, $total - $pagination->getOffset());
+            $template->pagination = $pagination;
         }
 
-        $objItems = AudioTrack::findItems(
-            $this->config, 
-            ($this->limit !== null && $this->limit !== 0 ? $this->limit : 0), 
-            ($this->offset), 
-            $this->options
-        );
+        $objItems = AudioTrack::findItems($this->config, $length, $offset, $this->options);
 
         // Add the articles
         if ($objItems instanceof Collection) {
@@ -151,7 +128,7 @@ class ListController extends ModuleController
             $listItems = [];
             foreach ($items as $index => $item) {
                 if (!empty($item['schemaOrg'])) {
-                    $listItems[] = ['@type' => 'ListItem', 'position' => $this->offset + $index + 1, 'item' => $item['schemaOrg']];
+                    $listItems[] = ['@type' => 'ListItem', 'position' => ($pagination?->getOffset() ?? 0) + $index + 1, 'item' => $item['schemaOrg']];
                 }
 
                 unset($items[$index]['schemaOrg']);

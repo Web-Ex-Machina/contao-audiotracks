@@ -25,6 +25,7 @@ Extension "Audiotracks" for Contao Open Source CMS
 - CHANGED (performance): the remote RSS feeds are imported by an hourly cron (`SyncRemoteFeedsCron`) and no longer during a visitor request. A feed that fails is logged and does not stop the others. The "sync" button of the back end still works
 - CHANGED (performance): `parseItems()` loads the categories, the files and the likes counters of all the items with a few queries (about 30 queries less for a list of 8 items), the target page is found once, the series of the JSON-LD is built once per category. The duration is no longer computed and saved during a page view: it is computed when a track is saved, and `DurationMigration` computes the missing ones
 - FIXED: the episodes imported from a remote feed had no alias, a list linking to a reader page failed (500) for a remote category. The import generates a unique alias, and an item without alias is linked with its id
+- FIXED: the pagination of the list was copied from the news module and used properties that do not exist on this module: "skip the first items" was ignored in the page count and the overall limit was wrong when combined with pages. It now uses the Contao `PaginationFactory` (the `page_n<id>` parameter is unchanged, an unknown page is a 404), only the items of the current page are loaded, and the template uses the `@Contao/component/_pagination.html.twig` component (the `pagination` variable of the template is now an object, no longer an HTML string)
 - UPDATED: Requires PHP ^8.3 and `contao/core-bundle` ^5.7
 
 1.1.0
