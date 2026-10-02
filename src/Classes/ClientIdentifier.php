@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\Classes;
 
-use Contao\Environment;
+use Symfony\Component\HttpFoundation\RequestStack;
 use WEM\UtilsBundle\Classes\Encryption;
 
 /**
@@ -42,6 +42,7 @@ class ClientIdentifier
         private readonly Encryption $encryption,
         private readonly string $mode = self::MODE_ENCRYPTION,
         private readonly string $key = '',
+        private readonly RequestStack|null $requestStack = null,
     ) {
     }
 
@@ -55,7 +56,7 @@ class ClientIdentifier
      */
     public function get(): string
     {
-        return $this->current ??= $this->fromIp((string) Environment::get('ip'));
+        return $this->current ??= $this->fromIp((string) $this->requestStack?->getCurrentRequest()?->getClientIp());
     }
 
     /**

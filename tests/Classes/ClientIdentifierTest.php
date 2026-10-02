@@ -6,11 +6,29 @@ namespace WEM\AudioTracksBundle\Tests\Classes;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use WEM\AudioTracksBundle\Classes\ClientIdentifier;
 use WEM\UtilsBundle\Classes\Encryption;
 
 class ClientIdentifierTest extends TestCase
 {
+    public function testTheCurrentVisitorIsTheClientOfTheRequest(): void
+    {
+        $stack = new RequestStack();
+        $stack->push(Request::create('https://www.example.org/', 'GET', [], [], [], ['REMOTE_ADDR' => '203.0.113.7']));
+        $identifier = new ClientIdentifier(new Encryption('test-secret', true), ClientIdentifier::MODE_ENCRYPTION, '', $stack);
+
+        $this->assertSame($identifier->fromIp('203.0.113.7'), $identifier->get());
+    }
+
+    public function testWithoutRequestTheVisitorIsUnknown(): void
+    {
+        $identifier = new ClientIdentifier(new Encryption('test-secret', true), ClientIdentifier::MODE_ENCRYPTION, '', new RequestStack());
+
+        $this->assertSame($identifier->fromIp('unknown'), $identifier->get());
+    }
+
     public function testTheIdentifierIsDeterministic(): void
     {
         $identifier = $this->identifier();

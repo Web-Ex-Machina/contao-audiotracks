@@ -6,6 +6,7 @@ namespace WEM\AudioTracksBundle\Tests\Classes;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
 use WEM\AudioTracksBundle\Classes\BaseUrl;
 
 class BaseUrlTest extends TestCase
@@ -58,6 +59,13 @@ class BaseUrlTest extends TestCase
         yield 'one without domain, one with' => [[['dns' => '', 'useSSL' => '1'], ['dns' => 'www.example.org', 'useSSL' => '1']]];
         yield 'two domains' => [[['dns' => 'a.example.org', 'useSSL' => '1'], ['dns' => 'b.example.org', 'useSSL' => '1']]];
         yield 'same domain, http and https' => [[['dns' => 'www.example.org', 'useSSL' => '1'], ['dns' => 'www.example.org', 'useSSL' => '']]];
+    }
+
+    public function testTheAddressOfARequest(): void
+    {
+        $this->assertSame('', BaseUrl::fromRequest(null));
+        $this->assertSame('https://www.example.org/', BaseUrl::fromRequest(Request::create('https://www.example.org/podcasts/castf5?x=1')));
+        $this->assertSame('http://localhost:8080/', BaseUrl::fromRequest(Request::create('http://localhost:8080/page')));
     }
 
     private function neverCalled(): \Closure

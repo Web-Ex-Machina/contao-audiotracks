@@ -71,7 +71,7 @@ class ListController extends ModuleController
         $this->config = ['pid' => $this->pids, 'published' => 1];
 
         // Retrieve filters
-        $this->buildFilters();
+        $this->buildFilters($request);
         $template->filters = $this->filters;
         $template->add_filters = (bool) $model->wemaudiotracks_addFilters;
 

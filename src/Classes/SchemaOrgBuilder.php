@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace WEM\AudioTracksBundle\Classes;
 
 use Contao\CoreBundle\String\HtmlDecoder;
-use Contao\Environment;
 use Contao\FilesModel;
 use Contao\StringUtil;
+use Symfony\Component\HttpFoundation\RequestStack;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
 
@@ -44,8 +44,10 @@ class SchemaOrgBuilder
      */
     private array $series = [];
 
-    public function __construct(private readonly HtmlDecoder $htmlDecoder)
-    {
+    public function __construct(
+        private readonly HtmlDecoder $htmlDecoder,
+        private readonly RequestStack $requestStack,
+    ) {
     }
 
     /**
@@ -178,7 +180,7 @@ class SchemaOrgBuilder
             return $url;
         }
 
-        return Environment::get('base').ltrim($url, '/');
+        return BaseUrl::fromRequest($this->requestStack->getCurrentRequest()).ltrim($url, '/');
     }
 
     private function toPlainText(string $html): string|null

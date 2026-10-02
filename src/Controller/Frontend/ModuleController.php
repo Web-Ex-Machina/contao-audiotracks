@@ -16,12 +16,13 @@ use Contao\Config;
 use Contao\CoreBundle\Controller\FrontendModule\AbstractFrontendModuleController;
 use Contao\Date;
 use Contao\FilesModel;
-use Contao\Input;
 use Contao\Model\Collection;
 use Contao\ModuleModel;
 use Contao\PageModel;
 use Contao\System;
 use Doctrine\DBAL\ArrayParameterType;
+use Symfony\Component\HttpFoundation\Request;
+use WEM\AudioTracksBundle\Classes\RequestInput;
 use WEM\AudioTracksBundle\Classes\SchemaOrgBuilder;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
@@ -80,20 +81,24 @@ abstract class ModuleController extends AbstractFrontendModuleController
      *
      * @throws \Exception
      */
-    protected function buildFilters(): void
+    protected function buildFilters(Request $request): void
     {
         // Add fulltext search if asked
         if ($this->model->wemaudiotracks_addSearch) {
+            // A single text: ?search[]=a is not a search
+            $search = RequestInput::get($request, 'search');
+            $search = \is_string($search) ? $search : '';
+
             $this->filters[] = [
                 'type' => 'text',
                 'name' => 'search',
                 'label' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['search'],
                 'placeholder' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['searchPlaceholder'],
-                'value' => Input::get('search') ?: '',
+                'value' => $search,
             ];
 
-            if ('' !== Input::get('search') && null !== Input::get('search')) {
-                $this->config['search'] = StringUtil::formatKeywords(Input::get('search'));
+            if ('' !== $search) {
+                $this->config['search'] = StringUtil::formatKeywords($search);
             }
         }
 
@@ -101,6 +106,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
         $filters = StringUtil::deserialize($this->model->wemaudiotracks_filters, true);
         if (!empty($filters)) {
             foreach ($filters as $f) {
+                $value = RequestInput::get($request, $f);
                 $strName = $f;
 
                 if ($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['eval']['multiple']) {
@@ -112,7 +118,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
                     'name' => $strName,
                     'label' => $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['label'][0] ?: $GLOBALS['TL_LANG']['tl_wem_audiotrack'][$f][0],
                     'placeholder' => $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['label'][1] ?: $GLOBALS['TL_LANG']['tl_wem_audiotrack'][$f][1],
-                    'value' => Input::get($f) ?: '',
+                    'value' => $value ?: '',
                     'options' => [],
                     'multiple' => (bool) $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['eval']['multiple'],
                 ];
@@ -135,7 +141,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
                             $filter['options'][] = [
                                 'value' => $label,
                                 'label' => $label,
-                                'selected' => (null !== Input::get($f) && (Input::get($f) === $label || (\is_array(Input::get($f)) && \in_array($label, Input::get($f), true)))),
+                                'selected' => null !== $value && ($value === $label || (\is_array($value) && \in_array($label, $value, true))),
                             ];
                         }
 
@@ -152,7 +158,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
                                 $filter['options'][] = [
                                     'value' => $objOptions->{$f},
                                     'label' => $objOptions->{$f},
-                                    'selected' => (null !== Input::get($f) && Input::get($f) === $objOptions->{$f}),
+                                    'selected' => (null !== $value && $value === $objOptions->{$f}),
                                 ];
                             }
                         }
@@ -160,8 +166,8 @@ abstract class ModuleController extends AbstractFrontendModuleController
                         break;
                 }
 
-                if (null !== Input::get($f) && '' !== Input::get($f)) {
-                    $this->config[$f] = Input::get($f);
+                if (null !== $value && '' !== $value) {
+                    $this->config[$f] = $value;
                 }
 
                 $this->filters[] = $filter;

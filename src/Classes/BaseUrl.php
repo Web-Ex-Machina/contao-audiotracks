@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace WEM\AudioTracksBundle\Classes;
 
 use Contao\Database;
-use Contao\Environment;
 use Contao\System;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * The address of the website (https://www.example.org/), for the absolute URLs of
@@ -37,7 +37,17 @@ final class BaseUrl
         $container = System::getContainer();
         $configured = (string) ($container->hasParameter('wem_audiotracks.base_url') ? $container->getParameter('wem_audiotracks.base_url') : '');
 
-        return self::resolve($configured, (string) Environment::get('base'), static fn (): array => self::findRootPages());
+        return self::resolve($configured, self::fromRequest($container->get('request_stack')->getCurrentRequest()), static fn (): array => self::findRootPages());
+    }
+
+    /**
+     * The address of the website as the request sees it (https://www.example.org/, or
+     * with the folder if Contao is in one), an empty string without request. Nothing
+     * is configured here: for the urls of a page (schema.org...).
+     */
+    public static function fromRequest(Request|null $request): string
+    {
+        return null === $request ? '' : $request->getSchemeAndHttpHost().$request->getBasePath().'/';
     }
 
     /**

@@ -17,13 +17,12 @@ use Contao\CoreBundle\Exception\PageNotFoundException;
 use Contao\CoreBundle\Routing\ResponseContext\HtmlHeadBag\HtmlHeadBag;
 use Contao\CoreBundle\String\HtmlAttributes;
 use Contao\CoreBundle\Twig\FragmentTemplate;
-use Contao\Environment;
-use Contao\Input;
 use Contao\ModuleModel;
 use Contao\PageModel;
 use Contao\System;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use WEM\AudioTracksBundle\Classes\RequestInput;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 
 #[AsFrontendModule(
@@ -45,15 +44,17 @@ class ReaderController extends ModuleController
     protected function getResponse(FragmentTemplate $template, ModuleModel $model, Request $request): Response
     {
         // Return empty Response if there is no auto_item
-        if (!Input::get('auto_item')) {
+        $autoItem = RequestInput::get($request, 'auto_item');
+
+        if (!$autoItem || !\is_string($autoItem)) {
             return new Response('');
         }
 
-        $this->track = AudioTrack::findByIdOrAlias(Input::get('auto_item'));
+        $this->track = AudioTrack::findByIdOrAlias($autoItem);
 
         // Unpublished or out of its start / stop dates: the page does not exist
         if (!$this->track instanceof AudioTrack || !$this->track->isPublished()) {
-            throw new PageNotFoundException('Page not found: '.Environment::get('uri'));
+            throw new PageNotFoundException('Page not found: '.$request->getUri());
         }
 
         $this->model = $model;
@@ -67,7 +68,7 @@ class ReaderController extends ModuleController
 
         // The canonical URL of an episode, whatever the way it was reached (id or alias,
         // query string)
-        $canonical = $this->getCanonicalUrl();
+        $canonical = $this->getCanonicalUrl($request);
 
         // On its own page, the episode URL is the canonical one
         $item['schemaOrg']['url'] = $canonical;
@@ -80,7 +81,7 @@ class ReaderController extends ModuleController
         return $template->getResponse();
     }
 
-    protected function getCanonicalUrl(): string
+    protected function getCanonicalUrl(Request $request): string
     {
         $objPage = $GLOBALS['objPage'] ?? null;
 
@@ -88,7 +89,8 @@ class ReaderController extends ModuleController
             return $objPage->getAbsoluteUrl('/'.($this->track->alias ?: $this->track->id));
         }
 
-        return strtok((string) Environment::get('uri'), '?');
+        // The address of the page, without the query string
+        return $request->getUriForPath($request->getPathInfo());
     }
 
     /**
