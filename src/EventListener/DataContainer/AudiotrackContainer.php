@@ -64,7 +64,7 @@ class AudiotrackContainer
 
         try {
             System::getContainer()->get('wem.audiotracks.rss_feed')->generate($objItem->pid);
-            Message::addConfirmation('RSS Feed saved');
+            Message::addConfirmation($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssSaved']);
         } catch (Exception $exception) {
             Message::addError($exception->getMessage());
         }

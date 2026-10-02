@@ -220,6 +220,14 @@
 				<source>See sessions off track ID %s</source>
 				<target>Voir les sessions de la piste ID %s</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.pictureRemoteUrl.0">
+				<source>Remote picture url</source>
+				<target>URL distante de l'image</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack.pictureRemoteUrl.1">
+				<source>Enter the track picture absolute url.</source>
+				<target>Saisissez l'URL absolue de l'image de l'épisode.</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

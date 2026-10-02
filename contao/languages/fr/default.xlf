@@ -103,6 +103,34 @@
 			    <source>Season</source>
 			    <target>Saison</target>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssSaved">
+			    <source>RSS Feed saved</source>
+			    <target>Flux RSS enregistré</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssImported">
+			    <source>RSS Feed imported</source>
+			    <target>Flux RSS importé</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssLocation">
+			    <source>RSS Feed is located at: %s</source>
+			    <target>Le flux RSS est disponible à l'adresse : %s</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssGoTo">
+			    <source>Go to RSS Feed</source>
+			    <target>Aller au flux RSS</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssNoTracks">
+			    <source>No tracks found, no RSS generated</source>
+			    <target>Aucun épisode trouvé, aucun flux RSS généré</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssNoFilename">
+			    <source>Cannot generate RSS Feed url as category does not have a RSS filename setup</source>
+			    <target>Impossible de générer l'URL du flux RSS : la catégorie n'a pas de nom de fichier RSS</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.noAudiotrack">
+			    <source>No audiotrack provided</source>
+			    <target>Aucun épisode fourni</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

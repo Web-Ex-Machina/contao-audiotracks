@@ -44,7 +44,7 @@ class SyncRemoteRssFeedController extends AbstractController
         try {
             System::getContainer()->get('wem.audiotracks.rss_feed')->import((int) $dc->id);
 
-            Message::addConfirmation('RSS Feed imported');
+            Message::addConfirmation($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssImported']);
         } catch(Exception $exception) {
             Message::addError($exception->getMessage());
         }

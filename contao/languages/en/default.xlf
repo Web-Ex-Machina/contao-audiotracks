@@ -77,6 +77,27 @@
 			<trans-unit id="WEM.AUDIOTRACKS.season">
 			    <source>Season</source>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssSaved">
+			    <source>RSS Feed saved</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssImported">
+			    <source>RSS Feed imported</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssLocation">
+			    <source>RSS Feed is located at: %s</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssGoTo">
+			    <source>Go to RSS Feed</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssNoTracks">
+			    <source>No tracks found, no RSS generated</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssNoFilename">
+			    <source>Cannot generate RSS Feed url as category does not have a RSS filename setup</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.noAudiotrack">
+			    <source>No audiotrack provided</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

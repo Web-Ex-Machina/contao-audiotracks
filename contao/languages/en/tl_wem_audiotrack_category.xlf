@@ -192,6 +192,18 @@
 			<trans-unit id="tl_wem_audiotrack_category.rss_legend">
 				<source>RSS Feed</source>				
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssNamespace.0">
+				<source>Namespace</source>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.rssNamespace.1">
+				<source>Enter the RSS feed namespace.</source>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.syncRemoteRss.0">
+				<source>Sync remote RSS feed</source>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.syncRemoteRss.1">
+				<source>Import the tracks from the remote RSS feed.</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

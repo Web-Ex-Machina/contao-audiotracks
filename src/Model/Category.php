@@ -42,7 +42,7 @@ class Category extends Model
     public function getRssFeedUrl(): string
     {
         if (!$this->rssFilename) {
-            return "Cannot generate RSS Feed url as category does not have a RSS filename setup";
+            return $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssNoFilename'];
         }
 
         return Environment::get('base') . static::$strRssFolder . $this->rssFilename;
@@ -54,7 +54,7 @@ class Category extends Model
     public function getRssFeedPath(): string
     {
         if (!$this->rssFilename) {
-            return "Cannot generate RSS Feed url as category does not have a RSS filename setup";
+            return $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssNoFilename'];
         }
 
         return 'web/' . static::$strRssFolder . $this->rssFilename;

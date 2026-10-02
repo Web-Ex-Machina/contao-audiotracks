@@ -45,7 +45,7 @@ class CategoryContainer
 
         $url = $objItem->getRssFeedUrl();
 
-        Message::addInfo('RSS Feed is located at: <a href="' . $url . '" title="Go to RSS Feed" target="_blank">' . $url . '</a>');
+        Message::addInfo(sprintf($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssLocation'], sprintf('<a href="%1$s" title="%2$s" target="_blank">%1$s</a>', $url, $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssGoTo'])));
     }
 
     /**
@@ -67,7 +67,7 @@ class CategoryContainer
         try {
             System::getContainer()->get('wem.audiotracks.rss_feed')->generate((int) $dc->id);
 
-            Message::addConfirmation('RSS Feed saved');
+            Message::addConfirmation($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssSaved']);
         } catch(\Exception $exception) {
             Message::addError($exception->getMessage());
         }

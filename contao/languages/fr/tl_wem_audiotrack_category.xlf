@@ -261,6 +261,14 @@
 				<source>RSS Feed</source>
 				<target>Flux RSS</target>
 			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.syncRemoteRss.0">
+				<source>Sync remote RSS feed</source>
+				<target>Synchroniser le flux RSS distant</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_category.syncRemoteRss.1">
+				<source>Import the tracks from the remote RSS feed.</source>
+				<target>Importer les épisodes depuis le flux RSS distant.</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

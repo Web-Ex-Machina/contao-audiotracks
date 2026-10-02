@@ -43,7 +43,7 @@ class AjaxController
         $audiotrack = (int) $request->request->get('audiotrack');
 
         if ($audiotrack < 1 || null === AudioTrack::findByPk($audiotrack)) {
-            return new JsonResponse(['status' => 'error', 'message' => 'No audiotrack provided'], 400);
+            return new JsonResponse(['status' => 'error', 'message' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['noAudiotrack'] ?? 'No audiotrack provided'], 400);
         }
 
         match ($action) {

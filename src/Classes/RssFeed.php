@@ -43,7 +43,7 @@ class RssFeed
         $objTracks = AudioTrack::findItems(['pid' => $objItem->id, 'published' => 1], 0, 0, ['order' => 'date DESC']);
 
         if (!$objTracks instanceof \Contao\Model\Collection || 0 === $objTracks->count()) {
-            Message::addError('No tracks found, no RSS generated');
+            Message::addError($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssNoTracks']);
             return;
         }
 
