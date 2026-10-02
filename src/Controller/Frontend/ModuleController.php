@@ -24,6 +24,7 @@ use Contao\Model\Collection;
 use Contao\ModuleModel;
 use Contao\PageModel;
 use Exception;
+use WEM\AudioTracksBundle\Classes\SchemaOrgBuilder;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
 use WEM\AudioTracksBundle\Model\Feedback;
@@ -36,6 +37,10 @@ use Contao\System;
 abstract class ModuleController extends AbstractFrontendModuleController
 {
     protected ModuleModel $model;
+
+    public function __construct(protected readonly SchemaOrgBuilder $schemaOrgBuilder)
+    {
+    }
 
     /**
      * Category IDs handled by the module.
@@ -315,6 +320,9 @@ abstract class ModuleController extends AbstractFrontendModuleController
         if ($objTarget = PageModel::findWithDetails($this->model->jumpTo)) {
             $arrData['jumpTo'] = $objTarget->getFrontendUrl('/'.$objItem->alias);
         }
+
+        // schema.org JSON-LD, given to the template with add_schema_org()
+        $arrData['schemaOrg'] = $this->schemaOrgBuilder->buildEpisode($objItem, $objItem->getRelated('pid'), $arrData);
 
         // Hook system to customize item parsing
         if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'])) {

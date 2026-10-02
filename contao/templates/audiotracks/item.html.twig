@@ -1,12 +1,12 @@
 {% trans_default_domain 'contao_default' %}
 
 {% set session = session|default({}) %}
+
 {% set episode_label %}{% if season %}{{ 'WEM.AUDIOTRACKS.seasonShort'|trans }}{{ season }}{% endif %}{% if season and episode %} · {% endif %}{% if episode %}{{ 'WEM.AUDIOTRACKS.episodeShort'|trans }}{{ episode }}{% endif %}{% endset %}
 
 <tr class="audiotrack audiotrack_default{{ class|default('') }}{{ session.complete|default(false) ? ' complete' : (session.currentTime|default(0) > 0 ? ' started') }}"
     data-id="{{ id }}"
-    data-audiotrack="{{ id }}"
-    itemscope itemtype="https://schema.org/PodcastEpisode">
+    data-audiotrack="{{ id }}">
     <td data-name="picture">
         {% if picture %}
             <img src="{{ picture }}" alt="" width="75" height="75" loading="lazy">
@@ -14,7 +14,7 @@
     </td>
     <td data-name="title">
         {% if jumpTo|default %}<a href="{{ jumpTo }}" title="{{ 'WEM.AUDIOTRACKS.jumpTo'|trans }}">{% endif %}
-            <span itemprop="name">{{ title }}</span>
+            <span>{{ title }}</span>
         {% if jumpTo|default %}</a>{% endif %}
 
         <div class="audiotrack__listened{{ session.complete|default(false) ? ' active' }}">

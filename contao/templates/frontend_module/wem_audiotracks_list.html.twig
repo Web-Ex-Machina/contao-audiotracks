@@ -2,6 +2,8 @@
 {% trans_default_domain 'contao_default' %}
 
 {% block content %}
+    {% if schema_org|default %}{% do add_schema_org(schema_org) %}{% endif %}
+
     <link rel="stylesheet" href="{{ asset('bundles/audiotracks/audiotracks.css') }}">
     <script src="{{ asset('bundles/audiotracks/audiotracks.js') }}" defer></script>
 

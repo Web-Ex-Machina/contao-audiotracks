@@ -14,6 +14,7 @@ Extension "Audiotracks" for Contao Open Source CMS
 - ADDED: Twig templates (`frontend_module/wem_audiotracks_*.html.twig`, `audiotracks/item.html.twig`, `audiotracks/item/full.html.twig`, `audiotracks/_player.html.twig`). Legacy `wemaudiotrack_*` template selections are mapped automatically; custom `.html5` overrides must be ported
 - UPDATED: The player is now vanilla JS (`public/audiotracks.js`), jQuery is no longer required
 - CHANGED: `WEMAUDIOTRACKSPARSEITEM` now receives and returns the template data array (see docs/HOOKS.md)
+- ADDED: schema.org JSON-LD (`SchemaOrgBuilder`): `PodcastEpisode` with `PodcastSeason`, `PodcastSeries` (category), `AudioObject`, authors, keywords, duration, likes on the reader; a single `ItemList` on the list. The inline microdata has been removed. The data is available in the item template data as `schemaOrg` (and can be altered in the `WEMAUDIOTRACKSPARSEITEM` hook)
 - UPDATED: Requires PHP ^8.3 and `contao/core-bundle` ^5.7
 
 1.1.0

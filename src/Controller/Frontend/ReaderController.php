@@ -65,7 +65,12 @@ class ReaderController extends ModuleController
 
         $this->overwriteMetadata();
 
-        $template->item = $this->parseItem($this->track);
+        $item = $this->parseItem($this->track);
+
+        // On its own page, the episode URL is the current one
+        $item['schemaOrg']['url'] = Environment::get('uri');
+
+        $template->item = $item;
         $template->item_template = $this->getItemTemplate();
 
         return $template->getResponse();

@@ -150,7 +150,23 @@ class ListController extends ModuleController
 
         // Add the articles
         if ($objItems instanceof Collection) {
-            $template->items = $this->parseItems($objItems);
+            $items = $this->parseItems($objItems);
+
+            // The graph keeps one node per schema.org type, so a list is described with a single ItemList
+            $listItems = [];
+            foreach ($items as $index => $item) {
+                if (!empty($item['schemaOrg'])) {
+                    $listItems[] = ['@type' => 'ListItem', 'position' => $this->offset + $index + 1, 'item' => $item['schemaOrg']];
+                }
+
+                unset($items[$index]['schemaOrg']);
+            }
+
+            if ($listItems) {
+                $template->schema_org = ['@type' => 'ItemList', 'itemListElement' => $listItems];
+            }
+
+            $template->items = $items;
             $template->item_template = $this->getItemTemplate();
         }
 

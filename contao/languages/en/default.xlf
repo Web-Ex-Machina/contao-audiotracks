@@ -74,6 +74,9 @@
 			<trans-unit id="WEM.AUDIOTRACKS.episodeShort">
 			    <source>E</source>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.season">
+			    <source>Season</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

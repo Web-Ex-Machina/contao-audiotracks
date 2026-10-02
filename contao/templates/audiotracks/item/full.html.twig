@@ -1,10 +1,12 @@
 {% trans_default_domain 'contao_default' %}
 
 {% set session = session|default({}) %}
+
+{% if schemaOrg|default %}{% do add_schema_org(schemaOrg) %}{% endif %}
 {% set episode_label %}{% if season %}{{ 'WEM.AUDIOTRACKS.seasonShort'|trans }}{{ season }}{% endif %}{% if season and episode %} · {% endif %}{% if episode %}{{ 'WEM.AUDIOTRACKS.episodeShort'|trans }}{{ episode }}{% endif %}{% endset %}
 
-<div class="audiotrack_full{{ class|default('') }}{{ session.complete|default(false) ? ' complete' : (session.currentTime|default(0) > 0 ? ' started') }}" data-audiotrack="{{ id }}" itemscope itemtype="https://schema.org/PodcastEpisode">
-    <h1 class="audiotrack__title" itemprop="name">{{ title }}</h1>
+<div class="audiotrack_full{{ class|default('') }}{{ session.complete|default(false) ? ' complete' : (session.currentTime|default(0) > 0 ? ' started') }}" data-audiotrack="{{ id }}">
+    <h1 class="audiotrack__title">{{ title }}</h1>
 
     {% if picture %}
         <div class="audiotrack__figure img-container">

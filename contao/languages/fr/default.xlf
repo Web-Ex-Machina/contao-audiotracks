@@ -99,6 +99,10 @@
 			    <source>E</source>
 			    <target>E</target>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.season">
+			    <source>Season</source>
+			    <target>Saison</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
