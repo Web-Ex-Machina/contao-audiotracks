@@ -19,6 +19,11 @@ class Configuration implements ConfigurationInterface
             ->min(0)
             ->defaultValue(0)
             ->end()
+            ->integerNode('rate_limit')
+            ->info('Maximum number of requests per minute and per visitor on the endpoints of the player (likes, listening sessions, state). 0 = no limit.')
+            ->min(0)
+            ->defaultValue(120)
+            ->end()
             ->end()
         ;
 

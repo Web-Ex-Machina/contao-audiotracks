@@ -16,11 +16,13 @@ use Contao\CoreBundle\Csrf\ContaoCsrfTokenManager;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use WEM\AudioTracksBundle\Classes\ClientIdentifier;
+use WEM\AudioTracksBundle\Classes\RequestRateLimiter;
 
 /**
  * Gives the data that depend on the visitor (likes, listening sessions) of a list
@@ -45,11 +47,17 @@ class StateController
         private readonly Connection $connection,
         private readonly ClientIdentifier $clientIdentifier,
         private readonly ContaoCsrfTokenManager $csrfTokenManager,
+        #[Autowire(service: 'wem.audiotracks.rate_limit.state')]
+        private readonly RequestRateLimiter $rateLimiter,
     ) {
     }
 
     public function __invoke(Request $request): JsonResponse
     {
+        if ($tooManyRequests = $this->rateLimiter->consume()) {
+            return $tooManyRequests;
+        }
+
         $ids = array_values(array_unique(array_filter(
             array_map('intval', explode(',', (string) $request->query->get('ids', ''))),
             static fn (int $id): bool => $id > 0,

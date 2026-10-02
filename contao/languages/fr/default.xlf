@@ -127,6 +127,10 @@
 			    <source>No audiotrack provided</source>
 			    <target>Aucun épisode fourni</target>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.tooManyRequests">
+			    <source>Too many requests, please try again in a moment</source>
+			    <target>Trop de requêtes, veuillez réessayer dans un instant</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -15,11 +15,13 @@ namespace WEM\AudioTracksBundle\Controller;
 use Contao\CoreBundle\Cache\CacheTagManager;
 use Contao\Model\Collection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use WEM\AudioTracksBundle\Classes\ClientIdentifier;
+use WEM\AudioTracksBundle\Classes\RequestRateLimiter;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Feedback;
 use WEM\AudioTracksBundle\Model\Session;
@@ -42,11 +44,17 @@ class AjaxController
     public function __construct(
         private readonly ClientIdentifier $clientIdentifier,
         private readonly CacheTagManager $cacheTagManager,
+        #[Autowire(service: 'wem.audiotracks.rate_limit.write')]
+        private readonly RequestRateLimiter $rateLimiter,
     ) {
     }
 
     public function __invoke(Request $request, string $action): JsonResponse
     {
+        if ($tooManyRequests = $this->rateLimiter->consume()) {
+            return $tooManyRequests;
+        }
+
         $audiotrack = (int) $request->request->get('audiotrack');
 
         if ($audiotrack < 1 || null === AudioTrack::findById($audiotrack)) {

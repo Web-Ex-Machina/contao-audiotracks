@@ -6,7 +6,7 @@ services:
     
     WEM\AudioTracksBundle\:
         resource: ../src/
-        exclude: ../src/{ContaoManager,DependencyInjection,Model,Util}
+        exclude: ../src/{ContaoManager,DependencyInjection,Model,Util,Classes/RequestRateLimiter.php}
 
 
     wem.audiotracks.rss_feed:

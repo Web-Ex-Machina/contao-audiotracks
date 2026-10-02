@@ -95,6 +95,9 @@
 			<trans-unit id="WEM.AUDIOTRACKS.noAudiotrack">
 			    <source>No audiotrack provided</source>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.tooManyRequests">
+			    <source>Too many requests, please try again in a moment</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
