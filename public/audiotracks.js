@@ -6,6 +6,13 @@
 (() => {
     'use strict';
 
+    // Every module of the page includes this script: the player is only set up once
+    if (window.wemAudiotracksLoaded) {
+        return;
+    }
+
+    window.wemAudiotracksLoaded = true;
+
     const STORAGE_DATA = 'wem_audiotracks_data';
     const STORAGE_VOLUME = 'wem_audiotracks_globalvolume';
 
@@ -93,17 +100,16 @@
         });
     };
 
-    const listenedEl = (id) => document.querySelector(`.audiotrack[data-audiotrack="${id}"] .audiotrack__listened`);
-    const rowEl = (id) => document.querySelector(`[data-audiotrack="${id}"].audiotrack, [data-audiotrack="${id}"].audiotrack_full`);
+    // A track can be displayed by several modules of the page: all its rows are updated
+    const markListened = (id) => document.querySelectorAll(`.audiotrack[data-audiotrack="${id}"] .audiotrack__listened`).forEach((el) => el.classList.add('active'));
+    const rowEls = (id) => document.querySelectorAll(`[data-audiotrack="${id}"].audiotrack, [data-audiotrack="${id}"].audiotrack_full`);
 
     // Row state: "started" once some progress exists, "complete" once listened
     const markRow = (id, started, complete) => {
-        const row = rowEl(id);
-
-        if (row) {
+        rowEls(id).forEach((row) => {
             row.classList.toggle('started', (started || complete) && !complete);
             row.classList.toggle('complete', complete);
-        }
+        });
     };
 
     /**
@@ -136,7 +142,7 @@
         markRow(id, session.currentTime > 0, session.complete);
 
         if (session.complete) {
-            listenedEl(id)?.classList.add('active');
+            markListened(id);
         }
     };
 
@@ -180,7 +186,10 @@
     const initPlayer = (playerEl) => {
         const playButtons = [...document.querySelectorAll('.audiotrack__play')];
 
-        const trackList = playButtons.map((button) => ({
+        // One queue for all the modules of the page, in the order of the page, a track displayed twice is queued once
+        const queuedButtons = playButtons.filter((button, index) => playButtons.findIndex((b) => b.dataset.id === button.dataset.id) === index);
+
+        const trackList = queuedButtons.map((button) => ({
             id: button.dataset.id,
             title: button.dataset.title,
             subtitle: button.dataset.subtitle || "",
@@ -210,7 +219,7 @@
                 }
 
                 if (stored.complete) {
-                    listenedEl(stored.id)?.classList.add('active');
+                    markListened(stored.id);
                     markRow(stored.id, true, true);
                 }
             }
@@ -279,7 +288,7 @@
 
             if (audio.duration - audio.currentTime < 10 || currentTrack.complete) {
                 currentTrack.complete = true;
-                listenedEl(currentTrack.id)?.classList.add('active');
+                markListened(currentTrack.id);
             }
 
             const data = localData.find((t) => t.id === currentTrack.id);
@@ -629,10 +638,11 @@
     const init = () => {
         initFilters();
 
-        const playerEl = document.querySelector('[data-audiotracks-player]');
+        // Each module renders a player bar: only the first one is kept, all the tracks of the page share it
+        const [playerEl, ...duplicates] = document.querySelectorAll('[data-audiotracks-player]');
+        duplicates.forEach((el) => el.remove());
 
         if (playerEl) {
-            // The player is usable at once, the state of the visitor (likes, sessions) is applied when it arrives
             loadState(playerEl, initPlayer(playerEl));
         }
     };
