@@ -1,8 +1,9 @@
 {% trans_default_domain 'contao_default' %}
 
 {% set session = session|default({}) %}
+{% set episode_label %}{% if season %}{{ 'WEM.AUDIOTRACKS.seasonShort'|trans }}{{ season }}{% endif %}{% if season and episode %} · {% endif %}{% if episode %}{{ 'WEM.AUDIOTRACKS.episodeShort'|trans }}{{ episode }}{% endif %}{% endset %}
 
-<tr class="audiotrack audiotrack_default{{ class|default('') }}{{ session.complete|default(false) ? ' complete' }}"
+<tr class="audiotrack audiotrack_default{{ class|default('') }}{{ session.complete|default(false) ? ' complete' : (session.currentTime|default(0) > 0 ? ' started') }}"
     data-id="{{ id }}"
     data-audiotrack="{{ id }}"
     itemscope itemtype="https://schema.org/PodcastEpisode">
@@ -17,9 +18,14 @@
         {% if jumpTo|default %}</a>{% endif %}
 
         <div class="audiotrack__listened{{ session.complete|default(false) ? ' active' }}">
-            <i class="far fa-check ft-success ft-1-3-em"></i>
+            <i class="fas fa-circle-check ft-success ft-1-3-em"></i>
             <span>{{ 'WEM.AUDIOTRACKS.listened'|trans }}</span>
         </div>
+    </td>
+    <td data-name="episode">
+        {% if season or episode %}
+            <span class="audiotrack__episode">{{ episode_label|trim }}</span>
+        {% endif %}
     </td>
     <td data-name="duration">{{ duration }}</td>
     <td data-name="date">{{ date }}</td>
@@ -27,6 +33,8 @@
         <button type="button" class="audiotrack__play audiotrack__button"
             data-id="{{ id }}"
             data-title="{{ title }}"
+            data-subtitle="{{ episode_label|trim }}"
+            data-picture="{{ picture }}"
             data-src="{{ audio }}"
             data-complete="{{ session.complete|default(false) ? 1 : 0 }}"
             data-current-time="{{ session.currentTime|default(0) }}"

@@ -87,6 +87,18 @@
 			    <source>Like</source>
 			    <target>J'aime</target>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.colEpisode">
+			    <source>Episode</source>
+			    <target>Épisode</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.seasonShort">
+			    <source>S</source>
+			    <target>S</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.episodeShort">
+			    <source>E</source>
+			    <target>E</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

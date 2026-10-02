@@ -2,7 +2,13 @@
 
 <div class="audioPlayer" data-audiotracks-player data-request-token="{{ contao.request_token }}" data-url-feedback="{{ path('wem_audiotracks_ajax', {action: 'feedback'}) }}" data-url-sync-session="{{ path('wem_audiotracks_ajax', {action: 'syncSession'}) }}">
     <div class="container audioPlayer__wrapper">
-        <div class="audioPlayer__title ellipsis" title="-"> - </div>
+        <div class="audioPlayer__nowplaying">
+            <img class="audioPlayer__cover" src="" alt="" hidden>
+            <div class="audioPlayer__info">
+                <div class="audioPlayer__title ellipsis" title="-"> - </div>
+                <div class="audioPlayer__subtitle ellipsis"></div>
+            </div>
+        </div>
         <div class="audioPlayer__controls">
             <div class="audioPlayer__buttons">
                 <button type="button" class="audioPlayer__button prev" aria-label="{{ 'WEM.AUDIOTRACKS.previous'|trans }}"><i class="fas fa-step-backward"></i></button>
@@ -14,13 +20,13 @@
                 <input type="range" class="audioPlayer__track" value="0" aria-label="{{ 'WEM.AUDIOTRACKS.seek'|trans }}">
                 <div class="audioPlayer__duration"></div>
             </div>
-            <div class="audioPlayer__volumecontrols">
-                <input type="range" class="audioPlayer__volume" min="0" max="1" value="1" step="0.01" aria-label="{{ 'WEM.AUDIOTRACKS.volume'|trans }}">
-                <button type="button" class="audioPlayer__mute audioPlayer__button" aria-label="{{ 'WEM.AUDIOTRACKS.mute'|trans }}">
-                    <i class="fas fa-volume"></i>
-                    <i class="fas fa-volume-slash"></i>
-                </button>
-            </div>
+        </div>
+        <div class="audioPlayer__volumecontrols">
+            <input type="range" class="audioPlayer__volume" min="0" max="1" value="1" step="0.01" aria-label="{{ 'WEM.AUDIOTRACKS.volume'|trans }}">
+            <button type="button" class="audioPlayer__mute audioPlayer__button" aria-label="{{ 'WEM.AUDIOTRACKS.mute'|trans }}">
+                <i class="fas fa-volume-high"></i>
+                <i class="fas fa-volume-xmark"></i>
+            </button>
         </div>
     </div>
 </div>

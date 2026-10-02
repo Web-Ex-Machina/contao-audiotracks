@@ -80,6 +80,8 @@
         const trackList = playButtons.map((button) => ({
             id: button.dataset.id,
             title: button.dataset.title,
+            subtitle: button.dataset.subtitle || "",
+            picture: button.dataset.picture || "",
             src: button.dataset.src,
             currentTime: parseFloat(button.dataset.currentTime) || 0,
             volume: button.dataset.volume ? parseFloat(button.dataset.volume) : 1,
@@ -88,6 +90,17 @@
 
         const findTrack = (id) => trackList.find((t) => t.id === String(id));
         const listenedEl = (id) => document.querySelector(`.audiotrack[data-audiotrack="${id}"] .audiotrack__listened`);
+        const rowEl = (id) => document.querySelector(`[data-audiotrack="${id}"].audiotrack, [data-audiotrack="${id}"].audiotrack_full`);
+
+        // Row state: "started" once some progress exists, "complete" once listened
+        const markRow = (id, started, complete) => {
+            const row = rowEl(id);
+
+            if (row) {
+                row.classList.toggle("started", (started || complete) && !complete);
+                row.classList.toggle("complete", complete);
+            }
+        };
 
         let localData = readStorage(STORAGE_DATA);
 
@@ -105,6 +118,7 @@
 
                 if (stored.complete) {
                     listenedEl(stored.id)?.classList.add('active');
+                    markRow(stored.id, true, true);
                 }
             }
         }
@@ -116,6 +130,8 @@
         const prevButton = playerEl.querySelector('.audioPlayer__button.prev');
         const playButton = playerEl.querySelector('.audioPlayer__button.play');
         const titleEl = playerEl.querySelector('.audioPlayer__title');
+        const subtitleEl = playerEl.querySelector('.audioPlayer__subtitle');
+        const coverEl = playerEl.querySelector('.audioPlayer__cover');
         const currentEl = playerEl.querySelector('.audioPlayer__current');
         const durationEl = playerEl.querySelector('.audioPlayer__duration');
 
@@ -171,6 +187,8 @@
                 data.volume = globalVolume = audio.volume;
                 data.complete = currentTrack.complete;
             }
+
+            markRow(currentTrack.id, audio.currentTime > 0, currentTrack.complete);
 
             writeStorage(STORAGE_VOLUME, globalVolume);
             writeStorage(STORAGE_DATA, localData);
@@ -251,6 +269,15 @@
             setPlaying(currentTrack.id, true);
             titleEl.title = currentTrack.title;
             titleEl.textContent = currentTrack.title;
+            subtitleEl.textContent = currentTrack.subtitle;
+
+            if (currentTrack.picture) {
+                coverEl.src = currentTrack.picture;
+                coverEl.alt = currentTrack.title;
+                coverEl.hidden = false;
+            } else {
+                coverEl.hidden = true;
+            }
             clearInterval(syncTimer);
 
             syncSession()

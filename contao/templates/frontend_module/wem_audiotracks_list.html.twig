@@ -40,7 +40,7 @@
                             <div class="form-group{{ filter.name == 'search' ? ' form-shrink input-group' }}">
                                 <input class="filter" type="text" name="{{ filter.name }}" value="{{ filter.value }}" placeholder="{{ filter.placeholder ?: filter.label }}">
                                 {% if filter.name == 'search' %}
-                                    <button type="submit" class="squared btn-bg-none" aria-label="{{ filter.label }}"><i class="fal fa-search"></i></button>
+                                    <button type="submit" class="squared btn-bg-none" aria-label="{{ filter.label }}"><i class="fas fa-magnifying-glass"></i></button>
                                 {% endif %}
                             </div>
                         {% endif %}
@@ -61,6 +61,7 @@
                         <tr class="table-list__headline">
                             <th data-name="picture"></th>
                             <th data-name="title">{{ 'WEM.AUDIOTRACKS.colTitle'|trans }}</th>
+                            <th data-name="episode">{{ 'WEM.AUDIOTRACKS.colEpisode'|trans }}</th>
                             <th data-name="duration">{{ 'WEM.AUDIOTRACKS.colDuration'|trans }}</th>
                             <th data-name="date">{{ 'WEM.AUDIOTRACKS.colDate'|trans }}</th>
                             <th data-name="actions"></th>

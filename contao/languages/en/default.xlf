@@ -65,6 +65,15 @@
 			<trans-unit id="WEM.AUDIOTRACKS.like">
 			    <source>Like</source>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.colEpisode">
+			    <source>Episode</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.seasonShort">
+			    <source>S</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.episodeShort">
+			    <source>E</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
