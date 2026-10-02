@@ -20,6 +20,7 @@ use Contao\Message;
 use Contao\System;
 use Symfony\Component\Filesystem\Path;
 use WEM\AudioTracksBundle\Classes\FeedWithoutTracksException;
+use WEM\AudioTracksBundle\Classes\PublicationPeriod;
 use WEM\AudioTracksBundle\Classes\TagSynchronizer;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
@@ -161,6 +162,22 @@ class AudiotrackContainer
         }
 
         return [];
+    }
+
+    /**
+     * The track must stop after it starts: the start date is saved before the stop
+     * date (see the palette), so the record already has the new one.
+     *
+     * @throws \Exception
+     */
+    #[AsCallback(table: 'tl_wem_audiotrack', target: 'fields.stop.save')]
+    public function validateStopDate($varValue, DataContainer $dc)
+    {
+        if (!PublicationPeriod::isValid((int) ($dc->activeRecord->start ?? 0), (int) $varValue)) {
+            throw new \Exception($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['stopBeforeStart'] ?? 'The stop date must be after the start date.');
+        }
+
+        return $varValue;
     }
 
     #[AsCallback(table: 'tl_wem_audiotrack', target: 'fields.tags.save')]

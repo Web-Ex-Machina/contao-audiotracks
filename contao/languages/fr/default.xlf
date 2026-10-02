@@ -155,6 +155,26 @@
 			    <source>RSS feed of the category %d: %s</source>
 			    <target>Flux RSS de la catégorie %d : %s</target>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.retentionNone">
+			    <source>Retention: not limited, the listening sessions and the likes are kept (audio_tracks.retention_months is 0 in config/config.yaml).</source>
+			    <target>Conservation : illimitée, les sessions d’écoute et les likes sont conservés (audio_tracks.retention_months vaut 0 dans config/config.yaml).</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.retentionMonths">
+			    <source>Retention: every day, the listening sessions not updated for %d month(s) are deleted, and the older likes are detached from their visitor (the counters do not change). See audio_tracks.retention_months in config/config.yaml.</source>
+			    <target>Conservation : chaque jour, les sessions d’écoute non mises à jour depuis %d mois sont supprimées, et les likes plus anciens sont détachés de leur visiteur (les compteurs ne changent pas). Voir audio_tracks.retention_months dans config/config.yaml.</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.identifierEncryption">
+			    <source>The visitors are stored as an encrypted IP address (it can be decrypted with the key of the website). See audio_tracks.identifier.</source>
+			    <target>Les visiteurs sont enregistrés sous la forme d’une adresse IP chiffrée (elle peut être déchiffrée avec la clé du site). Voir audio_tracks.identifier.</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.identifierHmac">
+			    <source>The visitors are stored as a one-way hash of their IP address: it cannot be turned back into an IP address. See audio_tracks.identifier.</source>
+			    <target>Les visiteurs sont enregistrés sous la forme d’un hash à sens unique de leur adresse IP : il est impossible de retrouver l’adresse IP. Voir audio_tracks.identifier.</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.stopBeforeStart">
+			    <source>The stop date must be after the start date.</source>
+			    <target>La date de fin doit être postérieure à la date de début.</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -20,6 +20,11 @@ services:
             $mode: '%wem_audiotracks.identifier%'
             $key: '%wem_contao_encryption.encryption_key%'
 
+    WEM\AudioTracksBundle\EventListener\DataContainer\TrackingDataNoticeContainer:
+        arguments:
+            $retentionMonths: '%wem_audiotracks.retention_months%'
+            $identifierMode: '%wem_audiotracks.identifier%'
+
     WEM\AudioTracksBundle\Cron\PurgeTrackingDataCron:
         arguments:
             $retentionMonths: '%wem_audiotracks.retention_months%'

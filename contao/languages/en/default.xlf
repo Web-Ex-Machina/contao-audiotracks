@@ -116,6 +116,21 @@
 			<trans-unit id="WEM.AUDIOTRACKS.rssGenerateError">
 			    <source>RSS feed of the category %d: %s</source>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.retentionNone">
+			    <source>Retention: not limited, the listening sessions and the likes are kept (audio_tracks.retention_months is 0 in config/config.yaml).</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.retentionMonths">
+			    <source>Retention: every day, the listening sessions not updated for %d month(s) are deleted, and the older likes are detached from their visitor (the counters do not change). See audio_tracks.retention_months in config/config.yaml.</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.identifierEncryption">
+			    <source>The visitors are stored as an encrypted IP address (it can be decrypted with the key of the website). See audio_tracks.identifier.</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.identifierHmac">
+			    <source>The visitors are stored as a one-way hash of their IP address: it cannot be turned back into an IP address. See audio_tracks.identifier.</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.stopBeforeStart">
+			    <source>The stop date must be after the start date.</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
