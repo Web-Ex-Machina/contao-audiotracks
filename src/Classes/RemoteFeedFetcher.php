@@ -87,8 +87,8 @@ class RemoteFeedFetcher
 
             $body = $response->getContent();
             $responseHeaders = $response->getHeaders(false);
-        } catch (ExceptionInterface $e) {
-            throw new \RuntimeException($e->getMessage(), 0, $e);
+        } catch (ExceptionInterface $exception) {
+            throw new \RuntimeException($exception->getMessage(), 0, $exception);
         }
 
         if ('' === trim($body)) {

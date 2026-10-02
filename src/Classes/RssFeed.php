@@ -10,6 +10,7 @@ use Contao\FilesModel;
 use Contao\Model\Collection;
 use Contao\StringUtil;
 use Contao\System;
+use Laminas\Feed\Reader\Reader;
 use Laminas\Feed\Writer\Feed;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -100,7 +101,9 @@ class RssFeed
         $lastChange = (int) $objItem->tstamp;
 
         while ($objTracks->next()) {
-            $feed = $this->addTrackToRssFeed($objTracks->current(), $objItem, $feed);
+            /** @var AudioTrack $track */
+            $track = $objTracks->current();
+            $feed = $this->addTrackToRssFeed($track, $objItem, $feed);
             $totalDuration += $objTracks->duration;
             $lastChange = max($lastChange, (int) $objTracks->tstamp, (int) $objTracks->date);
         }
@@ -125,6 +128,121 @@ class RssFeed
         (new Filesystem())->dumpFile($path, $buffer);
 
         return FeedGeneration::Written;
+    }
+
+    /**
+     * Imports a remote feed: the show (title, cover, categories, owner...) and
+     * its episodes.
+     *
+     * @param bool $force Download the feed even if the server says it has not changed since the last import
+     *
+     * @throws \RuntimeException If the feed cannot be downloaded or read, nothing is changed in that case
+     */
+    public function import(int $id, bool $force = false): void
+    {
+        $this->framework->initialize();
+
+        $objItem = Category::findById($id);
+
+        // Only remote categories with a remote url can be imported
+        if (!$objItem || 'remote' !== $objItem->type || !$objItem->rssRemoteUrl) {
+            return;
+        }
+
+        $fetched = $this->fetcher->fetch(
+            $objItem->rssRemoteUrl,
+            $force ? null : ($objItem->rssRemoteEtag ?: null),
+            $force ? null : ($objItem->rssRemoteModified ?: null),
+        );
+
+        // Not modified since the last import: nothing to download nor to import
+        if (null === $fetched) {
+            $objItem->rssRemoteLastSync = time();
+            $objItem->save();
+
+            return;
+        }
+
+        try {
+            $feed = Reader::importString($fetched['body']);
+        } catch (\Throwable $throwable) {
+            throw new \RuntimeException('the content is not a valid RSS / Atom feed: '.$throwable->getMessage(), 0, $throwable);
+        }
+
+        // Update the columns of the show, the feed is the source of truth
+        $objItem->title = $feed->getTitle() ?: $objItem->title;
+        $objItem->description = (string) ($feed->getDescription() ?? '');
+        $objItem->language = (string) ($feed->getLanguage() ?? '');
+        $objItem->rssLink = (string) ($feed->getLink() ?? '');
+        $objItem->createdAt = $feed->getDateCreated()?->getTimestamp() ?? $objItem->createdAt;
+        $objItem->tstamp = $feed->getDateModified()?->getTimestamp() ?? time();
+        $objItem->rssCopyright = (string) ($feed->getCopyright() ?? '');
+        $objItem->tracksType = (string) ($feed->getPodcastType() ?? '');
+        $objItem->complete = $feed->isComplete() ? '1' : '';
+        $objItem->explicit = (bool) $feed->getExplicit() ? '1' : '';
+
+        // Cover: the url of the remote image is kept (nothing is downloaded)
+        $image = $feed->getImage();
+        $cover = FeedImportParser::url($feed->getItunesImage()) ?: FeedImportParser::url(\is_array($image) ? ($image['uri'] ?? '') : '');
+
+        if ('' !== $cover) {
+            $objItem->pictureRemoteUrl = $cover;
+        }
+
+        if (\is_array($image)) {
+            $objItem->pictureAlt = $image['title'] ?? $objItem->pictureAlt;
+            $objItem->pictureTitle = $image['title'] ?? $objItem->pictureTitle;
+        }
+
+        // Update categories
+        $categories = $feed->getItunesCategories();
+        if ($categories) {
+            $data = array_keys($categories);
+
+            if ([] !== $data) {
+                $objItem->categories = serialize($data);
+            }
+        }
+
+        // Owner: "email (name)", "name <email>", "email" or "name"
+        $owner = $feed->getOwner();
+        $objItem->authors = serialize($owner ? [FeedImportParser::parseOwner((string) $owner)] : []);
+
+        $objItem->save();
+
+        // Import tracks
+        $arrImportedIds = [];
+        $arrTags = [];
+
+        foreach ($feed as $entry) {
+            $objTrack = $this->importTrack($entry, $objItem);
+            $arrImportedIds[] = $objTrack->uuid;
+            $arrTags = array_merge($arrTags, StringUtil::deserialize($objTrack->tags, true));
+        }
+
+        // Episodes that are no longer in the feed are unpublished (nothing is done if
+        // the feed is empty, it is probably an error on the remote side)
+        if ([] !== $arrImportedIds) {
+            Database::getInstance()
+                ->prepare(\sprintf(
+                    "UPDATE tl_wem_audiotrack SET published = '' WHERE pid = ? AND uuid != '' AND uuid NOT IN (%s)",
+                    implode(',', array_fill(0, \count($arrImportedIds), '?')),
+                ))
+                ->execute($objItem->id, ...$arrImportedIds)
+            ;
+        }
+
+        // The tags of the episodes are the ones the back end offers: the show knows all
+        // of them
+        $known = StringUtil::deserialize($objItem->tags, true);
+        $objItem->tags = serialize(FeedImportParser::tags(array_merge($known, $arrTags)) ?: $known);
+
+        $objItem->rssRemoteEtag = $fetched['etag'] ?? '';
+        $objItem->rssRemoteModified = $fetched['lastModified'] ?? '';
+        $objItem->rssRemoteLastSync = time();
+        $objItem->save();
+
+        $this->logger->info(\sprintf('Audiotracks: the remote feed of the category %d was imported (%d episode(s)).', $id, \count($arrImportedIds)));
     }
 
     /**

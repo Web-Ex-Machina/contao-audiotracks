@@ -29,8 +29,9 @@ class GenerateFeedsController extends AbstractController
     public function run(DataContainer $dc): RedirectResponse
     {
         System::loadLanguageFile('default');
-
-        $written = $unchanged = $empty = 0;
+        $written = 0;
+        $unchanged = 0;
+        $empty = 0;
 
         foreach (System::getContainer()->get('wem.audiotracks.rss_feed')->generateAll() as $id => $result) {
             if (FeedGeneration::Written === $result) {

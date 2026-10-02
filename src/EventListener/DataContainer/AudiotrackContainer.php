@@ -114,7 +114,7 @@ class AudiotrackContainer
     {
         if (!$varValue && $objFile = FilesModel::findByUuid($dc->activeRecord->audio)) {
             // Read from the header of the file (mp3, wav, ogg)
-            $varValue = AudioDuration::forFile(Path::join(System::getContainer()->getParameter('kernel.project_dir'), $objFile->path)) ?: $varValue;
+            return AudioDuration::forFile(Path::join(System::getContainer()->getParameter('kernel.project_dir'), $objFile->path)) ?: $varValue;
         }
 
         return $varValue;

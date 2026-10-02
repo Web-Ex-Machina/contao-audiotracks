@@ -54,7 +54,7 @@ class StateController
 
     public function __invoke(Request $request): JsonResponse
     {
-        if ($tooManyRequests = $this->rateLimiter->consume()) {
+        if (($tooManyRequests = $this->rateLimiter->consume()) instanceof JsonResponse) {
             return $tooManyRequests;
         }
 

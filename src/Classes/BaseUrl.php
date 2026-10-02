@@ -47,7 +47,7 @@ final class BaseUrl
      */
     public static function fromRequest(Request|null $request): string
     {
-        return null === $request ? '' : $request->getSchemeAndHttpHost().$request->getBasePath().'/';
+        return $request instanceof Request ? $request->getSchemeAndHttpHost().$request->getBasePath().'/' : '';
     }
 
     /**
@@ -70,7 +70,7 @@ final class BaseUrl
         $domains = array_unique(array_map(static fn (array $root): string => strtolower(trim((string) $root['dns'])).'|'.($root['useSSL'] ? '1' : '0'), $roots));
 
         if ([] !== $roots && 1 === \count($domains)) {
-            [$dns, $ssl] = explode('|', (string) reset($domains));
+            [$dns, $ssl] = explode('|', reset($domains));
 
             if ('' !== $dns && self::isValid(('1' === $ssl ? 'https://' : 'http://').$dns)) {
                 return self::normalize(('1' === $ssl ? 'https://' : 'http://').$dns);

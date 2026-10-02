@@ -19,6 +19,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use WEM\AudioTracksBundle\Classes\ClientIdentifier;
 use WEM\AudioTracksBundle\Classes\RequestRateLimiter;
@@ -51,7 +52,7 @@ class AjaxController
 
     public function __invoke(Request $request, string $action): JsonResponse
     {
-        if ($tooManyRequests = $this->rateLimiter->consume()) {
+        if (($tooManyRequests = $this->rateLimiter->consume()) instanceof JsonResponse) {
             return $tooManyRequests;
         }
 
@@ -69,6 +70,8 @@ class AjaxController
                 (float) ($request->request->get('volume') ?: 1),
                 'true' === $request->request->get('complete'),
             ),
+            // The route only accepts the two actions above
+            default => throw new NotFoundHttpException(),
         };
 
         return new JsonResponse(['status' => 'success']);
