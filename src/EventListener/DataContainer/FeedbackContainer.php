@@ -26,7 +26,8 @@ class FeedbackContainer
     {
         return sprintf(
             '%s',
-            $r['ip']
+            // The IP is stored encrypted, only a fingerprint is displayed
+            substr((string) $r['ip'], 0, 12).'…'
         );
     }
 }

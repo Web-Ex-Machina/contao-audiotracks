@@ -16,6 +16,8 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
             'keys' => [
                 'id' => 'primary',
                 'pid' => 'index',
+                // Lookups of a visitor's like / session on a track
+                'pid,ip' => 'index',
             ],
         ],
     ],
@@ -71,7 +73,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_feedback'] = [
             'exclude' => true,
             'search' => true,
             'inputType' => 'text',
-            'eval' => ['mandatory' => true, 'tl_class' => 'w50', 'maxlength' => 255],
+            'eval' => ['readonly' => true, 'tl_class' => 'w50', 'maxlength' => 255],
             'sql' => "varchar(255) NOT NULL default ''",
         ],
     ],

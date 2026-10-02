@@ -16,3 +16,17 @@ You should install this bundle from Composer with the command below
 `composer require webexmachina/contao-audiotracks`
 
 Or use the Contao Manager to do the same thing if you do not have a command-line access.
+
+## Privacy
+
+Likes and listening sessions are linked to a visitor, but the IP address is never stored in clear: it is encrypted with the `wem.encryption_util` service of [webexmachina/contao-utils](https://github.com/Web-Ex-Machina/contao-utils). The encryption key is `wem_contao_encryption.encryption_key` (`kernel.secret` by default), **if you change it, the visitors already stored are not recognized anymore** (their likes / sessions are not lost, but they cannot be matched to their owner).
+
+A daily cron deletes the listening sessions not updated for 12 months, and detaches the older likes from the visitor (the counters do not change). To change or disable it:
+
+```yaml
+# config/config.yaml
+audio_tracks:
+    retention_months: 6   # 0 = keep forever
+```
+
+After an update from a previous version, run `contao:migrate` to encrypt the IP addresses already stored and to create the new index.

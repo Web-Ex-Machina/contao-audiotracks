@@ -14,12 +14,12 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\Controller;
 
-use Contao\Environment;
 use Contao\Model\Collection;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use WEM\AudioTracksBundle\Classes\ClientIdentifier;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Feedback;
 use WEM\AudioTracksBundle\Model\Session;
@@ -38,6 +38,10 @@ use WEM\AudioTracksBundle\Model\Session;
 )]
 class AjaxController
 {
+    public function __construct(private readonly ClientIdentifier $clientIdentifier)
+    {
+    }
+
     public function __invoke(Request $request, string $action): JsonResponse
     {
         $audiotrack = (int) $request->request->get('audiotrack');
@@ -61,7 +65,7 @@ class AjaxController
 
     private function updateFeedback(int $pid, bool $like): void
     {
-        $strIp = Environment::get('ip');
+        $strIp = $this->clientIdentifier->get();
 
         if (!$like && $objFeedback = Feedback::findItems(['pid' => $pid, 'ip' => $strIp], 1)) {
             $objFeedback->delete();
@@ -79,7 +83,7 @@ class AjaxController
 
     private function updateSession(int $pid, float $currentTime, float $volume, bool $markAsComplete): void
     {
-        $strIp = Environment::get('ip');
+        $strIp = $this->clientIdentifier->get();
         $objSession = Session::findItems(['pid' => $pid, 'ip' => $strIp], 1);
 
         if (!$objSession instanceof Collection) {

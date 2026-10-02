@@ -15,6 +15,9 @@ Extension "Audiotracks" for Contao Open Source CMS
 - UPDATED: The player is now vanilla JS (`public/audiotracks.js`), jQuery is no longer required
 - CHANGED: `WEMAUDIOTRACKSPARSEITEM` now receives and returns the template data array (see docs/HOOKS.md)
 - ADDED: schema.org JSON-LD (`SchemaOrgBuilder`): `PodcastEpisode` with `PodcastSeason`, `PodcastSeries` (category), `AudioObject`, authors, keywords, duration, likes on the reader; a single `ItemList` on the list. The inline microdata has been removed. The data is available in the item template data as `schemaOrg` (and can be altered in the `WEMAUDIOTRACKSPARSEITEM` hook)
+- CHANGED (privacy): visitors (likes, listening sessions) are no longer identified by their IP in clear. The IP is encrypted with the `wem.encryption_util` service of `webexmachina/contao-utils` (`ClientIdentifier`). The IPs already stored are encrypted by a migration (`contao:migrate`)
+- ADDED: daily cron (`PurgeTrackingDataCron`) deleting the listening sessions not updated for `audio_tracks.retention_months` months (default 12, `0` = keep forever) and detaching the older likes from the visitor (the likes counters do not change)
+- ADDED: composite index `pid, ip` on the feedbacks and sessions tables
 - UPDATED: Requires PHP ^8.3 and `contao/core-bundle` ^5.7
 
 1.1.0

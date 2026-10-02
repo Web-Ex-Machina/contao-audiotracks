@@ -14,3 +14,7 @@ services:
         arguments:
             $framework: '@contao.framework'
         public: true
+
+    WEM\AudioTracksBundle\Cron\PurgeTrackingDataCron:
+        arguments:
+            $retentionMonths: '%wem_audiotracks.retention_months%'

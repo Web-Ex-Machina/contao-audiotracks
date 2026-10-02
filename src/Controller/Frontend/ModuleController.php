@@ -24,6 +24,7 @@ use Contao\Model\Collection;
 use Contao\ModuleModel;
 use Contao\PageModel;
 use Exception;
+use WEM\AudioTracksBundle\Classes\ClientIdentifier;
 use WEM\AudioTracksBundle\Classes\SchemaOrgBuilder;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
@@ -38,7 +39,10 @@ abstract class ModuleController extends AbstractFrontendModuleController
 {
     protected ModuleModel $model;
 
-    public function __construct(protected readonly SchemaOrgBuilder $schemaOrgBuilder)
+    public function __construct(
+        protected readonly SchemaOrgBuilder $schemaOrgBuilder,
+        protected readonly ClientIdentifier $clientIdentifier,
+    )
     {
     }
 
@@ -297,11 +301,11 @@ abstract class ModuleController extends AbstractFrontendModuleController
         $arrData['durationRaw'] = $objItem->duration;
 
         // Retrieve the feedback from this IP
-        $arrData['liked'] = 0 < Feedback::countItems(['pid' => $objItem->id, 'ip' => Environment::get('ip')]);
+        $arrData['liked'] = 0 < Feedback::countItems(['pid' => $objItem->id, 'ip' => $this->clientIdentifier->get()]);
         $arrData['nbLikes'] = Feedback::countItems(['pid' => $objItem->id]);
 
         // Retrieve user session if exists
-        $objSession = Session::findItems(['pid' => $objItem->id, 'ip' => Environment::get('ip')], 1);
+        $objSession = Session::findItems(['pid' => $objItem->id, 'ip' => $this->clientIdentifier->get()], 1);
         $arrSession = [];
 
         if ($objSession instanceof Collection) {
