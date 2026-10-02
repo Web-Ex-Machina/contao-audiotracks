@@ -220,13 +220,13 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
                         'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['authors']['email'],
                         'exclude' => true,
                         'inputType' => 'text',
-                        'eval' => ['rgxp' => 'email', 'mandatory' => true],
+                        'eval' => ['rgxp' => 'email'],
                     ],
                     'uri' => [
                         'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['authors']['uri'],
                         'exclude' => true,
                         'inputType' => 'text',
-                        'eval' => ['rgxp' => 'url', 'mandatory' => true],
+                        'eval' => ['rgxp' => 'url'],
                     ],
                 ]
             ],

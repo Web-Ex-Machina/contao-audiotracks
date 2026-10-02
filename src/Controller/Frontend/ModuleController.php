@@ -354,8 +354,8 @@ abstract class ModuleController extends AbstractFrontendModuleController
         $isRemote = 'remote' === $objCategory?->type;
 
         // Retrieve and parse the pictures
-        if ($isRemote && $objItem->pictureRemoteUrl) {
-            $arrData['picture'] = $objItem->pictureRemoteUrl;
+        if ($isRemote && ($objItem->pictureRemoteUrl || $objCategory->pictureRemoteUrl)) {
+            $arrData['picture'] = $objItem->pictureRemoteUrl ?: $objCategory->pictureRemoteUrl;
             $arrData['pictureMobile'] = null;
         } else {
             $arrData['picture'] = $this->getFile($objItem->picture)?->path;

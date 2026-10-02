@@ -288,6 +288,17 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack_category'] = [
             'eval' => ['rgxp' => 'url', 'mandatory' => true],
             'sql' => "varchar(255) NOT NULL default ''"
         ],
+        // Cover of the remote show (url of the image, imported with the feed)
+        'pictureRemoteUrl' => [
+            'sql' => "varchar(255) NOT NULL default ''",
+        ],
+        // Used to ask the remote server if the feed has changed since the last import
+        'rssRemoteEtag' => [
+            'sql' => "varchar(255) NOT NULL default ''",
+        ],
+        'rssRemoteModified' => [
+            'sql' => "varchar(64) NOT NULL default ''",
+        ],
         'rssRemoteLastSync' => [
             'default' => time(),
             'flag' => DataContainer::SORT_MONTH_DESC,

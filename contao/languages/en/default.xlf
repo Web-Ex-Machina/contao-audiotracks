@@ -107,6 +107,9 @@
 			<trans-unit id="WEM.AUDIOTRACKS.seekValue">
 			    <source>%current% of %duration%</source>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssImportError">
+			    <source>The remote feed could not be imported: %s</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

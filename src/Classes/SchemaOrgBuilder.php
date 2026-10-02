@@ -113,7 +113,7 @@ class SchemaOrgBuilder
             'name' => $category->title,
             'description' => $this->toPlainText((string) $category->description),
             'url' => $category->rssLink ?: null,
-            'image' => $this->getFileUrl($category->picture),
+            'image' => $this->getFileUrl($category->picture) ?? ($category->pictureRemoteUrl ?: null),
             'inLanguage' => $category->language ?: null,
             'webFeed' => $category->rss && $category->rssFilename ? $category->getRssFeedUrl() : null,
             'isFamilyFriendly' => !$category->explicit,

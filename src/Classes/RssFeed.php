@@ -14,6 +14,7 @@ use Contao\StringUtil;
 use Contao\System;
 use Laminas\Feed\Reader\Reader;
 use Laminas\Feed\Writer\Feed;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Uid\Uuid;
 use WEM\AudioTracksBundle\Model\AudioTrack;
@@ -23,8 +24,12 @@ class RssFeed
 {
     protected ContaoFramework $framework;
 
-    public function __construct(ContaoFramework $framework)
-    {
+    public function __construct(
+        ContaoFramework $framework,
+        private readonly RemoteFeedFetcher $fetcher,
+        private readonly TagSynchronizer $tagSynchronizer,
+        private readonly LoggerInterface $logger,
+    ) {
         $this->framework = $framework;
     }
 
@@ -67,7 +72,15 @@ class RssFeed
         (new Filesystem())->dumpFile($objItem->getRssFeedPath(), $buffer);
     }
 
-    public function import(int $id): void
+    /**
+     * Imports a remote feed: the show (title, cover, categories, owner...) and
+     * its episodes.
+     *
+     * @param bool $force Download the feed even if the server says it has not changed since the last import
+     *
+     * @throws \RuntimeException If the feed cannot be downloaded or read, nothing is changed in that case
+     */
+    public function import(int $id, bool $force = false): void
     {
         $this->framework->initialize();
 
@@ -78,26 +91,49 @@ class RssFeed
             return;
         }
 
-        $feed = Reader::import($objItem->rssRemoteUrl);
+        $fetched = $this->fetcher->fetch(
+            $objItem->rssRemoteUrl,
+            $force ? null : ($objItem->rssRemoteEtag ?: null),
+            $force ? null : ($objItem->rssRemoteModified ?: null),
+        );
 
-        // Update local columns @todo add controls
-        $objItem->title = $feed->getTitle();
-        $objItem->description = $feed->getDescription();
-        $objItem->language = $feed->getLanguage();
-        $objItem->rssLink = $feed->getLink();
-        $objItem->createdAt = $feed->getDateCreated()->getTimestamp();
-        $objItem->tstamp = $feed->getDateModified()->getTimestamp();
-        $objItem->rssCopyright = $feed->getCopyright();
-        $objItem->tracksType = $feed->getPodcastType();
+        // Not modified since the last import: nothing to download nor to import
+        if (null === $fetched) {
+            $objItem->rssRemoteLastSync = time();
+            $objItem->save();
+
+            return;
+        }
+
+        try {
+            $feed = Reader::importString($fetched['body']);
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('the content is not a valid RSS / Atom feed: '.$e->getMessage(), 0, $e);
+        }
+
+        // Update the columns of the show, the feed is the source of truth
+        $objItem->title = $feed->getTitle() ?: $objItem->title;
+        $objItem->description = (string) ($feed->getDescription() ?? '');
+        $objItem->language = (string) ($feed->getLanguage() ?? '');
+        $objItem->rssLink = (string) ($feed->getLink() ?? '');
+        $objItem->createdAt = $feed->getDateCreated()?->getTimestamp() ?? $objItem->createdAt;
+        $objItem->tstamp = $feed->getDateModified()?->getTimestamp() ?? time();
+        $objItem->rssCopyright = (string) ($feed->getCopyright() ?? '');
+        $objItem->tracksType = (string) ($feed->getPodcastType() ?? '');
         $objItem->complete = $feed->isComplete() ? '1' : '';
         $objItem->explicit = (bool) $feed->getExplicit() ? '1' : '';
 
-        // Update picture
-        $picture = $feed->getImage();
-        if ($picture) {
-            // @todo retrieve picture
-            $objItem->pictureAlt = $picture['title'];
-            $objItem->pictureTitle = $picture['title'];
+        // Cover: the url of the remote image is kept (nothing is downloaded)
+        $image = $feed->getImage();
+        $cover = FeedImportParser::url($feed->getItunesImage()) ?: FeedImportParser::url(\is_array($image) ? ($image['uri'] ?? '') : '');
+
+        if ('' !== $cover) {
+            $objItem->pictureRemoteUrl = $cover;
+        }
+
+        if (\is_array($image)) {
+            $objItem->pictureAlt = $image['title'] ?? $objItem->pictureAlt;
+            $objItem->pictureTitle = $image['title'] ?? $objItem->pictureTitle;
         }
 
         // Update categories
@@ -110,35 +146,20 @@ class RssFeed
             }
         }
 
-        // Update owner, expected format: "email (name)" @todo try with more formats?
-        $arrAuthors = [];
+        // Owner: "email (name)", "name <email>", "email" or "name"
         $owner = $feed->getOwner();
-        if ($owner) {
-            if (preg_match('/^(.*?)\s*\((.*)\)$/', $owner, $matches)) {
-                $arrAuthors[] = [
-                    'name' => $matches[2],
-                    'email' => $matches[1],
-                    'uri' => '',
-                ];
-            } else {
-                $arrAuthors[] = [
-                    'name' => $owner,
-                    'email' => '',
-                    'uri' => '',
-                ];
-            }
-        }
+        $objItem->authors = serialize($owner ? [FeedImportParser::parseOwner((string) $owner)] : []);
 
-        $objItem->authors = serialize($arrAuthors);
-
-        // Save item
         $objItem->save();
 
         // Import tracks
         $arrImportedIds = [];
+        $arrTags = [];
 
         foreach ($feed as $entry) {
-            $arrImportedIds[] = $this->importTrack($entry, $objItem)->uuid;
+            $objTrack = $this->importTrack($entry, $objItem);
+            $arrImportedIds[] = $objTrack->uuid;
+            $arrTags = array_merge($arrTags, StringUtil::deserialize($objTrack->tags, true));
         }
 
         // Episodes that are no longer in the feed are unpublished (nothing is done if
@@ -153,8 +174,17 @@ class RssFeed
             ;
         }
 
+        // The tags of the episodes are the ones the back end offers: the show knows all
+        // of them
+        $known = StringUtil::deserialize($objItem->tags, true);
+        $objItem->tags = serialize(FeedImportParser::tags(array_merge($known, $arrTags)) ?: $known);
+
+        $objItem->rssRemoteEtag = $fetched['etag'] ?? '';
+        $objItem->rssRemoteModified = $fetched['lastModified'] ?? '';
         $objItem->rssRemoteLastSync = time();
         $objItem->save();
+
+        $this->logger->info(\sprintf('Audiotracks: the remote feed of the category %d was imported (%d episode(s)).', $id, \count($arrImportedIds)));
     }
 
     /**
@@ -359,7 +389,7 @@ class RssFeed
         // The feed is the source of truth: the editorial fields are overwritten at each import
         $objTrack->tstamp = $entry->getDateModified()->getTimestamp();
         $objTrack->createdAt = $entry->getDateCreated()->getTimestamp();
-        $objTrack->title = $entry->getTitle();
+        $objTrack->title = (string) $entry->getTitle();
 
         // The alias is used in the url of the reader
         if (!$objTrack->alias) {
@@ -369,11 +399,10 @@ class RssFeed
         $objTrack->date = $entry->getDateCreated()->getTimestamp();
         $objTrack->season = $entry->getSeason() ?: 1;
         $objTrack->episode = $entry->getEpisode() ?: 1;
-        $objTrack->type = $entry->getEpisodeType();
-        $objTrack->description = $entry->getDescription();
+        $objTrack->type = (string) ($entry->getEpisodeType() ?? '');
+        $objTrack->description = (string) ($entry->getDescription() ?? '');
         $objTrack->explicit = $objCategory->explicit;
-        // $objTrack->tags = $entry->getTitle(); The audio file is the enclosure, the
-        // link is the web page of the episode
+        // The audio file is the enclosure, the link is the web page of the episode
         $enclosure = $entry->getEnclosure();
         $objTrack->audioRemoteUrl = $enclosure && !empty($enclosure->url) ? $enclosure->url : $entry->getLink();
 
@@ -389,22 +418,38 @@ class RssFeed
             $objTrack->duration = $seconds;
         }
 
-        // Update picture
-        $picture = $entry->getItunesImage();
+        // Update picture: the url of the remote image
+        $picture = FeedImportParser::url($entry->getItunesImage());
 
-        if ($picture) {
+        if ('' !== $picture) {
             $objTrack->pictureRemoteUrl = $picture;
             $objTrack->pictureText = '';
         }
 
-        // Update authors
-        $authors = $entry->getAuthors();
-        if ($authors) {
-            // @todo
+        // Authors (author, dc:creator, then itunes:author). Without any, the ones
+        // already there are kept
+        $authors = FeedImportParser::authors($entry->getAuthors(), $entry->getCastAuthor());
+
+        if ([] !== $authors) {
+            $objTrack->authors = serialize($authors);
+        }
+
+        // Tags: the categories and the keywords of the episode. Without any, the ones already
+        // there are kept (itunes:keywords is deprecated but still used by many feeds)
+        $tags = FeedImportParser::tags($entry->getCategories(), @$entry->getKeywords());
+
+        if ([] !== $tags) {
+            $objTrack->tags = serialize($tags);
         }
 
         // Save entry
         $objTrack->save();
+
+        // The back end fills the pivot table of the tags when a track is saved, the
+        // model does not
+        if ([] !== $tags) {
+            $this->tagSynchronizer->sync((int) $objTrack->id, $tags);
+        }
 
         return $objTrack;
     }

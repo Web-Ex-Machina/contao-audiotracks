@@ -18,16 +18,18 @@ use Contao\DataContainer;
 use Contao\FilesModel;
 use Contao\Message;
 use Contao\System;
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\ParameterType;
+use WEM\AudioTracksBundle\Classes\TagSynchronizer;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
 use WEM\AudioTracksBundle\Util\MP3File;
 use WEM\UtilsBundle\Classes\StringUtil;
-use WEM\UtilsBundle\Model\Model;
 
 class AudiotrackContainer
 {
+    public function __construct(private readonly TagSynchronizer $tagSynchronizer)
+    {
+    }
+
     /**
      * Update palette for remote tracks.
      */
@@ -159,7 +161,7 @@ class AudiotrackContainer
     #[AsCallback(table: 'tl_wem_audiotrack', target: 'fields.tags.save')]
     public function syncAudioTrackTagsPivotTable($varValue, $dc)
     {
-        $this->syncData(StringUtil::deserialize($varValue, true), 'tl_wem_audiotrack_tag', (int) $dc->id, 'pid', 'tag');
+        $this->tagSynchronizer->sync((int) $dc->id, StringUtil::deserialize($varValue, true));
 
         return $varValue;
     }
@@ -173,50 +175,5 @@ class AudiotrackContainer
         }
 
         return $varValue;
-    }
-
-    /**
-     * Sync basic data between pivot tables.
-     *
-     * @param array  $varValues       Usually an array of IDs
-     * @param string $strTable        Table where to sync
-     * @param int    $intParentId     Parent ID
-     * @param string $strParentField  Parent Field
-     * @param string $strForeignField Foreign field where to sync values
-     */
-    private function syncData(array|null $varValues, string $strTable, int $intParentId, string $strParentField, string $strForeignField): void
-    {
-        // Found Model class
-        $stdModel = Model::getClassFromTable($strTable);
-
-        // step 1 - update existing recipients, add new ones
-        foreach ($varValues as $id) {
-            $objModel = $stdModel::findItems([$strParentField => $intParentId, $strForeignField => $id], 1);
-
-            if (!$objModel) {
-                $objModel = new $stdModel();
-                $objModel->createdAt = time();
-                $objModel->$strParentField = $intParentId;
-                $objModel->$strForeignField = $id;
-            }
-
-            $objModel->tstamp = time();
-            $objModel->save();
-        }
-
-        // step 2 - remove all the values not in $varValues (all of them if there
-        // is none anymore)
-        $connection = System::getContainer()->get('database_connection');
-        $sql = \sprintf('DELETE FROM %s WHERE %s = ?', $connection->quoteIdentifier($strTable), $connection->quoteIdentifier($strParentField));
-        $params = [$intParentId];
-        $types = [ParameterType::INTEGER];
-
-        if ([] !== ($varValues ?? [])) {
-            $sql .= \sprintf(' AND %s NOT IN (?)', $connection->quoteIdentifier($strForeignField));
-            $params[] = array_map('strval', array_values($varValues));
-            $types[] = ArrayParameterType::STRING;
-        }
-
-        $connection->executeStatement($sql, $params, $types);
     }
 }

@@ -36,11 +36,11 @@ class SyncRemoteRssFeedController extends AbstractController
         }
 
         try {
-            System::getContainer()->get('wem.audiotracks.rss_feed')->import((int) $dc->id);
+            System::getContainer()->get('wem.audiotracks.rss_feed')->import((int) $dc->id, true);
 
             Message::addConfirmation($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssImported']);
         } catch (\Exception $exception) {
-            Message::addError($exception->getMessage());
+            Message::addError(\sprintf($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssImportError'], $exception->getMessage()));
         }
     }
 }

@@ -143,6 +143,10 @@
 			    <source>%current% of %duration%</source>
 			    <target>%current% sur %duration%</target>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssImportError">
+			    <source>The remote feed could not be imported: %s</source>
+			    <target>Le flux distant n’a pas pu être importé : %s</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -53,6 +53,9 @@ audio_tracks:
 
 - The pages of the list and of the reader are the same for every visitor, so Contao's page cache (or a reverse proxy) can serve them. What depends on the visitor (the likes he made, where he stopped listening) is loaded by the player after the page is displayed, from `GET /_wem_audiotracks/state?ids=…`, a private response that is never cached. The like counters are rendered in the page and refreshed by the player.
 - The remote RSS feeds are imported every hour by the Contao cron (`SyncRemoteFeedsCron`). If you do not use the poor man's cron, make sure the Contao cron is called by the system cron (`contao:cron`). The "sync" button in the category list imports a feed immediately.
+- The remote import is careful with the remote server: the feed is downloaded with a timeout (10 s without data, 30 s in total) and a size limit (10 MB), and an `ETag` / `Last-Modified` request is sent so an unchanged feed is not downloaded nor imported again. If the download fails or the content is not a feed, nothing is changed (the error is logged by the cron and displayed by the "sync" button, which always downloads the feed).
+- What is imported: the show (title, description, language, owner, categories, the url of its cover), and the episodes (title, date, season / episode, duration, audio, the url of the cover, authors from `author` / `dc:creator` / `itunes:author`, tags from the `category` and `itunes:keywords` elements). Images are not downloaded, the remote url is used; an episode without cover shows the cover of the show. Authors and tags are only replaced when the feed gives some, so the ones you entered are kept otherwise. The tags are also added to the tags of the show.
+- After an update, run `contao:migrate` (or the schema update): three columns were added to the categories.
 
 ## Development
 
