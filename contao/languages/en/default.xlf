@@ -32,6 +32,39 @@
 			<trans-unit id="WEM.AUDIOTRACKS.links.rss">
 			    <source>RSS Feed</source>			    
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.colTitle">
+			    <source>Title</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.colDuration">
+			    <source>Duration</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.colDate">
+			    <source>Publication date</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.jumpTo">
+			    <source>Read more</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.play">
+			    <source>Play / pause</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.previous">
+			    <source>Previous track</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.next">
+			    <source>Next track</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.seek">
+			    <source>Seek</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.volume">
+			    <source>Volume</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.mute">
+			    <source>Mute</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.like">
+			    <source>Like</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

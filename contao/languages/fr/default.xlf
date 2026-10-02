@@ -43,6 +43,50 @@
 			    <source>RSS Feed</source>
 			    <target>Flux RSS</target>
 			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.colTitle">
+			    <source>Title</source>
+			    <target>Titre</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.colDuration">
+			    <source>Duration</source>
+			    <target>Durée</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.colDate">
+			    <source>Publication date</source>
+			    <target>Date de publication</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.jumpTo">
+			    <source>Read more</source>
+			    <target>Voir le détail</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.play">
+			    <source>Play / pause</source>
+			    <target>Lecture / pause</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.previous">
+			    <source>Previous track</source>
+			    <target>Piste précédente</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.next">
+			    <source>Next track</source>
+			    <target>Piste suivante</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.seek">
+			    <source>Seek</source>
+			    <target>Position de lecture</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.volume">
+			    <source>Volume</source>
+			    <target>Volume</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.mute">
+			    <source>Mute</source>
+			    <target>Muet</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.like">
+			    <source>Like</source>
+			    <target>J'aime</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -17,16 +17,26 @@ namespace WEM\AudioTracksBundle\EventListener\DataContainer;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsCallback;
 use Contao\Controller;
 use Contao\Database;
+use Contao\CoreBundle\Twig\Finder\FinderFactory;
 
 class ModuleContainer
 {
+    public function __construct(private readonly FinderFactory $finderFactory)
+    {
+    }
+
     /**
      * Return all templates as array.
      */
     #[AsCallback(table: 'tl_module', target: 'fields.wemaudiotracks_template.options')]
     public function getTemplates(): array
     {
-        return Controller::getTemplateGroup('wemaudiotrack_');
+        return $this->finderFactory->create()
+            ->identifier('audiotracks/item')
+            ->extension('html.twig')
+            ->withVariants()
+            ->excludePartials()
+            ->asTemplateOptions();
     }
 
     /**

@@ -45,11 +45,11 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
             'toggle',
             'feedbacks' => [
                 'href' => 'table=tl_wem_audiotrack_feedback',
-                'icon' => 'member.gif',
+                'icon' => 'member.svg',
             ],
             'sessions' => [
                 'href' => 'table=tl_wem_audiotrack_session',
-                'icon' => 'su.gif',
+                'icon' => 'su.svg',
             ],
         ],
     ],

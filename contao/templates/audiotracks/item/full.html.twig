@@ -1,0 +1,66 @@
+{% trans_default_domain 'contao_default' %}
+
+{% set session = session|default({}) %}
+
+<div class="audiotrack_full{{ class|default('') }}" data-audiotrack="{{ id }}" itemscope itemtype="https://schema.org/PodcastEpisode">
+    <h1 class="audiotrack__title" itemprop="name">{{ title }}</h1>
+
+    {% if picture %}
+        <div class="audiotrack__figure img-container">
+            <picture>
+                {% if pictureMobile|default %}
+                    <source media="(max-width: 767px)" srcset="{{ pictureMobile }}">
+                {% endif %}
+                <img src="{{ picture }}" alt="" loading="lazy">
+            </picture>
+            {% if pictureText %}
+                <div class="audiotrack__figure__text">{{ pictureText|sanitize_html('contao')|csp_inline_styles|encode_email|insert_tag_raw }}</div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="audiotrack__content">
+        <div class="audiotrack__text">
+            {{ description|sanitize_html('contao')|csp_inline_styles|encode_email|insert_tag_raw }}
+            <div class="audiotrack__listened{{ session.complete|default(false) ? ' active' }}">
+                <i class="far fa-check ft-success ft-1-3-em"></i>
+                <span>{{ 'WEM.AUDIOTRACKS.listened'|trans }}</span>
+            </div>
+        </div>
+        <div class="audiotrack__actions">
+            <button type="button" class="audiotrack__play audiotrack__button"
+                data-id="{{ id }}"
+                data-title="{{ title }}"
+                data-src="{{ audio }}"
+                data-complete="{{ session.complete|default(false) ? 1 : 0 }}"
+                data-current-time="{{ session.currentTime|default(0) }}"
+                data-volume="{{ session.volume|default(1) }}"
+                aria-label="{{ 'WEM.AUDIOTRACKS.play'|trans }}">
+                <i class="fas fa-play"></i><i class="fas fa-pause"></i>
+            </button>
+            {% if canDownload|default %}
+                <a class="audiotrack__download audiotrack__button" href="{{ audio }}" title="{{ 'WEM.AUDIOTRACKS.download'|trans }}" target="_blank" rel="noopener" download><i class="fas fa-download"></i></a>
+            {% endif %}
+            <div class="audiotrack__duration">{{ duration }}</div>
+            {% if date %}
+                <time class="audiotrack__datetime" datetime="{{ datetime }}">{{ date }}</time>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="audiotrack__footer">
+        <div class="audiotrack__tags">
+            {% if tagList|default %}
+                <div class="h4 w-100">{{ ('WEM.AUDIOTRACKS.' ~ (tagList|length > 1 ? 'themes' : 'theme'))|trans }}</div>
+                {% for tag in tagList %}
+                    <span class="tag">{{ tag }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <button type="button" class="audiotrack__likes{{ liked ? ' liked' }}" data-id="{{ id }}" aria-label="{{ 'WEM.AUDIOTRACKS.like'|trans }}">
+            <i class="fal fa-heart empty"></i>
+            <i class="fas fa-heart full"></i>
+            <span class="count">{{ nbLikes ?: '' }}</span>
+        </button>
+    </div>
+</div>

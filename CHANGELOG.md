@@ -1,6 +1,21 @@
 Extension "Audiotracks" for Contao Open Source CMS
 ========
 
+2.0.0
+---
+- ADDED: Contao 5.7 compatibility
+- ADDED: Design overall
+- ADDED: English translations
+- REMOVED: Contao 4.13 compatibility
+- FIXED: AJAX handling (likes & session sync) was never reached; it now lives in a dedicated frontend route (`wem_audiotracks_ajax`, `POST /_wem_audiotracks/{feedback|syncSession}`) protected by the Contao request token
+- FIXED: Custom hooks (`WEMAUDIOTRACKS*`) called non-existing `importStatic()`/`import()` methods
+- FIXED: Missing `Exception` import in `AudiotrackContainer`, wrong DCA reference in list filters
+- UPDATED: Declared controller properties (no more dynamic properties), `generateBreadcrumb` registered with `#[AsHook]`, SVG icons for backend operations
+- ADDED: Twig templates (`frontend_module/wem_audiotracks_*.html.twig`, `audiotracks/item.html.twig`, `audiotracks/item/full.html.twig`, `audiotracks/_player.html.twig`). Legacy `wemaudiotrack_*` template selections are mapped automatically; custom `.html5` overrides must be ported
+- UPDATED: The player is now vanilla JS (`public/audiotracks.js`), jQuery is no longer required
+- CHANGED: `WEMAUDIOTRACKSPARSEITEM` now receives and returns the template data array (see docs/HOOKS.md)
+- UPDATED: Requires PHP ^8.3 and `contao/core-bundle` ^5.7
+
 1.1.0
 ---
 - PHP 8.2 Compatibility

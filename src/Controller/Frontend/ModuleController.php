@@ -14,25 +14,22 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\Controller\Frontend;
 
-use Contao\BackendTemplate;
 use Contao\Config;
 use Contao\CoreBundle\Controller\FrontendModule\AbstractFrontendModuleController;
-use Contao\CoreBundle\Exception\PageNotFoundException;
 use Contao\Environment;
 use Contao\FilesModel;
-use Contao\FrontendTemplate;
-use Contao\Image;
+use Contao\Date;
 use Contao\Input;
 use Contao\Model\Collection;
 use Contao\ModuleModel;
 use Contao\PageModel;
-use Contao\Pagination;
 use Exception;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
 use WEM\AudioTracksBundle\Model\Feedback;
 use WEM\AudioTracksBundle\Model\Session;
 use WEM\AudioTracksBundle\Util\MP3File;
+use Symfony\Component\HttpFoundation\Request;
 use WEM\UtilsBundle\Classes\StringUtil;
 use Contao\System;
 
@@ -40,57 +37,25 @@ abstract class ModuleController extends AbstractFrontendModuleController
 {
     protected ModuleModel $model;
 
-    protected function catchAjaxRequests()
-    {
-        // Catch Ajax Request
-        if (Input::post('TL_AJAX') && (int) $this->id === (int) Input::post('module')) {
-            try {
-                switch (Input::post('action')) {
-                    // Requires audiotrack ID
-                    case 'feedback':
-                        if (!Input::post('audiotrack')) {
-                            throw new Exception('No audiotrack provided');
-                        }
+    /**
+     * Category IDs handled by the module.
+     */
+    protected array $pids = [];
 
-                        $this->updateAudiotrackFeedback(
-                            Input::post('audiotrack'),
-                            'false' !== Input::post('liked'),
-                        );
+    /**
+     * List config.
+     */
+    protected array $config = [];
 
-                        $arrResponse['status'] = 'success';
-                    break;
+    /**
+     * List options.
+     */
+    protected array $options = [];
 
-                    // Requires audiotrack ID, currentTime, volume and complete
-                    case 'syncSession':
-                        if (!Input::post('audiotrack')) {
-                            throw new Exception('No audiotrack provided');
-                        }
-
-                        $this->updateAudiotrackSession(
-                            Input::post('audiotrack'),
-                            Input::post('currentTime') ?: 0,
-                            Input::post('volume') ?: 1,
-                            'true' === Input::post('complete'),
-                        );
-
-                        $arrResponse['status'] = 'success';
-                    break;
-
-                    default:
-                        throw new Exception($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['unknownAjaxAction'], Input::post('action'));
-                }
-            } catch (Exception $e) {
-                $arrResponse['status'] = 'error';
-                $arrResponse['message'] = $e->getMessage();
-            }
-
-            $contaoCsrfTokenManager = System::getContainer()->get('contao.csrf.token_manager');
-            $arrResponse['rt'] = $contaoCsrfTokenManager->getDefaultTokenValue();
-
-            echo json_encode($arrResponse);
-            exit;
-        }
-    }
+    /**
+     * List filters.
+     */
+    protected array $filters = [];
 
     protected function syncFeedFromRemote($id)
     {
@@ -104,43 +69,6 @@ abstract class ModuleController extends AbstractFrontendModuleController
 
         // Launch service
         System::getContainer()->get('wem.audiotracks.rss_feed')->import((int) $id);
-    }
-
-    public function updateAudiotrackFeedback($pid, $like = true): void
-    {
-        $strIp = Environment::get('ip');
-
-        if (false === $like && $objFeedback = Feedback::findItems(['pid' => $pid, 'ip' => $strIp], 1)) {
-            $objFeedback->delete();
-        }
-
-        if (true === $like && 0 === Feedback::countItems(['pid' => $pid, 'ip' => $strIp])) {
-            $objFeedback = new Feedback();
-            $objFeedback->tstamp = time();
-            $objFeedback->createdAt = time();
-            $objFeedback->pid = $pid;
-            $objFeedback->ip = $strIp;
-            $objFeedback->save();
-        }
-    }
-
-    public function updateAudiotrackSession($pid, $currentTime = 0, $volume = 1, $markAsComplete = false): void
-    {
-        $strIp = Environment::get('ip');
-        $objSession = Session::findItems(['pid' => $pid, 'ip' => $strIp], 1);
-
-        if (!$objSession instanceof Collection) {
-            $objSession = new Session();
-            $objSession->createdAt = time();
-            $objSession->pid = $pid;
-            $objSession->ip = $strIp;
-        }
-
-        $objSession->tstamp = time();
-        $objSession->volume = $volume;
-        $objSession->currentTime = $currentTime;
-        $objSession->complete = $markAsComplete ? 1 : '';
-        $objSession->save();
     }
 
     /**
@@ -182,7 +110,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
                     'placeholder' => $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['label'][1] ?: $GLOBALS['TL_LANG']['tl_wem_audiotrack'][$f][1],
                     'value' => Input::get($f) ?: '',
                     'options' => [],
-                    'multiple' => (bool)$GLOBALS['TL_DCA']['tl_wem_job']['fields'][$f]['eval']['multiple'],
+                    'multiple' => (bool)$GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['eval']['multiple'],
                 ];
 
                 switch ($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['inputType']) {
@@ -192,8 +120,8 @@ abstract class ModuleController extends AbstractFrontendModuleController
                             $strClass = $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options_callback'][0];
                             $strMethod = $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options_callback'][1];
 
-                            $this->import($strClass);
-                            $options = $this->$strClass->$strMethod(null, $this->pids);
+                            
+                            $options = System::importStatic($strClass)->$strMethod(null, $this->pids);
                         } elseif (\is_callable($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options_callback'])) {
                             $options = $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options_callback'](null, $this->pids);
                         } elseif (\is_array($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options'])) {
@@ -239,27 +167,27 @@ abstract class ModuleController extends AbstractFrontendModuleController
         // Hook system to customize filters
         if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTFILTERS']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTFILTERS'])) {
             foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTFILTERS'] as $callback) {
-                $this->filters = static::importStatic($callback[0])->{$callback[1]}($this->filters, $this);
+                $this->filters = System::importStatic($callback[0])->{$callback[1]}($this->filters, $this);
             }
         }
 
         // Hook system to customize list config
         if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTCONFIG']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTCONFIG'])) {
             foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTCONFIG'] as $callback) {
-                $this->config = static::importStatic($callback[0])->{$callback[1]}($this->filters, $this->config, $this);
+                $this->config = System::importStatic($callback[0])->{$callback[1]}($this->filters, $this->config, $this);
             }
         }
 
         // Hook system to customize list options
         if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTOPTIONS']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTOPTIONS'])) {
             foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSLISTOPTIONS'] as $callback) {
-                $this->options = static::importStatic($callback[0])->{$callback[1]}($this->filters, $this->config, $this->options, $this);
+                $this->options = System::importStatic($callback[0])->{$callback[1]}($this->filters, $this->config, $this->options, $this);
             }
         }
     }
 
     /**
-     * Parse one or more items and return them as array.
+     * Parse one or more items and return their template data as array.
      *
      * @throws Exception
      */
@@ -285,95 +213,87 @@ abstract class ModuleController extends AbstractFrontendModuleController
     }
 
     /**
-     * Parse an item and return it as string.
-     *
+     * Resolve the item template identifier (e.g. "audiotracks/item/full").
+     * Handles the legacy "wemaudiotrack_*" values saved before the Twig migration.
+     */
+    protected function getItemTemplate(): string
+    {
+        $template = (string) $this->model->wemaudiotracks_template;
+
+        if ('' === $template || 'wemaudiotrack_default' === $template) {
+            return 'audiotracks/item';
+        }
+
+        if (str_starts_with($template, 'wemaudiotrack_')) {
+            return 'audiotracks/item/'.substr($template, \strlen('wemaudiotrack_'));
+        }
+
+        return $template;
+    }
+
+    /**
+     * Parse an item and return the data given to the item template.
      *
      * @throws Exception
      */
-    protected function parseItem(AudioTrack $objItem, bool $blnAddArchive = false, string $strClass = '', int $intCount = 0): string
+    protected function parseItem(AudioTrack $objItem, bool $blnAddArchive = false, string $strClass = '', int $intCount = 0): array
     {
-        $objTemplate = new FrontendTemplate($this->model->wemaudiotracks_template);
-        $objTemplate->setData($objItem->row());
+        $arrData = $objItem->row();
 
-        if ('' !== $objItem->cssClass) {
+        if ('' !== (string) $objItem->cssClass) {
             $strClass = ' '.$objItem->cssClass.$strClass;
         }
 
-        $objTemplate->class = $strClass;
-        $objTemplate->count = $intCount;
+        $arrData['class'] = $strClass;
+        $arrData['count'] = $intCount;
 
         // Add the meta information
-        $objTemplate->date = (int) $objItem->date;
-        $objTemplate->timestamp = $objItem->date;
-        $objTemplate->datetime = date('Y-m-d\TH:i:sP', (int) $objItem->date);
+        $arrData['date'] = $objItem->date ? Date::parse(Config::get('dateFormat'), (int) $objItem->date) : '';
+        $arrData['timestamp'] = $objItem->date;
+        $arrData['datetime'] = $objItem->date ? date('Y-m-d\TH:i:sP', (int) $objItem->date) : '';
 
         // Prepare teaser
-        $objTemplate->teaser = StringUtil::substr($objItem->description, 300);
+        $arrData['teaser'] = StringUtil::substr((string) $objItem->description, 300);
 
-        // Retrieve and parse the picture
-        if ('remote' === $objItem->getRelated('pid')->type && $objItem->pictureRemoteUrl) {
-             $figure = System::getContainer()
-                ->get('contao.image.studio')
-                ->createFigureBuilder()
-                ->from($objItem->pictureRemoteUrl)
-                ->buildIfResourceExists()
-            ;
+        // Tags
+        $arrData['tagList'] = array_values(StringUtil::deserialize($objItem->tags, true));
 
-            if (null !== $figure) {
-                $figure->applyLegacyTemplateData($objTemplate);
-            }
+        $isRemote = 'remote' === $objItem->getRelated('pid')->type;
+
+        // Retrieve and parse the pictures
+        if ($isRemote && $objItem->pictureRemoteUrl) {
+            $arrData['picture'] = $objItem->pictureRemoteUrl;
+            $arrData['pictureMobile'] = null;
         } else {
-            $figure = System::getContainer()
-                ->get('contao.image.studio')
-                ->createFigureBuilder()
-                ->from($objItem->picture)
-                ->setSize($objItem->size)
-                ->enableLightbox((bool) $objItem->fullsize)
-                ->buildIfResourceExists()
-            ;
-
-            if (null !== $figure) {
-                $figure->applyLegacyTemplateData($objTemplate, $objItem->imagemargin, $objItem->floating);
-            }
-
-            /**if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
-                $objTemplate->picture =  \Contao\Image::get($objFile->path, 300, 300);
-            }
-
-            if ($objItem->picture && $objFile = FilesModel::findByUuid($objItem->picture)) {
-                $objTemplate->picture_big =  \Contao\Image::get($objFile->path, 1920, 1080);
-            }
-
-            if ($objItem->picture_mobile && $objFile = FilesModel::findByUuid($objItem->picture_mobile)) {
-                $objTemplate->picture_mobile = \Contao\Image::get($objFile->path, 300, 300);
-            }**/
+            $arrData['picture'] = FilesModel::findByUuid($objItem->picture)?->path;
+            $arrData['pictureMobile'] = FilesModel::findByUuid($objItem->picture_mobile)?->path;
         }
-        
+
         // If item is from remote, file path is different
-        if ('remote' === $objItem->getRelated('pid')->type) {
-            $objTemplate->audio = $objItem->audioRemoteUrl;
+        if ($isRemote) {
+            $arrData['audio'] = $objItem->audioRemoteUrl;
         } else {
-            // If there is no duration and an item
-            // Retrieve the duration and save it in the model
+            // If there is no duration, retrieve it and save it in the model
             $objFile = FilesModel::findByUuid($objItem->audio);
+
             if (!$objItem->duration && $objFile) {
                 $mp3file = new MP3File($objFile->path);
                 $objItem->duration = $mp3file->getDuration();
                 $objItem->save();
             }
 
-            $objTemplate->audio = $objFile->path;
+            $arrData['audio'] = $objFile?->path;
         }
 
-        $objTemplate->duration = ($objItem->duration > 3600) ?
+        $arrData['duration'] = ($objItem->duration > 3600) ?
             sprintf('%s h %s%s min', number_format($objItem->duration / 3600), $objItem->duration / 60 % 60 < 10 ? '0' : '', $objItem->duration / 60 % 60) :
             sprintf('%s min %s%s s', $objItem->duration / 60 % 60, $objItem->duration % 60 < 10 ? '0' : '', $objItem->duration % 60)
         ;
-        $objTemplate->durationRaw = $objItem->duration;
+        $arrData['durationRaw'] = $objItem->duration;
 
         // Retrieve the feedback from this IP
-        $objTemplate->liked = 0 < Feedback::countItems(['pid' => $objItem->id, 'ip' => Environment::get('ip')]);
-        $objTemplate->nbLikes = Feedback::countItems(['pid' => $objItem->id]);
+        $arrData['liked'] = 0 < Feedback::countItems(['pid' => $objItem->id, 'ip' => Environment::get('ip')]);
+        $arrData['nbLikes'] = Feedback::countItems(['pid' => $objItem->id]);
 
         // Retrieve user session if exists
         $objSession = Session::findItems(['pid' => $objItem->id, 'ip' => Environment::get('ip')], 1);
@@ -387,24 +307,22 @@ abstract class ModuleController extends AbstractFrontendModuleController
             ];
         }
 
-        $objTemplate->session = $arrSession;
+        $arrData['session'] = $arrSession;
 
         // Let template know if we can download the item
-        if ($this->model->wemaudiotracks_canDownload) {
-            $objTemplate->canDownload = true;
-        }
+        $arrData['canDownload'] = (bool) $this->model->wemaudiotracks_canDownload;
 
         if ($objTarget = PageModel::findWithDetails($this->model->jumpTo)) {
-            $objTemplate->jumpTo = $objTarget->getFrontendUrl('/' . $objItem->alias);
+            $arrData['jumpTo'] = $objTarget->getFrontendUrl('/'.$objItem->alias);
         }
 
         // Hook system to customize item parsing
         if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'])) {
             foreach ($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'] as $callback) {
-                $objTemplate = static::importStatic($callback[0])->{$callback[1]}($objTemplate, $objItem, $this);
+                $arrData = System::importStatic($callback[0])->{$callback[1]}($arrData, $objItem, $this);
             }
         }
 
-        return $objTemplate->parse();
+        return $arrData;
     }
 }

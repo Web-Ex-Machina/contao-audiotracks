@@ -16,13 +16,14 @@
         "source": "https://github.com/Web-Ex-Machina/contao-audiotracks"
     },
     "require": {
+        "php": "^8.3",
         "ext-json": "*",
-        "contao/core-bundle": "^5.3 || ^5.7",
+        "contao/core-bundle": "^5.7",
         "contao/manager-plugin": "^2.0",
         "laminas/laminas-http": "^2.16",
         "laminas/laminas-feed": "^2.18",
         "menatwork/contao-multicolumnwizard-bundle": "^3.6",
-         "webexmachina/contao-utils": "^2.0"
+        "webexmachina/contao-utils": "^2.0"
     },
     "require-dev": {
         "contao/manager-plugin": "@stable",

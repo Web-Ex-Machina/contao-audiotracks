@@ -14,37 +14,22 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\Controller\Frontend;
 
-use Contao\BackendTemplate;
-use Contao\Config;
 use Contao\CoreBundle\Exception\PageNotFoundException;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsFrontendModule;
 use Contao\CoreBundle\Routing\ResponseContext\HtmlHeadBag\HtmlHeadBag;
 use Contao\CoreBundle\Twig\FragmentTemplate;
 use Contao\Environment;
-use Contao\FilesModel;
-use Contao\FrontendTemplate;
-use Contao\Image;
 use Contao\Input;
-use Contao\Model\Collection;
-use Contao\Module;
 use Contao\ModuleModel;
-use Contao\Pagination;
 use Contao\PageModel;
-use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use WEM\AudioTracksBundle\Model\AudioTrack;
-use WEM\AudioTracksBundle\Model\Category;
-use WEM\AudioTracksBundle\Model\Feedback;
-use WEM\AudioTracksBundle\Model\Session;
-use WEM\AudioTracksBundle\Util\MP3File;
-use WEM\UtilsBundle\Classes\StringUtil;
 use Contao\System;
 
 #[AsFrontendModule(
     ReaderController::TYPE, 
     category: 'wem_audiotracks',
-    template: 'mod_wem_audiotracks_reader'
 )]
 class ReaderController extends ModuleController
 {
@@ -52,6 +37,8 @@ class ReaderController extends ModuleController
      * Module name
      */
     public const TYPE = 'wem_audiotracks_reader';
+
+    protected ?AudioTrack $track = null;
 
     /**
      * Generate module response
@@ -69,7 +56,7 @@ class ReaderController extends ModuleController
             throw new PageNotFoundException('Page not found: ' . Environment::get('uri'));
         }
 
-         $this->model = $model;
+        $this->model = $model;
 
         if ($model->overviewPage) {
             $template->referer = PageModel::findById($model->overviewPage)->getFrontendUrl();
@@ -78,8 +65,8 @@ class ReaderController extends ModuleController
 
         $this->overwriteMetadata();
 
-        $template->buffer = $this->parseItem($this->track);
-        $template->moduleId = $model->id;
+        $template->item = $this->parseItem($this->track);
+        $template->item_template = $this->getItemTemplate();
 
         return $template->getResponse();
     }

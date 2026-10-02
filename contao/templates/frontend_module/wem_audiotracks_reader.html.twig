@@ -1,0 +1,18 @@
+{% extends '@Contao/frontend_module/_base.html.twig' %}
+
+{% set item_template_name = '@Contao/' ~ item_template ~ '.html.twig' %}
+
+{% block content %}
+    <link rel="stylesheet" href="{{ asset('bundles/audiotracks/audiotracks.css') }}">
+    <script src="{{ asset('bundles/audiotracks/audiotracks.js') }}" defer></script>
+
+    {% include item_template_name with item only %}
+
+    {% include '@Contao/audiotracks/_player.html.twig' only %}
+
+    {% if referer|default %}
+        <!-- indexer::stop -->
+        <p class="back"><a class="btn" href="{{ referer }}" title="{{ back }}">{{ back }}</a></p>
+        <!-- indexer::continue -->
+    {% endif %}
+{% endblock %}

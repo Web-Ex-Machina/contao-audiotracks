@@ -65,7 +65,6 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_links'] = [
     'sql' => 'blob NULL',
 ];
 $GLOBALS['TL_DCA']['tl_module']['fields']['wemaudiotracks_template'] = [
-    'default' => 'wemaudiotrack_default',
     'exclude' => true,
     'inputType' => 'select',
     'eval' => ['tl_class' => 'w50'],

@@ -20,6 +20,7 @@ use Contao\DataContainer;
 use Contao\FilesModel;
 use Contao\Message;
 use Contao\System;
+use Exception;
 use WEM\UtilsBundle\Classes\StringUtil;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
@@ -64,7 +65,7 @@ class AudiotrackContainer
         try {
             System::getContainer()->get('wem.audiotracks.rss_feed')->generate($objItem->pid);
             Message::addConfirmation('RSS Feed saved');
-        } catch(\Exception $exception) {
+        } catch (Exception $exception) {
             Message::addError($exception->getMessage());
         }
     }

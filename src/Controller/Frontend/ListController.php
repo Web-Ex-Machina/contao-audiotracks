@@ -14,33 +14,25 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\Controller\Frontend;
 
-use Contao\BackendTemplate;
 use Contao\Config;
 use Contao\CoreBundle\Exception\PageNotFoundException;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsFrontendModule;
 use Contao\CoreBundle\Twig\FragmentTemplate;
 use Contao\Environment;
-use Contao\Image;
 use Contao\Input;
 use Contao\Model\Collection;
-use Contao\Module;
 use Contao\ModuleModel;
 use Contao\Pagination;
-use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
-use WEM\AudioTracksBundle\Model\Feedback;
-use WEM\AudioTracksBundle\Model\Session;
-use WEM\AudioTracksBundle\Util\MP3File;
 use WEM\UtilsBundle\Classes\StringUtil;
 use Contao\System;
 
 #[AsFrontendModule(
     ListController::TYPE, 
     category: 'wem_audiotracks',
-    template: 'mod_wem_audiotracks_list'
 )]
 class ListController extends ModuleController
 {
@@ -48,11 +40,6 @@ class ListController extends ModuleController
      * Module name
      */
     public const TYPE = 'wem_audiotracks_list';
-
-    /**
-     * List config.
-     */
-    protected array $config = [];
 
     /**
      * List limit.
@@ -65,14 +52,9 @@ class ListController extends ModuleController
     protected int $offset = 0;
 
     /**
-     * List options.
+     * Current page.
      */
-    protected array $options = [];
-
-    /**
-     * List filters.
-     */
-    protected array $filters = [];
+    protected int $page = 1;
 
     /**
      * Generate module response
@@ -110,6 +92,7 @@ class ListController extends ModuleController
          // Retrieve filters
         $this->buildFilters();
         $template->filters = $this->filters;
+        $template->add_filters = (bool) $model->wemaudiotracks_addFilters;
 
         // Retrieve feed links
         if ($model->wemaudiotracks_links) {
@@ -136,7 +119,7 @@ class ListController extends ModuleController
 
             // Get the current page
             $id = 'page_n'.$model->id;
-            $this->page = Input::get($id) ?? 1;
+            $this->page = (int) (Input::get($id) ?? 1);
 
             // Do not index or cache the page if the page number is outside the range
             if ($this->page < 1 || $this->page > max(ceil($total / $model->perPage), 1)) {
@@ -168,10 +151,9 @@ class ListController extends ModuleController
         // Add the articles
         if ($objItems instanceof Collection) {
             $template->items = $this->parseItems($objItems);
+            $template->item_template = $this->getItemTemplate();
         }
 
-        $template->module_id = $model->id;
-        $template->addFilters = $model->wemaudiotracks_addFilters;
 
         return $template->getResponse();
     }
