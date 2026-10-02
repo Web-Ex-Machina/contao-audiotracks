@@ -77,7 +77,8 @@ class CategoryContainer
     public function syncRemoteRssButton(DataContainerOperation $operation): void
     {
         $row = $operation->getRecord();
-        if ('remote' !== $row['type'] && !array_key_exists('rssRemoteUrl', $row) && "" !== $row['rssRemoteUrl']) {
+        // Only remote categories with a remote url can be synced
+        if ('remote' !== ($row['type'] ?? '') || empty($row['rssRemoteUrl'])) {
             $operation->hide();
         }
 

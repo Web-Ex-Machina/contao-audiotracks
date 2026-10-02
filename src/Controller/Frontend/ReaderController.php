@@ -52,7 +52,8 @@ class ReaderController extends ModuleController
 
         $this->track = AudioTrack::findByIdOrAlias(Input::get('auto_item'));
 
-        if (!$this->track) {
+        // Unpublished or out of its start / stop dates: the page does not exist
+        if (!$this->track || !$this->track->isPublished()) {
             throw new PageNotFoundException('Page not found: ' . Environment::get('uri'));
         }
 

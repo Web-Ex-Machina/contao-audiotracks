@@ -14,7 +14,7 @@ class GenerateBreadcrumbListener
     public function __invoke(array $items, Module $module): array
     {
         // Check if we have an auto_item and if it's a audio item
-        if (Input::get('auto_item') && $objItem = AudioTrack::findByIdOrAlias(Input::get('auto_item'))) {
+        if (Input::get('auto_item') && ($objItem = AudioTrack::findByIdOrAlias(Input::get('auto_item'))) && $objItem->isPublished()) {
             array_pop($items);
             $items[] = [
                 'isRoot' => false,

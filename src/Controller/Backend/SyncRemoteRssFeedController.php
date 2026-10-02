@@ -37,7 +37,7 @@ class SyncRemoteRssFeedController extends AbstractController
 
         $objItem = Category::findByPk($dc->id);
 
-        if ('remote' !== $objItem->type && !$objItem->rssRemoteUrl) {
+        if (!$objItem || 'remote' !== $objItem->type || !$objItem->rssRemoteUrl) {
             return;
         }
 

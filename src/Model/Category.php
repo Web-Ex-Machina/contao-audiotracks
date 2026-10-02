@@ -15,6 +15,8 @@ declare(strict_types=1);
 namespace WEM\AudioTracksBundle\Model;
 
 use Contao\Environment;
+use Contao\System;
+use Symfony\Component\Filesystem\Path;
 use WEM\UtilsBundle\Model\Model;
 
 /**
@@ -49,7 +51,7 @@ class Category extends Model
     }
 
     /**
-     * Generate path for RSS
+     * Generate the absolute path for RSS (inside the web directory, ie: public/)
      */
     public function getRssFeedPath(): string
     {
@@ -57,6 +59,6 @@ class Category extends Model
             return $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssNoFilename'];
         }
 
-        return 'web/' . static::$strRssFolder . $this->rssFilename;
+        return Path::join(System::getContainer()->getParameter('contao.web_dir'), static::$strRssFolder, $this->rssFilename);
     }
 }

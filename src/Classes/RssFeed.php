@@ -3,8 +3,9 @@
 namespace WEM\AudioTracksBundle\Classes;
 
 use Contao\CoreBundle\Framework\ContaoFramework;
+use Contao\Database;
 use Contao\Environment;
-use Contao\File;
+use Symfony\Component\Filesystem\Filesystem;
 use Contao\FilesModel;
 use Contao\Message;
 use Exception;
@@ -33,7 +34,7 @@ class RssFeed
     {        
         $objItem = Category::findByPk($id);
 
-        if (!$objItem->rss) {
+        if (!$objItem || !$objItem->rss || !$objItem->rssFilename) {
             return;
         }
 
@@ -57,11 +58,8 @@ class RssFeed
 
         $buffer = $feed->export($objItem->rssType);
 
-        // Open the file
-        $path = $objItem->getRssFeedPath();
-        $objFile = new File($path);
-        $objFile->write($buffer);
-        $objFile->close();
+        // The feed is written in the web directory (public/), where the feed URL points to
+        (new Filesystem())->dumpFile($objItem->getRssFeedPath(), $buffer);
     }
 
     /**
@@ -159,7 +157,8 @@ class RssFeed
         }
 
         // Itunes fields
-        $feed->setItunesBlock("yes");
+        // "yes" would hide the podcast from Apple Podcasts
+        $feed->setItunesBlock("no");
         $feed->setItunesType($objItem->tracksType);
         $feed->setItunesExplicit('1' === $objItem->explicit);
         $feed->setItunesComplete('1' === $objItem->complete);
@@ -203,13 +202,8 @@ class RssFeed
         $entry->setCopyright($objCategory->rssCopyright);
 
         $uuid = $objItem->picture ?: $objCategory->picture;
+        // The episode picture is only an iTunes image, the enclosure is the audio file
         if ($objFile = FilesModel::findByUuid($uuid)) {
-            $entry->setEnclosure([
-                'type' => mime_content_type($objFile->path),
-                'uri' => Environment::get('base') . $objFile->path,
-                'length' => filesize($objFile->path)
-            ]);
-
             $entry->setItunesImage(Environment::get('base') . $objFile->path);
         }
 
@@ -247,7 +241,8 @@ class RssFeed
     {
         $objItem = Category::findByPk($id);
 
-        if ('remote' !== $objItem->type && !$objItem->rssRemoteUrl) {
+        // Only remote categories with a remote url can be imported
+        if (!$objItem || 'remote' !== $objItem->type || !$objItem->rssRemoteUrl) {
             return;
         }
 
@@ -261,10 +256,9 @@ class RssFeed
         $objItem->rssLink = $feed->getLink();
         $objItem->createdAt = $feed->getDateCreated()->getTimestamp();
         $objItem->tstamp = $feed->getDateModified()->getTimestamp();
-        $objItem->rssRemoteLastSync = $feed->getDateModified()->getTimestamp();
         $objItem->rssCopyright = $feed->getCopyright();
         $objItem->tracksType = $feed->getPodcastType();
-        $objItem->complete = (bool) $feed->getPodcastType() ? '1' : '';
+        $objItem->complete = $feed->isComplete() ? '1' : '';
         $objItem->explicit = (bool) $feed->getExplicit() ? '1' : '';
 
         // Update picture
@@ -278,37 +272,31 @@ class RssFeed
         // Update categories
         $categories = $feed->getItunesCategories();
         if ($categories && !empty($categories)) {
-            $data = [];
-            foreach ($categories as $k => $c) {
-                $data[] = $k;
-            }
+            $data = array_keys($categories);
 
             if (!empty($data)) {
                 $objItem->categories = serialize($data);
             }
         }
 
-        // Parse authors & owners
-        $arrAuthors = [];
-
-        // @todo Update authors
-        $authors = $feed->getAuthors();
-        if ($authors && !empty($authors)) {
-            foreach ($authors as $a) {
-
-            }
-        }
-
-        // Update owner
+        // Update owner, expected format: "email (name)"
         // @todo try with more formats?
+        $arrAuthors = [];
         $owner = $feed->getOwner();
         if ($owner) {
-            $str = explode(' (', $owner);
-            $arrAuthors[] = [
-                'name' => substr($str[1], 0, -1),
-                'email' => $str[0],
-                'uri' => '',
-            ];
+            if (preg_match('/^(.*?)\s*\((.*)\)$/', $owner, $matches)) {
+                $arrAuthors[] = [
+                    'name' => $matches[2],
+                    'email' => $matches[1],
+                    'uri' => '',
+                ];
+            } else {
+                $arrAuthors[] = [
+                    'name' => $owner,
+                    'email' => '',
+                    'uri' => '',
+                ];
+            }
         }
 
         $objItem->authors = serialize($arrAuthors);
@@ -316,46 +304,22 @@ class RssFeed
         // Save item
         $objItem->save();
 
-        $data = [
-            'getImage' => $feed->getImage(),
-            'getGenerator' => $feed->getGenerator(),
-            'getHubs' => $feed->getHubs(),
-            'entries'      => [],
-        ];
-
         // Import tracks
+        $arrImportedIds = [];
         foreach ($feed as $entry) {
-            $edata = [
-                'id'           => $entry->getId(),
-                'title'        => $entry->getTitle(),
-                'description'  => $entry->getDescription(),
-                'dateCreated'  => $entry->getDateCreated(),
-                'dateModified' => $entry->getDateModified(),
-                'authors'      => $entry->getAuthors(),
-                'link'         => $entry->getLink(),
-                'content'      => $entry->getContent(),
-                'enclosure'    => $entry->getEnclosure(),
-                'baseUrl'      => $entry->getBaseUrl(),
-                'links'        => $entry->getLinks(),
-                'permalink'    => $entry->getPermalink(),
-                'commentCount' => $entry->getCommentCount(),
-                'categories'   => $entry->getCategories(),
-                'source'       => $entry->getSource(),
-                'explicit'     => $entry->getPlayPodcastExplicit(),
-                'castAuthor'   => $entry->getCastAuthor(),
-                'duration'     => $entry->getDuration(),
-                'subtitle'     => $entry->getSubtitle(),
-                'itunesImage'  => $entry->getItunesImage(),
-                'episode'      => $entry->getEpisode(),
-                'episodeType'  => $entry->getEpisodeType(),
-                'isCC'         => $entry->isClosedCaptioned(),
-                'season'       => $entry->getSeason(),
-                'transcript'   => $entry->getTranscript(),
-                'chapters'     => $entry->getChapters(),
-                'soundBites'   => $entry->getSoundbites(),
-            ];
-            $data['entries'][] = $edata;
-            $objTrack = $this->importTrack($entry, $objItem);
+            $arrImportedIds[] = $this->importTrack($entry, $objItem)->uuid;
+        }
+
+        // Episodes that are no longer in the feed are unpublished
+        // (nothing is done if the feed is empty, it is probably an error on the remote side)
+        if ([] !== $arrImportedIds) {
+            Database::getInstance()
+                ->prepare(sprintf(
+                    "UPDATE tl_wem_audiotrack SET published = '' WHERE pid = ? AND uuid != '' AND uuid NOT IN (%s)",
+                    implode(',', array_fill(0, \count($arrImportedIds), '?'))
+                ))
+                ->execute($objItem->id, ...$arrImportedIds)
+            ;
         }
 
         $objItem->rssRemoteLastSync = time();
@@ -366,11 +330,16 @@ class RssFeed
     {
         // Try to retrieve an existing track
         $objTrack = AudioTrack::findItems(['pid' => $objCategory->id, 'uuid' => $entry->getId()], 1);
+        $isNew = !$objTrack instanceof \Contao\Model\Collection;
 
-        if (!$objTrack instanceof \Contao\Model\Collection) {
+        if ($isNew) {
             $objTrack = new AudioTrack();
             $objTrack->uuid = $entry->getId();
             $objTrack->pid = $objCategory->id;
+
+            // A new episode is published by default, but we never republish an episode
+            // that has been unpublished on purpose (or because it left the feed)
+            $objTrack->published = 1;
         } else {
             $objTrack = $objTrack->current();
         }
@@ -381,26 +350,24 @@ class RssFeed
         $objTrack->date = $entry->getDateCreated()->getTimestamp();
         $objTrack->season = $entry->getSeason() ?: 1;
         $objTrack->episode = $entry->getEpisode() ?: 1;
-        $objTrack->audioRemoteUrl = $entry->getLink();
         $objTrack->type = $entry->getEpisodeType();
         $objTrack->description = $entry->getDescription();
         $objTrack->explicit = $objCategory->explicit;
         // $objTrack->tags = $entry->getTitle();
-        $objTrack->published = 1;
 
-        // Parse duration
+        // The audio file is the enclosure, the link is the web page of the episode
+        $enclosure = $entry->getEnclosure();
+        $objTrack->audioRemoteUrl = $enclosure && !empty($enclosure->url) ? $enclosure->url : $entry->getLink();
+
+        // Parse duration: "ss", "mm:ss" or "hh:mm:ss"
         $duration = $entry->getDuration();
         if ($duration) {
-            $chunks = explode(':', $duration);
-            $objTrack->duration = ((int) $chunks[0] * 60 * 60) + ((int) $chunks[1] * 60) + (int) $chunks[2];
-        }
+            $seconds = 0;
+            foreach (explode(':', (string) $duration) as $chunk) {
+                $seconds = $seconds * 60 + (int) $chunk;
+            }
 
-        // Update enclosure
-        $enclosure = $entry->getEnclosure();
-
-            
-        if ($enclosure) {
-            // @todo
+            $objTrack->duration = $seconds;
         }
 
         // Update picture

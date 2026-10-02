@@ -42,7 +42,8 @@ class AudiotrackContainer
         $objItem = AudioTrack::findByPk($dc->id);
         $objCategory = $objItem->getRelated('pid');
         
-        if ('remote' !== $objCategory->type && !$objCategory->rssRemoteUrl) {
+        // Remote tracks have no local file, only the remote urls
+        if ('remote' !== $objCategory?->type) {
             return;
         }
 
