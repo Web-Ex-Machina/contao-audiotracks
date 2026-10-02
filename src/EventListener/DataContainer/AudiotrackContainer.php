@@ -3,13 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\EventListener\DataContainer;
@@ -20,28 +18,27 @@ use Contao\DataContainer;
 use Contao\FilesModel;
 use Contao\Message;
 use Contao\System;
-use Exception;
-use WEM\UtilsBundle\Classes\StringUtil;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
 use WEM\AudioTracksBundle\Util\MP3File;
+use WEM\UtilsBundle\Classes\StringUtil;
 use WEM\UtilsBundle\Model\Model;
 
 class AudiotrackContainer
 {
     /**
-     * Update palette for remote tracks
-     */ 
+     * Update palette for remote tracks.
+     */
     #[AsCallback(table: 'tl_wem_audiotrack', target: 'config.onload')]
     public function updatePalettes(DataContainer $dc): void
     {
         if (!$dc->id) {
             return;
         }
-        
-        $objItem = AudioTrack::findByPk($dc->id);
+
+        $objItem = AudioTrack::findById($dc->id);
         $objCategory = $objItem->getRelated('pid');
-        
+
         // Remote tracks have no local file, only the remote urls
         if ('remote' !== $objCategory?->type) {
             return;
@@ -51,7 +48,7 @@ class AudiotrackContainer
     }
 
     /**
-     * Generate the RSS feed
+     * Generate the RSS feed.
      */
     #[AsCallback(table: 'tl_wem_audiotrack', target: 'config.onsubmit')]
     public function generateRssFeed(DataContainer $dc): void
@@ -59,13 +56,13 @@ class AudiotrackContainer
         if (!$dc->id) {
             return;
         }
-        
-        $objItem = AudioTrack::findByPk($dc->id);
+
+        $objItem = AudioTrack::findById($dc->id);
 
         try {
             System::getContainer()->get('wem.audiotracks.rss_feed')->generate($objItem->pid);
             Message::addConfirmation($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssSaved']);
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             Message::addError($exception->getMessage());
         }
     }
@@ -76,26 +73,27 @@ class AudiotrackContainer
     #[AsCallback(table: 'tl_wem_audiotrack', target: 'list.sorting.child_record')]
     public function listItems(array $r): string
     {
-        return sprintf(
+        return \sprintf(
             '%s',
-            $r['title']
+            $r['title'],
         );
     }
 
     /**
      * Auto-generate an article alias if it has not been set yet.
-     * @throws Exception
+     *
+     * @throws \Exception
      */
     #[AsCallback(table: 'tl_wem_audiotrack', target: 'fields.alias.save')]
     public function generateAlias($varValue, DataContainer $dc): string
     {
-        $aliasExists = fn(string $alias): bool => Database::getInstance()->prepare('SELECT id FROM tl_wem_audiotrack WHERE alias=? AND id!=?')->execute($alias, $dc->id)->numRows > 0;
+        $aliasExists = static fn (string $alias): bool => Database::getInstance()->prepare('SELECT id FROM tl_wem_audiotrack WHERE alias=? AND id!=?')->execute($alias, $dc->id)->numRows > 0;
 
         // Generate an alias if there is none
         if (!$varValue) {
             $varValue = System::getContainer()->get('contao.slug')->generate($dc->activeRecord->title, $dc->activeRecord->id, $aliasExists);
         } elseif ($aliasExists($varValue)) {
-            throw new Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
+            throw new \Exception(\sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
         }
 
         return $varValue;
@@ -117,13 +115,14 @@ class AudiotrackContainer
      * Retrieve tags in the parent table.
      *
      * @return array ['tag1','tag2', ...]
+     *
      * @throws \Exception
      */
     #[AsCallback(table: 'tl_wem_audiotrack', target: 'fields.tags.options')]
-    public function getTags(?DataContainer $dc, ?array $arrPids = null): array
+    public function getTags(DataContainer|null $dc, array|null $arrPids = null): array
     {
         if ($dc instanceof DataContainer) {
-            $objItem = AudioTrack::findByPk($dc->id);
+            $objItem = AudioTrack::findById($dc->id);
             $objCategory = $objItem->getRelated('pid');
 
             if (!$objCategory->tags) {
@@ -135,11 +134,13 @@ class AudiotrackContainer
 
         if (null !== $arrPids) {
             $arrTags = [];
+
             foreach ($arrPids as $id) {
-                $objCategory = Category::findByPk($id);
+                $objCategory = Category::findById($id);
                 if (!$objCategory) {
                     continue;
                 }
+
                 if (!$objCategory->tags) {
                     continue;
                 }
@@ -165,7 +166,7 @@ class AudiotrackContainer
     public function getParentValue($varValue, DataContainer $dc)
     {
         if (!$varValue) {
-            $objItem = AudioTrack::findByPk($dc->id);
+            $objItem = AudioTrack::findById($dc->id);
             $varValue = $objItem->getRelated('pid')->authors;
         }
 
@@ -175,13 +176,13 @@ class AudiotrackContainer
     /**
      * Sync basic data between pivot tables.
      *
-     * @param array $varValues Usually an array of IDs
-     * @param string $strTable Table where to sync
-     * @param int $intParentId Parent ID
+     * @param array  $varValues       Usually an array of IDs
+     * @param string $strTable        Table where to sync
+     * @param int    $intParentId     Parent ID
      * @param string $strParentField  Parent Field
      * @param string $strForeignField Foreign field where to sync values
      */
-    private function syncData(?array $varValues, string $strTable, int $intParentId, string $strParentField, string $strForeignField): void
+    private function syncData(array|null $varValues, string $strTable, int $intParentId, string $strParentField, string $strForeignField): void
     {
         // Found Model class
         $stdModel = Model::getClassFromTable($strTable);
@@ -202,17 +203,17 @@ class AudiotrackContainer
         }
 
         // step 2 - remove all ids not in $varValues
-        if (null !== $varValues && $varValues !== []) {
+        if (null !== $varValues && [] !== $varValues) {
             Database::getInstance()->prepare(
-                sprintf(
+                \sprintf(
                     "DELETE FROM %s WHERE %s = %s AND %s NOT IN ('%s')",
                     $strTable,
                     $strParentField,
                     $intParentId,
                     $strForeignField,
-                    implode("','", $varValues)
-                )
+                    implode("','", $varValues),
+                ),
             )->execute();
         }
-    }   
+    }
 }

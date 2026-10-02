@@ -3,22 +3,20 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\Controller\Frontend;
 
-use Contao\CoreBundle\Exception\PageNotFoundException;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsFrontendModule;
+use Contao\CoreBundle\Exception\PageNotFoundException;
+use Contao\CoreBundle\Exception\PageOutOfRangeException;
 use Contao\CoreBundle\Pagination\PaginationConfig;
 use Contao\CoreBundle\Pagination\PaginationFactoryInterface;
-use Contao\CoreBundle\Exception\PageOutOfRangeException;
 use Contao\CoreBundle\Twig\FragmentTemplate;
 use Contao\Model\Collection;
 use Contao\ModuleModel;
@@ -28,16 +26,15 @@ use WEM\AudioTracksBundle\Classes\SchemaOrgBuilder;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
 use WEM\UtilsBundle\Classes\StringUtil;
-use Contao\System;
 
 #[AsFrontendModule(
-    ListController::TYPE, 
+    ListController::TYPE,
     category: 'wem_audiotracks',
 )]
 class ListController extends ModuleController
 {
     /**
-     * Module name
+     * Module name.
      */
     public const TYPE = 'wem_audiotracks_list';
 
@@ -49,7 +46,7 @@ class ListController extends ModuleController
     }
 
     /**
-     * Generate module response
+     * Generate module response.
      */
     protected function getResponse(FragmentTemplate $template, ModuleModel $model, Request $request): Response
     {
@@ -60,7 +57,7 @@ class ListController extends ModuleController
 
         $this->pids = StringUtil::deserialize($model->wemaudiotracks_categories, true);
 
-        if (empty($this->pids)) {
+        if ([] === $this->pids) {
             return new Response('');
         }
 
@@ -73,7 +70,7 @@ class ListController extends ModuleController
         // Build config
         $this->config = ['pid' => $this->pids, 'published' => 1];
 
-         // Retrieve filters
+        // Retrieve filters
         $this->buildFilters();
         $template->filters = $this->filters;
         $template->add_filters = (bool) $model->wemaudiotracks_addFilters;
@@ -84,7 +81,8 @@ class ListController extends ModuleController
             $template->links = $this->getLinks($types);
         }
 
-        // Number of items to skip at the beginning, and maximum number of items displayed (all the pages included)
+        // Number of items to skip at the beginning, and maximum number of items
+        // displayed (all the pages included)
         $skip = (int) $model->skipFirst;
         $maxItems = $model->numberOfItems > 0 ? (int) $model->numberOfItems : 0;
 
@@ -113,7 +111,8 @@ class ListController extends ModuleController
             }
 
             $offset += $pagination->getOffset();
-            // The last page can be shorter, and the maximum number of items applies to the whole list
+            // The last page can be shorter, and the maximum number of items applies to the
+            // whole list
             $length = min((int) $model->perPage, $total - $pagination->getOffset());
             $template->pagination = $pagination;
         }
@@ -124,8 +123,10 @@ class ListController extends ModuleController
         if ($objItems instanceof Collection) {
             $items = $this->parseItems($objItems);
 
-            // The graph keeps one node per schema.org type, so a list is described with a single ItemList
+            // The graph keeps one node per schema.org type, so a list is described with a
+            // single ItemList
             $listItems = [];
+
             foreach ($items as $index => $item) {
                 if (!empty($item['schemaOrg'])) {
                     $listItems[] = ['@type' => 'ListItem', 'position' => ($pagination?->getOffset() ?? 0) + $index + 1, 'item' => $item['schemaOrg']];
@@ -134,7 +135,7 @@ class ListController extends ModuleController
                 unset($items[$index]['schemaOrg']);
             }
 
-            if ($listItems) {
+            if ([] !== $listItems) {
                 $template->schema_org = ['@type' => 'ItemList', 'itemListElement' => $listItems];
             }
 
@@ -142,19 +143,18 @@ class ListController extends ModuleController
             $template->item_template = $this->getItemTemplate();
         }
 
-
         return $template->getResponse();
     }
 
     protected function getLinks(array $types): array
     {
         $links = [];
-        
+
         foreach ($this->pids as $pid) {
             // Get the model
-            $objCategory = Category::findByPk($pid);
+            $objCategory = Category::findById($pid);
 
-            if (!array_key_exists($pid, $links)) {
+            if (!\array_key_exists($pid, $links)) {
                 $links[$pid] = $objCategory->row();
                 $links[$pid]['links'] = [];
             }
@@ -170,9 +170,9 @@ class ListController extends ModuleController
                         $links[$pid]['links'][$t] = [
                             'href' => $href,
                             'title' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['links'][$t],
-                            'icon' => '<i class="fa-solid fa-square-rss"></i>'
+                            'icon' => '<i class="fa-solid fa-square-rss"></i>',
                         ];
-                    break;
+                        break;
 
                     default:
                         // Nuthin'

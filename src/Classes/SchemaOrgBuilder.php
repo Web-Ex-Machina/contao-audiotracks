@@ -3,19 +3,18 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\Classes;
 
 use Contao\CoreBundle\String\HtmlDecoder;
 use Contao\Environment;
+use Contao\FilesModel;
 use Contao\StringUtil;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
@@ -72,12 +71,15 @@ class SchemaOrgBuilder
         ];
 
         if ($track->season) {
-            $episode['partOfSeason'] = array_filter([
-                '@type' => 'PodcastSeason',
-                'name' => $this->buildSeasonName($category, (string) $track->season),
-                'seasonNumber' => is_numeric($track->season) ? (int) $track->season : $track->season,
-                'partOfSeries' => $series,
-            ], static fn ($v) => null !== $v && '' !== $v);
+            $episode['partOfSeason'] = array_filter(
+                [
+                    '@type' => 'PodcastSeason',
+                    'name' => $this->buildSeasonName($category, (string) $track->season),
+                    'seasonNumber' => is_numeric($track->season) ? (int) $track->season : $track->season,
+                    'partOfSeries' => $series,
+                ],
+                static fn ($v): bool => null !== $v && '' !== $v,
+            );
         }
 
         if (!empty($data['audio'])) {
@@ -120,14 +122,14 @@ class SchemaOrgBuilder
 
     private function buildSeasonName(Category $category, string $season): string
     {
-        return sprintf('%s - %s %s', $category->title, $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['season'] ?? 'Season', $season);
+        return \sprintf('%s - %s %s', $category->title, $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['season'] ?? 'Season', $season);
     }
 
     /**
-     * Authors are defined on the track, or inherited from its category.
-     * Emails are not exposed on purpose.
+     * Authors are defined on the track, or inherited from its category. Emails are
+     * not exposed on purpose.
      */
-    private function buildAuthors(AudioTrack $track, Category $category): ?array
+    private function buildAuthors(AudioTrack $track, Category $category): array|null
     {
         $authors = StringUtil::deserialize($track->authors, true) ?: StringUtil::deserialize($category->authors, true);
         $persons = [];
@@ -152,21 +154,21 @@ class SchemaOrgBuilder
         return !$track->explicit && !$category->explicit;
     }
 
-    private function getMimeType(string $path): ?string
+    private function getMimeType(string $path): string|null
     {
         return self::MIME_TYPES[strtolower(pathinfo(parse_url($path, PHP_URL_PATH) ?: $path, PATHINFO_EXTENSION))] ?? null;
     }
 
-    private function getFileUrl(mixed $uuid): ?string
+    private function getFileUrl(mixed $uuid): string|null
     {
-        if (!$uuid || !($file = \Contao\FilesModel::findByUuid($uuid))) {
+        if (!$uuid || !($file = FilesModel::findByUuid($uuid))) {
             return null;
         }
 
         return $this->absoluteUrl($file->path);
     }
 
-    private function absoluteUrl(?string $url): ?string
+    private function absoluteUrl(string|null $url): string|null
     {
         if (!$url) {
             return null;
@@ -179,7 +181,7 @@ class SchemaOrgBuilder
         return Environment::get('base').ltrim($url, '/');
     }
 
-    private function toPlainText(string $html): ?string
+    private function toPlainText(string $html): string|null
     {
         $text = trim($this->htmlDecoder->htmlToPlainText($html));
 
@@ -187,9 +189,9 @@ class SchemaOrgBuilder
     }
 
     /**
-     * Seconds to ISO 8601 duration, ie: 3476 => PT57M56S
+     * Seconds to ISO 8601 duration, ie: 3476 => PT57M56S.
      */
-    private function isoDuration(int $seconds): ?string
+    private function isoDuration(int $seconds): string|null
     {
         if ($seconds < 1) {
             return null;
@@ -207,6 +209,6 @@ class SchemaOrgBuilder
      */
     private function clean(array $data): array
     {
-        return array_filter($data, static fn ($v) => null !== $v && '' !== $v && [] !== $v);
+        return array_filter($data, static fn ($v): bool => null !== $v && '' !== $v && [] !== $v);
     }
 }

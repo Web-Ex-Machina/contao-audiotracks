@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WEM\AudioTracksBundle\EventListener;
 
 use Contao\CoreBundle\DependencyInjection\Attribute\AsHook;

@@ -3,13 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\Migration;
@@ -21,8 +19,9 @@ use Symfony\Component\Filesystem\Path;
 use WEM\AudioTracksBundle\Util\MP3File;
 
 /**
- * The duration of a track is computed when it is saved in the back end. It used to be computed (and saved)
- * during the first page view: the tracks that never have been displayed yet do not have one.
+ * The duration of a track is computed when it is saved in the back end. It used
+ * to be computed (and saved) during the first page view: the tracks that never
+ * have been displayed yet do not have one.
  */
 class DurationMigration extends AbstractMigration
 {
@@ -50,7 +49,7 @@ class DurationMigration extends AbstractMigration
             }
         }
 
-        return $this->createResult(true, sprintf('Computed the duration of %d audiotrack(s).', $done));
+        return $this->createResult(true, \sprintf('Computed the duration of %d audiotrack(s).', $done));
     }
 
     /**
@@ -65,7 +64,7 @@ class DurationMigration extends AbstractMigration
         }
 
         $rows = $this->connection->fetchAllKeyValue(
-            "SELECT t.id, f.path FROM tl_wem_audiotrack t INNER JOIN tl_files f ON f.uuid = t.audio WHERE t.duration = 0 AND f.path LIKE '%.mp3'"
+            "SELECT t.id, f.path FROM tl_wem_audiotrack t INNER JOIN tl_files f ON f.uuid = t.audio WHERE t.duration = 0 AND f.path LIKE '%.mp3'",
         );
 
         $missing = [];

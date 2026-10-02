@@ -3,13 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\ContaoManager;
@@ -26,14 +24,9 @@ use WEM\AudioTracksBundle\AudioTracksBundle;
 
 /**
  * Plugin for the Contao Manager.
- *
- * @author Web ex Machina <https://www.webexmachina.fr>
  */
 class Plugin implements BundlePluginInterface, RoutingPluginInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getBundles(ParserInterface $parser): array
     {
         return [

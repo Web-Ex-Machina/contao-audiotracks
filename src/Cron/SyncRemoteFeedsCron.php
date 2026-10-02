@@ -3,13 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\Cron;
@@ -20,8 +18,8 @@ use Psr\Log\LoggerInterface;
 use WEM\AudioTracksBundle\Classes\RssFeed;
 
 /**
- * Imports the remote RSS feeds of the "remote" categories, outside of the visitors requests.
- * A feed that fails does not prevent the others from being imported.
+ * Imports the remote RSS feeds of the "remote" categories, outside of the visitors
+ * requests. A feed that fails does not prevent the others from being imported.
  */
 #[AsCronJob('hourly')]
 class SyncRemoteFeedsCron
@@ -41,7 +39,7 @@ class SyncRemoteFeedsCron
             try {
                 $this->rssFeed->import((int) $id);
             } catch (\Throwable $e) {
-                $this->logger->error(sprintf('Audiotracks: the remote feed of the category %d could not be imported: %s', $id, $e->getMessage()));
+                $this->logger->error(\sprintf('Audiotracks: the remote feed of the category %d could not be imported: %s', $id, $e->getMessage()));
             }
         }
     }

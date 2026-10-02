@@ -3,21 +3,19 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\EventListener\DataContainer;
 
-use Contao\CoreBundle\DependencyInjection\Attribute\AsCallback;
 use Contao\Controller;
-use Contao\Database;
+use Contao\CoreBundle\DependencyInjection\Attribute\AsCallback;
 use Contao\CoreBundle\Twig\Finder\FinderFactory;
+use Contao\Database;
 
 class ModuleContainer
 {
@@ -36,7 +34,8 @@ class ModuleContainer
             ->extension('html.twig')
             ->withVariants()
             ->excludePartials()
-            ->asTemplateOptions();
+            ->asTemplateOptions()
+        ;
     }
 
     /**

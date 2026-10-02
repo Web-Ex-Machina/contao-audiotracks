@@ -3,13 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\EventListener\DataContainer;
@@ -24,10 +22,6 @@ class FeedbackContainer
     #[AsCallback(table: 'tl_wem_audiotrack_feedback', target: 'list.sorting.child_record')]
     public function listItems(array $r): string
     {
-        return sprintf(
-            '%s',
-            // The IP is stored encrypted, only a fingerprint is displayed
-            substr((string) $r['ip'], 0, 12).'…'
-        );
+        return substr((string) $r['ip'], 0, 12).'…';
     }
 }

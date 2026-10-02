@@ -3,45 +3,43 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\Controller\Frontend;
 
-use Contao\CoreBundle\Exception\PageNotFoundException;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsFrontendModule;
+use Contao\CoreBundle\Exception\PageNotFoundException;
 use Contao\CoreBundle\Routing\ResponseContext\HtmlHeadBag\HtmlHeadBag;
 use Contao\CoreBundle\Twig\FragmentTemplate;
 use Contao\Environment;
 use Contao\Input;
 use Contao\ModuleModel;
 use Contao\PageModel;
+use Contao\System;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use WEM\AudioTracksBundle\Model\AudioTrack;
-use Contao\System;
 
 #[AsFrontendModule(
-    ReaderController::TYPE, 
+    ReaderController::TYPE,
     category: 'wem_audiotracks',
 )]
 class ReaderController extends ModuleController
 {
     /**
-     * Module name
+     * Module name.
      */
     public const TYPE = 'wem_audiotracks_reader';
 
-    protected ?AudioTrack $track = null;
+    protected AudioTrack|null $track = null;
 
     /**
-     * Generate module response
+     * Generate module response.
      */
     protected function getResponse(FragmentTemplate $template, ModuleModel $model, Request $request): Response
     {
@@ -53,8 +51,8 @@ class ReaderController extends ModuleController
         $this->track = AudioTrack::findByIdOrAlias(Input::get('auto_item'));
 
         // Unpublished or out of its start / stop dates: the page does not exist
-        if (!$this->track || !$this->track->isPublished()) {
-            throw new PageNotFoundException('Page not found: ' . Environment::get('uri'));
+        if (!$this->track instanceof AudioTrack || !$this->track->isPublished()) {
+            throw new PageNotFoundException('Page not found: '.Environment::get('uri'));
         }
 
         $this->model = $model;

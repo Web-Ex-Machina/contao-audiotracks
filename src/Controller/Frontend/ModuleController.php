@@ -3,45 +3,34 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\Controller\Frontend;
 
 use Contao\Config;
-use Doctrine\DBAL\ArrayParameterType;
 use Contao\CoreBundle\Controller\FrontendModule\AbstractFrontendModuleController;
-use Contao\Environment;
-use Contao\FilesModel;
 use Contao\Date;
+use Contao\FilesModel;
 use Contao\Input;
 use Contao\Model\Collection;
 use Contao\ModuleModel;
 use Contao\PageModel;
-use Exception;
+use Contao\System;
+use Doctrine\DBAL\ArrayParameterType;
 use WEM\AudioTracksBundle\Classes\SchemaOrgBuilder;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
 use WEM\AudioTracksBundle\Model\Feedback;
-use Symfony\Component\HttpFoundation\Request;
 use WEM\UtilsBundle\Classes\StringUtil;
-use Contao\System;
 
 abstract class ModuleController extends AbstractFrontendModuleController
 {
     protected ModuleModel $model;
-
-    public function __construct(
-        protected readonly SchemaOrgBuilder $schemaOrgBuilder,
-    )
-    {
-    }
 
     /**
      * Category IDs handled by the module.
@@ -82,10 +71,14 @@ abstract class ModuleController extends AbstractFrontendModuleController
 
     private PageModel|false|null $targetPage = false;
 
+    public function __construct(protected readonly SchemaOrgBuilder $schemaOrgBuilder)
+    {
+    }
+
     /**
      * Retrieve list filters.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function buildFilters(): void
     {
@@ -121,7 +114,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
                     'placeholder' => $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['label'][1] ?: $GLOBALS['TL_LANG']['tl_wem_audiotrack'][$f][1],
                     'value' => Input::get($f) ?: '',
                     'options' => [],
-                    'multiple' => (bool)$GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['eval']['multiple'],
+                    'multiple' => (bool) $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['eval']['multiple'],
                 ];
 
                 switch ($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['inputType']) {
@@ -131,7 +124,6 @@ abstract class ModuleController extends AbstractFrontendModuleController
                             $strClass = $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options_callback'][0];
                             $strMethod = $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options_callback'][1];
 
-                            
                             $options = System::importStatic($strClass)->$strMethod(null, $this->pids);
                         } elseif (\is_callable($GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options_callback'])) {
                             $options = $GLOBALS['TL_DCA']['tl_wem_audiotrack']['fields'][$f]['options_callback'](null, $this->pids);
@@ -155,6 +147,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
 
                         if ($objOptions && 0 < $objOptions->count()) {
                             $filter['type'] = 'select';
+
                             while ($objOptions->next()) {
                                 $filter['options'][] = [
                                     'value' => $objOptions->{$f},
@@ -200,11 +193,11 @@ abstract class ModuleController extends AbstractFrontendModuleController
     /**
      * Parse one or more items and return their template data as array.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function parseItems(Collection $objItems, bool $blnAddArchive = false): array
     {
-        /** @var AudioTrack[] $items */
+        /** @var array<AudioTrack> $items */
         $items = $objItems->getModels();
         $limit = \count($items);
 
@@ -212,24 +205,26 @@ abstract class ModuleController extends AbstractFrontendModuleController
             return [];
         }
 
-        // Everything the items need is loaded with a few queries, not with a few queries per item
+        // Everything the items need is loaded with a few queries, not with a few queries
+        // per item
         $this->preload($items);
 
         $count = 0;
         $arrArticles = [];
 
         foreach ($items as $objItem) {
-            $arrArticles[] = $this->parseItem($objItem, $blnAddArchive, ((1 === ++$count) ? ' first' : '').(($count === $limit) ? ' last' : '').((0 === ($count % 2)) ? ' odd' : ' even'), $count);
+            $arrArticles[] = $this->parseItem($objItem, $blnAddArchive, (1 === ++$count ? ' first' : '').($count === $limit ? ' last' : '').(0 === $count % 2 ? ' odd' : ' even'), $count);
         }
 
         return $arrArticles;
     }
 
     /**
-     * Load, for a list of items, their categories, their files and their likes counters at once.
-     * The getters below use it, and fall back on a query for what has not been preloaded (reader).
+     * Load, for a list of items, their categories, their files and their likes
+     * counters at once. The getters below use it, and fall back on a query for what
+     * has not been preloaded (reader).
      *
-     * @param AudioTrack[] $items
+     * @param array<AudioTrack> $items
      */
     protected function preload(array $items): void
     {
@@ -270,7 +265,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
         $counters = System::getContainer()->get('database_connection')->fetchAllKeyValue(
             'SELECT pid, COUNT(*) FROM tl_wem_audiotrack_feedback WHERE pid IN (?) GROUP BY pid',
             [$ids],
-            [ArrayParameterType::INTEGER]
+            [ArrayParameterType::INTEGER],
         );
 
         foreach ($counters as $pid => $counter) {
@@ -278,12 +273,12 @@ abstract class ModuleController extends AbstractFrontendModuleController
         }
     }
 
-    protected function getCategory(int $pid): ?Category
+    protected function getCategory(int $pid): Category|null
     {
-        return $this->categories[$pid] ??= Category::findByPk($pid);
+        return $this->categories[$pid] ??= Category::findById($pid);
     }
 
-    protected function getFile(mixed $uuid): ?FilesModel
+    protected function getFile(mixed $uuid): FilesModel|null
     {
         if (!$uuid) {
             return null;
@@ -304,7 +299,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
     /**
      * The page the items link to, found once for all the items.
      */
-    protected function getTargetPage(): ?PageModel
+    protected function getTargetPage(): PageModel|null
     {
         if (false === $this->targetPage) {
             $this->targetPage = $this->model->jumpTo ? PageModel::findWithDetails($this->model->jumpTo) : null;
@@ -314,8 +309,8 @@ abstract class ModuleController extends AbstractFrontendModuleController
     }
 
     /**
-     * Resolve the item template identifier (e.g. "audiotracks/item/full").
-     * Falls back to the default one if the template of the module does not exist (anymore).
+     * Resolve the item template identifier (e.g. "audiotracks/item/full"). Falls back
+     * to the default one if the template of the module does not exist (anymore).
      */
     protected function getItemTemplate(): string
     {
@@ -331,7 +326,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
     /**
      * Parse an item and return the data given to the item template.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function parseItem(AudioTrack $objItem, bool $blnAddArchive = false, string $strClass = '', int $intCount = 0): array
     {
@@ -370,27 +365,29 @@ abstract class ModuleController extends AbstractFrontendModuleController
         // If item is from remote, file path is different
         $arrData['audio'] = $isRemote ? $objItem->audioRemoteUrl : $this->getFile($objItem->audio)?->path;
 
-        // The duration is computed when the item is saved (and by a migration for the old ones), never during a page view
-        $arrData['duration'] = ($objItem->duration > 3600) ?
-            sprintf('%s h %s%s min', number_format($objItem->duration / 3600), $objItem->duration / 60 % 60 < 10 ? '0' : '', $objItem->duration / 60 % 60) :
-            sprintf('%s min %s%s s', $objItem->duration / 60 % 60, $objItem->duration % 60 < 10 ? '0' : '', $objItem->duration % 60)
-        ;
+        // The duration is computed when the item is saved (and by a migration for the
+        // old ones), never during a page view
+        $arrData['duration'] = $objItem->duration > 3600 ?
+            \sprintf('%s h %s%s min', number_format($objItem->duration / 3600), $objItem->duration / 60 % 60 < 10 ? '0' : '', $objItem->duration / 60 % 60) :
+            \sprintf('%s min %s%s s', $objItem->duration / 60 % 60, $objItem->duration % 60 < 10 ? '0' : '', $objItem->duration % 60);
         $arrData['durationRaw'] = $objItem->duration;
 
-        // Nothing that depends on the visitor (liked, listening session) is rendered here, the page can be cached:
-        // the player gets it from the StateController. The likes counter is the same for everybody.
+        // Nothing that depends on the visitor (liked, listening session) is rendered
+        // here, the page can be cached: the player gets it from the StateController. The
+        // likes counter is the same for everybody.
         $arrData['nbLikes'] = $this->getLikes((int) $objItem->id);
 
         // Let template know if we can download the item
         $arrData['canDownload'] = (bool) $this->model->wemaudiotracks_canDownload;
 
-        if ($objTarget = $this->getTargetPage()) {
-            // Items without alias (imported before the alias generation) are reachable with their id
+        if (($objTarget = $this->getTargetPage()) instanceof PageModel) {
+            // Items without alias (imported before the alias generation) are reachable with
+            // their id
             $arrData['jumpTo'] = $objTarget->getFrontendUrl('/'.($objItem->alias ?: $objItem->id));
         }
 
         // schema.org JSON-LD, given to the template with add_schema_org()
-        $arrData['schemaOrg'] = $objCategory ? $this->schemaOrgBuilder->buildEpisode($objItem, $objCategory, $arrData) : null;
+        $arrData['schemaOrg'] = $objCategory instanceof Category ? $this->schemaOrgBuilder->buildEpisode($objItem, $objCategory, $arrData) : null;
 
         // Hook system to customize item parsing
         if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'])) {

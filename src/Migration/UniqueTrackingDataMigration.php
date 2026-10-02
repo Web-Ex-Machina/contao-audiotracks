@@ -3,13 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\Migration;
@@ -19,9 +17,10 @@ use Contao\CoreBundle\Migration\MigrationResult;
 use Doctrine\DBAL\Connection;
 
 /**
- * A visitor can only have one feedback and one session per track: (pid, ip) is a unique key.
+ * A visitor can only have one feedback and one session per track: (pid, ip) is a
+ * unique key.
  *  - the duplicates are removed (the most recent one is kept)
- *  - the feedbacks detached from their visitor (empty ip) get a unique placeholder
+ *  - the feedbacks detached from their visitor (empty ip) get a unique placeholder.
  */
 class UniqueTrackingDataMigration extends AbstractMigration
 {
@@ -58,7 +57,7 @@ class UniqueTrackingDataMigration extends AbstractMigration
 
             // Keep the most recent row of each (pid, ip)
             $deleted += $this->connection->executeStatement(
-                "DELETE a FROM $table a INNER JOIN $table b ON a.pid = b.pid AND a.ip = b.ip AND a.id < b.id WHERE a.ip != ''"
+                "DELETE a FROM $table a INNER JOIN $table b ON a.pid = b.pid AND a.ip = b.ip AND a.id < b.id WHERE a.ip != ''",
             );
         }
 
@@ -66,11 +65,11 @@ class UniqueTrackingDataMigration extends AbstractMigration
         if ($this->tableReady('tl_wem_audiotrack_feedback')) {
             $detached = $this->connection->executeStatement(
                 "UPDATE tl_wem_audiotrack_feedback SET ip = CONCAT(?, id) WHERE ip = ''",
-                [self::PURGED_PREFIX]
+                [self::PURGED_PREFIX],
             );
         }
 
-        return $this->createResult(true, sprintf('Removed %d duplicated feedback/session row(s), %d feedback(s) detached from their visitor.', $deleted, $detached));
+        return $this->createResult(true, \sprintf('Removed %d duplicated feedback/session row(s), %d feedback(s) detached from their visitor.', $deleted, $detached));
     }
 
     private function tableReady(string $table): bool

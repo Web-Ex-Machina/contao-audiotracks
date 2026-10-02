@@ -35,3 +35,12 @@ After an update from a previous version, run `contao:migrate`: it encrypts the I
 
 - The pages of the list and of the reader are the same for every visitor, so Contao's page cache (or a reverse proxy) can serve them. What depends on the visitor (the likes he made, where he stopped listening) is loaded by the player after the page is displayed, from `GET /_wem_audiotracks/state?ids=…`, a private response that is never cached. The like counters are rendered in the page and refreshed by the player.
 - The remote RSS feeds are imported every hour by the Contao cron (`SyncRemoteFeedsCron`). If you do not use the poor man's cron, make sure the Contao cron is called by the system cron (`contao:cron`). The "sync" button in the category list imports a feed immediately.
+
+## Development
+
+```bash
+composer install
+vendor/bin/phpunit          # the migration tests need a MySQL server, see AUDIOTRACKS_TEST_DSN in tests/Migration/DatabaseTestCase.php
+vendor/bin/ecs check
+vendor/bin/rector process --dry-run
+```

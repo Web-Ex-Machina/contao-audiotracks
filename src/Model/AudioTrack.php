@@ -3,21 +3,17 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\Model;
 
 use Contao\Model\Collection;
 use Contao\System;
-use Exception;
-
 use WEM\UtilsBundle\Model\Model;
 
 /**
@@ -35,22 +31,21 @@ class AudioTrack extends Model
     /**
      * Find items, depends on the arguments.
      *
-     * @param array $arrConfig Request Config
-     * @param int $intLimit Query Limit
-     * @param int $intOffset Query Offset
+     * @param array $arrConfig  Request Config
+     * @param int   $intLimit   Query Limit
+     * @param int   $intOffset  Query Offset
      * @param array $arrOptions Query Options
      *
-     * @return Collection
-     * @throws Exception
+     * @throws \Exception
      */
-    public static function findItems(array $arrConfig = [], int $intLimit = 0, int $intOffset = 0, array $arrOptions = []): ?Collection
+    public static function findItems(array $arrConfig = [], int $intLimit = 0, int $intOffset = 0, array $arrOptions = []): Collection|null
     {
         $t = static::$strTable;
         // Catch sorting by subtable
         if (!empty($arrOptions['order']) && str_contains($arrOptions['order'], 'mostLiked')) {
-            $arrOptions['select'] = $t . '.*, COUNT(twaf.id) AS nbLikes';
-            $arrOptions['join'][] = sprintf('LEFT JOIN tl_wem_audiotrack_feedback twaf on %s.id = twaf.pid', $t);
-            $arrOptions['group'] = $t . '.id';
+            $arrOptions['select'] = $t.'.*, COUNT(twaf.id) AS nbLikes';
+            $arrOptions['join'][] = \sprintf('LEFT JOIN tl_wem_audiotrack_feedback twaf on %s.id = twaf.pid', $t);
+            $arrOptions['group'] = $t.'.id';
 
             $arrOptions['order'] = 'DESC' === substr($arrOptions['order'], -4, 4) ? 'nbLikes DESC' : 'nbLikes ASC';
         }
@@ -69,14 +64,15 @@ class AudioTrack extends Model
     {
         $arrColumns = [];
         $t = static::$strTable;
+
         switch ($strField) {
             case 'pid':
                 if (!$varValue || !\is_array($varValue)) {
                     $varValue = [$varValue];
                 }
 
-                $arrColumns[] = sprintf(sprintf("%s.pid IN('%%s')", $t), implode("','", $varValue));
-            break;
+                $arrColumns[] = \sprintf(\sprintf("%s.pid IN('%%s')", $t), implode("','", $varValue));
+                break;
 
             // Respect the publication state and the start / stop dates (not in preview mode)
             case 'published':
@@ -85,17 +81,17 @@ class AudioTrack extends Model
                 }
 
                 $time = time();
-                $arrColumns[] = sprintf("(%s.published = '1' AND (%s.start = '' OR %s.start <= %d) AND (%s.stop = '' OR %s.stop > %d))", $t, $t, $t, $time, $t, $t, $time);
-            break;
+                $arrColumns[] = \sprintf("(%s.published = '1' AND (%s.start = '' OR %s.start <= %d) AND (%s.stop = '' OR %s.stop > %d))", $t, $t, $t, $time, $t, $t, $time);
+                break;
 
             case 'tags':
-                $arrColumns[] = sprintf(sprintf("%s.id IN(SELECT twat.pid FROM tl_wem_audiotrack_tag twat WHERE twat.tag IN('%%s'))", $t), implode("','", $varValue));
-            break;
+                $arrColumns[] = \sprintf(\sprintf("%s.id IN(SELECT twat.pid FROM tl_wem_audiotrack_tag twat WHERE twat.tag IN('%%s'))", $t), implode("','", $varValue));
+                break;
 
             case 'search':
                 $strKeywords = implode('|', $varValue);
-                $arrColumns[] = sprintf("(%s.title REGEXP '%s' OR %s.description REGEXP '%s')", $t, $strKeywords, $t, $strKeywords);
-            break;
+                $arrColumns[] = \sprintf("(%s.title REGEXP '%s' OR %s.description REGEXP '%s')", $t, $strKeywords, $t, $strKeywords);
+                break;
 
             // Load parent
             default:
@@ -106,7 +102,8 @@ class AudioTrack extends Model
     }
 
     /**
-     * Check if the item can be displayed in the frontend (published and within its start / stop dates).
+     * Check if the item can be displayed in the frontend (published and within its
+     * start / stop dates).
      */
     public function isPublished(): bool
     {

@@ -3,13 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\Migration;
@@ -20,7 +18,8 @@ use Doctrine\DBAL\Connection;
 use WEM\AudioTracksBundle\Classes\ClientIdentifier;
 
 /**
- * Encrypts the IP addresses stored in clear by the previous versions (feedbacks and sessions).
+ * Encrypts the IP addresses stored in clear by the previous versions (feedbacks
+ * and sessions).
  */
 class EncryptIpMigration extends AbstractMigration
 {
@@ -54,13 +53,13 @@ class EncryptIpMigration extends AbstractMigration
             }
         }
 
-        return $this->createResult(true, sprintf('Encrypted %d IP address(es) of the audiotracks feedbacks and sessions.', $count));
+        return $this->createResult(true, \sprintf('Encrypted %d IP address(es) of the audiotracks feedbacks and sessions.', $count));
     }
 
     /**
      * @return array<int, string> [id => ip]
      */
-    private function getRawIps(string $table, ?int $limit = null): array
+    private function getRawIps(string $table, int|null $limit = null): array
     {
         $schemaManager = $this->connection->createSchemaManager();
 
@@ -68,7 +67,8 @@ class EncryptIpMigration extends AbstractMigration
             return [];
         }
 
-        // An IPv4 / IPv6 only contains these characters, the encrypted values contain more (base64)
+        // An IPv4 / IPv6 only contains these characters, the encrypted values contain
+        // more (base64)
         $rows = $this->connection->fetchAllKeyValue("SELECT id, ip FROM $table WHERE ip REGEXP '^[0-9a-fA-F:.]+\$'");
         $raw = array_filter($rows, fn (string $ip): bool => $this->clientIdentifier->isRawIp($ip));
 

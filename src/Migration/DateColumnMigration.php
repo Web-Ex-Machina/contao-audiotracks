@@ -3,13 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\Migration;
@@ -38,7 +36,7 @@ class DateColumnMigration extends AbstractMigration
     {
         $count = $this->connection->executeStatement("UPDATE tl_wem_audiotrack SET date = '0' WHERE date = '' OR date NOT REGEXP '^[0-9]+\$'");
 
-        return $this->createResult(true, sprintf('Reset the empty date of %d audiotrack(s).', $count));
+        return $this->createResult(true, \sprintf('Reset the empty date of %d audiotrack(s).', $count));
     }
 
     private function isStringColumn(): bool

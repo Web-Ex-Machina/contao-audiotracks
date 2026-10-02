@@ -3,22 +3,20 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\Controller;
 
 use Contao\Model\Collection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 use WEM\AudioTracksBundle\Classes\ClientIdentifier;
 use WEM\AudioTracksBundle\Model\AudioTrack;
@@ -26,8 +24,9 @@ use WEM\AudioTracksBundle\Model\Feedback;
 use WEM\AudioTracksBundle\Model\Session;
 
 /**
- * Endpoint used by the frontend player to store the likes and the listening sessions.
- * The Contao request token (REQUEST_TOKEN) is checked by the core for POST requests.
+ * Endpoint used by the frontend player to store the likes and the listening
+ * sessions. The Contao request token (REQUEST_TOKEN) is checked by the core for
+ * POST requests.
  */
 #[AsController]
 #[Route(
@@ -47,7 +46,7 @@ class AjaxController
     {
         $audiotrack = (int) $request->request->get('audiotrack');
 
-        if ($audiotrack < 1 || null === AudioTrack::findByPk($audiotrack)) {
+        if ($audiotrack < 1 || null === AudioTrack::findById($audiotrack)) {
             return new JsonResponse(['status' => 'error', 'message' => $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['noAudiotrack'] ?? 'No audiotrack provided'], 400);
         }
 
@@ -63,6 +62,7 @@ class AjaxController
 
         return new JsonResponse(['status' => 'success']);
     }
+
     private function updateFeedback(int $pid, bool $like): void
     {
         $strIp = $this->clientIdentifier->get();
@@ -90,7 +90,8 @@ class AjaxController
     {
         $strIp = $this->clientIdentifier->get();
 
-        // The (pid, ip) key is unique: if a parallel request created the session meanwhile, we update it
+        // The (pid, ip) key is unique: if a parallel request created the session
+        // meanwhile, we update it
         for ($attempt = 1; $attempt <= 2; ++$attempt) {
             $objSession = Session::findItems(['pid' => $pid, 'ip' => $strIp], 1);
 

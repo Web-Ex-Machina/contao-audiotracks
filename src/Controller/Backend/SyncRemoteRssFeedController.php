@@ -16,7 +16,6 @@ use Contao\CoreBundle\Controller\AbstractController;
 use Contao\DataContainer;
 use Contao\Message;
 use Contao\System;
-use Exception;
 use WEM\AudioTracksBundle\Model\Category;
 
 /**
@@ -24,18 +23,13 @@ use WEM\AudioTracksBundle\Model\Category;
  */
 class SyncRemoteRssFeedController extends AbstractController
 {
-    public function __construct(
-
-    ) {
-    }
-
     public function run(DataContainer $dc): void
     {
         if (!$dc->id) {
             return;
         }
 
-        $objItem = Category::findByPk($dc->id);
+        $objItem = Category::findById($dc->id);
 
         if (!$objItem || 'remote' !== $objItem->type || !$objItem->rssRemoteUrl) {
             return;
@@ -45,7 +39,7 @@ class SyncRemoteRssFeedController extends AbstractController
             System::getContainer()->get('wem.audiotracks.rss_feed')->import((int) $dc->id);
 
             Message::addConfirmation($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssImported']);
-        } catch(Exception $exception) {
+        } catch (\Exception $exception) {
             Message::addError($exception->getMessage());
         }
     }

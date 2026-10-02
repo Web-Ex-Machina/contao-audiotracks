@@ -3,13 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Audiotracks for Contao Open Source CMS
- * Copyright (c) 2023 Web ex Machina
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
  *
  * @category ContaoBundle
- * @package  Web-Ex-Machina/contao-audiotracks
- * @author   Web ex Machina <contact@webexmachina.fr>
- * @link     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
  */
 
 namespace WEM\AudioTracksBundle\EventListener\DataContainer;
@@ -21,14 +19,13 @@ use Contao\Database;
 use Contao\DataContainer;
 use Contao\Message;
 use Contao\System;
-use Exception;
-use WEM\AudioTracksBundle\Model\Category;
 use Symfony\Component\Uid\Uuid;
+use WEM\AudioTracksBundle\Model\Category;
 
 class CategoryContainer
 {
     /**
-     * Display the location of the rss feed
+     * Display the location of the rss feed.
      */
     #[AsCallback(table: 'tl_wem_audiotrack_category', target: 'config.onload')]
     public function displayRssUrl(DataContainer $dc): void
@@ -36,8 +33,8 @@ class CategoryContainer
         if (!$dc->id) {
             return;
         }
-        
-        $objItem = Category::findByPk($dc->id);
+
+        $objItem = Category::findById($dc->id);
 
         $url = $objItem->rss ? $objItem->getRssFeedUrl() : null;
 
@@ -45,11 +42,11 @@ class CategoryContainer
             return;
         }
 
-        Message::addInfo(sprintf($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssLocation'], sprintf('<a href="%1$s" title="%2$s" target="_blank">%1$s</a>', $url, $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssGoTo'])));
+        Message::addInfo(\sprintf($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssLocation'], \sprintf('<a href="%1$s" title="%2$s" target="_blank">%1$s</a>', $url, $GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssGoTo'])));
     }
 
     /**
-     * Generate the RSS feed
+     * Generate the RSS feed.
      */
     #[AsCallback(table: 'tl_wem_audiotrack_category', target: 'config.onsubmit')]
     public function generateRssFeed(DataContainer $dc): void
@@ -58,7 +55,7 @@ class CategoryContainer
             return;
         }
 
-        $objItem = Category::findByPk($dc->id);
+        $objItem = Category::findById($dc->id);
 
         if (!$objItem->rss) {
             return;
@@ -68,7 +65,7 @@ class CategoryContainer
             System::getContainer()->get('wem.audiotracks.rss_feed')->generate((int) $dc->id);
 
             Message::addConfirmation($GLOBALS['TL_LANG']['WEM']['AUDIOTRACKS']['rssSaved']);
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             Message::addError($exception->getMessage());
         }
     }
@@ -82,24 +79,25 @@ class CategoryContainer
             $operation->hide();
         }
 
-        $url = Controller::addToUrl($operation->getUrl() . '&amp;id=' .$row['id']);
+        $url = Controller::addToUrl($operation->getUrl().'&amp;id='.$row['id']);
         $operation->setUrl($url);
     }
 
     /**
      * Auto-generate an article alias if it has not been set yet.
-     * @throws Exception
+     *
+     * @throws \Exception
      */
     #[AsCallback(table: 'tl_wem_audiotrack_category', target: 'fields.alias.save')]
     public function generateAlias(mixed $varValue, DataContainer $dc): string
     {
-        $aliasExists = fn(string $alias): bool => Database::getInstance()->prepare('SELECT id FROM tl_wem_audiotrack_category WHERE alias=? AND id!=?')->execute($alias, $dc->id)->numRows > 0;
+        $aliasExists = static fn (string $alias): bool => Database::getInstance()->prepare('SELECT id FROM tl_wem_audiotrack_category WHERE alias=? AND id!=?')->execute($alias, $dc->id)->numRows > 0;
 
         // Generate an alias if there is none
         if (!$varValue) {
             $varValue = System::getContainer()->get('contao.slug')->generate($dc->activeRecord->title, $dc->activeRecord->id, $aliasExists);
         } elseif ($aliasExists($varValue)) {
-            throw new Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
+            throw new \Exception(\sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
         }
 
         return $varValue;
@@ -107,7 +105,8 @@ class CategoryContainer
 
     /**
      * Auto-generate an article alias if it has not been set yet.
-     * @throws Exception
+     *
+     * @throws \Exception
      */
     #[AsCallback(table: 'tl_wem_audiotrack_category', target: 'fields.rssNamespace.load')]
     public function generateNamespace(mixed $varValue, DataContainer $dc): string
@@ -119,4 +118,3 @@ class CategoryContainer
         return $varValue;
     }
 }
-
