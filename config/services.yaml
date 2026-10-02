@@ -18,3 +18,7 @@ services:
     WEM\AudioTracksBundle\Cron\PurgeTrackingDataCron:
         arguments:
             $retentionMonths: '%wem_audiotracks.retention_months%'
+
+    WEM\AudioTracksBundle\Migration\DurationMigration:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

@@ -9,6 +9,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Contao\FilesModel;
 use Contao\Message;
 use Contao\StringUtil;
+use Contao\System;
 use Exception;
 use Laminas\Feed\Reader\Reader;
 use Laminas\Feed\Writer\Feed;
@@ -330,6 +331,19 @@ class RssFeed
         $objItem->save();
     }
 
+    /**
+     * Generate a unique alias for an imported track.
+     */
+    protected function generateAlias(string $title, int $id): string
+    {
+        $aliasExists = static fn (string $alias): bool => Database::getInstance()
+            ->prepare('SELECT id FROM tl_wem_audiotrack WHERE alias = ? AND id != ?')
+            ->execute($alias, $id)
+            ->numRows > 0;
+
+        return System::getContainer()->get('contao.slug')->generate($title, [], $aliasExists);
+    }
+
     protected function importTrack($entry, $objCategory): AudioTrack
     {
         // Try to retrieve an existing track
@@ -352,6 +366,12 @@ class RssFeed
         $objTrack->tstamp = $entry->getDateModified()->getTimestamp();
         $objTrack->createdAt = $entry->getDateCreated()->getTimestamp();
         $objTrack->title = $entry->getTitle();
+
+        // The alias is used in the url of the reader
+        if (!$objTrack->alias) {
+            $objTrack->alias = $this->generateAlias((string) $objTrack->title, (int) $objTrack->id);
+        }
+
         $objTrack->date = $entry->getDateCreated()->getTimestamp();
         $objTrack->season = $entry->getSeason() ?: 1;
         $objTrack->episode = $entry->getEpisode() ?: 1;

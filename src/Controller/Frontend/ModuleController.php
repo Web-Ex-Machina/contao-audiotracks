@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace WEM\AudioTracksBundle\Controller\Frontend;
 
 use Contao\Config;
+use Doctrine\DBAL\ArrayParameterType;
 use Contao\CoreBundle\Controller\FrontendModule\AbstractFrontendModuleController;
 use Contao\Environment;
 use Contao\FilesModel;
@@ -28,7 +29,6 @@ use WEM\AudioTracksBundle\Classes\SchemaOrgBuilder;
 use WEM\AudioTracksBundle\Model\AudioTrack;
 use WEM\AudioTracksBundle\Model\Category;
 use WEM\AudioTracksBundle\Model\Feedback;
-use WEM\AudioTracksBundle\Util\MP3File;
 use Symfony\Component\HttpFoundation\Request;
 use WEM\UtilsBundle\Classes\StringUtil;
 use Contao\System;
@@ -62,6 +62,25 @@ abstract class ModuleController extends AbstractFrontendModuleController
      * List filters.
      */
     protected array $filters = [];
+
+    /**
+     * What the items need, loaded once (see preload()).
+     *
+     * @var array<int, Category>
+     */
+    private array $categories = [];
+
+    /**
+     * @var array<string, FilesModel|null> indexed by binary uuid
+     */
+    private array $files = [];
+
+    /**
+     * @var array<int, int> likes counter by item
+     */
+    private array $likes = [];
+
+    private PageModel|false|null $targetPage = false;
 
     /**
      * Retrieve list filters.
@@ -185,23 +204,113 @@ abstract class ModuleController extends AbstractFrontendModuleController
      */
     protected function parseItems(Collection $objItems, bool $blnAddArchive = false): array
     {
-        $limit = $objItems->count();
+        /** @var AudioTrack[] $items */
+        $items = $objItems->getModels();
+        $limit = \count($items);
 
         if ($limit < 1) {
             return [];
         }
 
+        // Everything the items need is loaded with a few queries, not with a few queries per item
+        $this->preload($items);
+
         $count = 0;
         $arrArticles = [];
 
-        while ($objItems->next()) {
-            /** @var AudioTrack $objItem */
-            $objItem = $objItems->current();
-
+        foreach ($items as $objItem) {
             $arrArticles[] = $this->parseItem($objItem, $blnAddArchive, ((1 === ++$count) ? ' first' : '').(($count === $limit) ? ' last' : '').((0 === ($count % 2)) ? ' odd' : ' even'), $count);
         }
 
         return $arrArticles;
+    }
+
+    /**
+     * Load, for a list of items, their categories, their files and their likes counters at once.
+     * The getters below use it, and fall back on a query for what has not been preloaded (reader).
+     *
+     * @param AudioTrack[] $items
+     */
+    protected function preload(array $items): void
+    {
+        $ids = array_map(static fn (AudioTrack $item): int => (int) $item->id, $items);
+        $pids = array_values(array_unique(array_map(static fn (AudioTrack $item): int => (int) $item->pid, $items)));
+
+        // Categories
+        $categories = Category::findMultipleByIds($pids);
+
+        foreach ($categories ?? [] as $category) {
+            $this->categories[(int) $category->id] = $category;
+        }
+
+        // Files: audio and pictures of the items
+        $uuids = [];
+
+        foreach ($items as $item) {
+            foreach (['picture', 'picture_mobile', 'audio'] as $field) {
+                if ($item->$field) {
+                    $uuids[$item->$field] = $item->$field;
+                }
+            }
+        }
+
+        if ([] !== $uuids) {
+            foreach (FilesModel::findMultipleByUuids(array_values($uuids)) ?? [] as $file) {
+                $this->files[$file->uuid] = $file;
+            }
+
+            foreach ($uuids as $uuid) {
+                $this->files[$uuid] ??= null;
+            }
+        }
+
+        // Likes counters
+        $this->likes = array_fill_keys($ids, 0);
+
+        $counters = System::getContainer()->get('database_connection')->fetchAllKeyValue(
+            'SELECT pid, COUNT(*) FROM tl_wem_audiotrack_feedback WHERE pid IN (?) GROUP BY pid',
+            [$ids],
+            [ArrayParameterType::INTEGER]
+        );
+
+        foreach ($counters as $pid => $counter) {
+            $this->likes[(int) $pid] = (int) $counter;
+        }
+    }
+
+    protected function getCategory(int $pid): ?Category
+    {
+        return $this->categories[$pid] ??= Category::findByPk($pid);
+    }
+
+    protected function getFile(mixed $uuid): ?FilesModel
+    {
+        if (!$uuid) {
+            return null;
+        }
+
+        if (!\array_key_exists($uuid, $this->files)) {
+            $this->files[$uuid] = FilesModel::findByUuid($uuid);
+        }
+
+        return $this->files[$uuid];
+    }
+
+    protected function getLikes(int $id): int
+    {
+        return $this->likes[$id] ??= Feedback::countItems(['pid' => $id]);
+    }
+
+    /**
+     * The page the items link to, found once for all the items.
+     */
+    protected function getTargetPage(): ?PageModel
+    {
+        if (false === $this->targetPage) {
+            $this->targetPage = $this->model->jumpTo ? PageModel::findWithDetails($this->model->jumpTo) : null;
+        }
+
+        return $this->targetPage;
     }
 
     /**
@@ -227,6 +336,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
     protected function parseItem(AudioTrack $objItem, bool $blnAddArchive = false, string $strClass = '', int $intCount = 0): array
     {
         $arrData = $objItem->row();
+        $objCategory = $this->getCategory((int) $objItem->pid);
 
         if ('' !== (string) $objItem->cssClass) {
             $strClass = ' '.$objItem->cssClass.$strClass;
@@ -246,33 +356,21 @@ abstract class ModuleController extends AbstractFrontendModuleController
         // Tags
         $arrData['tagList'] = array_values(StringUtil::deserialize($objItem->tags, true));
 
-        $isRemote = 'remote' === $objItem->getRelated('pid')->type;
+        $isRemote = 'remote' === $objCategory?->type;
 
         // Retrieve and parse the pictures
         if ($isRemote && $objItem->pictureRemoteUrl) {
             $arrData['picture'] = $objItem->pictureRemoteUrl;
             $arrData['pictureMobile'] = null;
         } else {
-            $arrData['picture'] = FilesModel::findByUuid($objItem->picture)?->path;
-            $arrData['pictureMobile'] = FilesModel::findByUuid($objItem->picture_mobile)?->path;
+            $arrData['picture'] = $this->getFile($objItem->picture)?->path;
+            $arrData['pictureMobile'] = $this->getFile($objItem->picture_mobile)?->path;
         }
 
         // If item is from remote, file path is different
-        if ($isRemote) {
-            $arrData['audio'] = $objItem->audioRemoteUrl;
-        } else {
-            // If there is no duration, retrieve it and save it in the model
-            $objFile = FilesModel::findByUuid($objItem->audio);
+        $arrData['audio'] = $isRemote ? $objItem->audioRemoteUrl : $this->getFile($objItem->audio)?->path;
 
-            if (!$objItem->duration && $objFile) {
-                $mp3file = new MP3File($objFile->path);
-                $objItem->duration = $mp3file->getDuration();
-                $objItem->save();
-            }
-
-            $arrData['audio'] = $objFile?->path;
-        }
-
+        // The duration is computed when the item is saved (and by a migration for the old ones), never during a page view
         $arrData['duration'] = ($objItem->duration > 3600) ?
             sprintf('%s h %s%s min', number_format($objItem->duration / 3600), $objItem->duration / 60 % 60 < 10 ? '0' : '', $objItem->duration / 60 % 60) :
             sprintf('%s min %s%s s', $objItem->duration / 60 % 60, $objItem->duration % 60 < 10 ? '0' : '', $objItem->duration % 60)
@@ -281,17 +379,18 @@ abstract class ModuleController extends AbstractFrontendModuleController
 
         // Nothing that depends on the visitor (liked, listening session) is rendered here, the page can be cached:
         // the player gets it from the StateController. The likes counter is the same for everybody.
-        $arrData['nbLikes'] = Feedback::countItems(['pid' => $objItem->id]);
+        $arrData['nbLikes'] = $this->getLikes((int) $objItem->id);
 
         // Let template know if we can download the item
         $arrData['canDownload'] = (bool) $this->model->wemaudiotracks_canDownload;
 
-        if ($objTarget = PageModel::findWithDetails($this->model->jumpTo)) {
-            $arrData['jumpTo'] = $objTarget->getFrontendUrl('/'.$objItem->alias);
+        if ($objTarget = $this->getTargetPage()) {
+            // Items without alias (imported before the alias generation) are reachable with their id
+            $arrData['jumpTo'] = $objTarget->getFrontendUrl('/'.($objItem->alias ?: $objItem->id));
         }
 
         // schema.org JSON-LD, given to the template with add_schema_org()
-        $arrData['schemaOrg'] = $this->schemaOrgBuilder->buildEpisode($objItem, $objItem->getRelated('pid'), $arrData);
+        $arrData['schemaOrg'] = $objCategory ? $this->schemaOrgBuilder->buildEpisode($objItem, $objCategory, $arrData) : null;
 
         // Hook system to customize item parsing
         if (isset($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM']) && \is_array($GLOBALS['TL_HOOKS']['WEMAUDIOTRACKSPARSEITEM'])) {

@@ -38,6 +38,13 @@ class SchemaOrgBuilder
         'wav' => 'audio/wav',
     ];
 
+    /**
+     * The series is the same for all the episodes of a category: built once per category.
+     *
+     * @var array<int, array>
+     */
+    private array $series = [];
+
     public function __construct(private readonly HtmlDecoder $htmlDecoder)
     {
     }
@@ -99,7 +106,7 @@ class SchemaOrgBuilder
 
     private function buildSeries(Category $category): array
     {
-        return $this->clean([
+        return $this->series[(int) $category->id] ??= $this->clean([
             '@type' => 'PodcastSeries',
             'name' => $category->title,
             'description' => $this->toPlainText((string) $category->description),
