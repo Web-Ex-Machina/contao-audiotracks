@@ -29,6 +29,15 @@ class AudioTrack extends Model
     protected static $strTable = 'tl_wem_audiotrack';
 
     /**
+     * Cache tag of the pages displaying the likes counter of a track: the pages are
+     * tagged with it, and it is invalidated when a like is added or removed.
+     */
+    public static function getLikesCacheTag(int $id): string
+    {
+        return 'wem.audiotracks.likes.'.$id;
+    }
+
+    /**
      * Find items, depends on the arguments.
      *
      * @param array $arrConfig  Request Config

@@ -12,10 +12,31 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\EventListener\DataContainer;
 
+use Contao\CoreBundle\Cache\CacheTagManager;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsCallback;
+use Contao\DataContainer;
+use WEM\AudioTracksBundle\Model\AudioTrack;
+use WEM\AudioTracksBundle\Model\Feedback;
 
 class FeedbackContainer
 {
+    public function __construct(private readonly CacheTagManager $cacheTagManager)
+    {
+    }
+
+    /**
+     * A like deleted in the back end changes the counter of the cached pages.
+     */
+    #[AsCallback(table: 'tl_wem_audiotrack_feedback', target: 'config.ondelete')]
+    public function invalidateLikes(DataContainer $dc): void
+    {
+        $feedback = $dc->id ? Feedback::findById($dc->id) : null;
+
+        if (null !== $feedback) {
+            $this->cacheTagManager->invalidateTags([AudioTrack::getLikesCacheTag((int) $feedback->pid)]);
+        }
+    }
+
     /**
      * Format items list.
      */

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace WEM\AudioTracksBundle\Controller;
 
+use Contao\CoreBundle\Cache\CacheTagManager;
 use Contao\Model\Collection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,8 +39,10 @@ use WEM\AudioTracksBundle\Model\Session;
 )]
 class AjaxController
 {
-    public function __construct(private readonly ClientIdentifier $clientIdentifier)
-    {
+    public function __construct(
+        private readonly ClientIdentifier $clientIdentifier,
+        private readonly CacheTagManager $cacheTagManager,
+    ) {
     }
 
     public function __invoke(Request $request, string $action): JsonResponse
@@ -69,6 +72,7 @@ class AjaxController
 
         if (!$like && $objFeedback = Feedback::findItems(['pid' => $pid, 'ip' => $strIp], 1)) {
             $objFeedback->delete();
+            $this->invalidateLikes($pid);
         }
 
         if ($like && 0 === Feedback::countItems(['pid' => $pid, 'ip' => $strIp])) {
@@ -80,10 +84,19 @@ class AjaxController
 
             try {
                 $objFeedback->save();
+                $this->invalidateLikes($pid);
             } catch (UniqueConstraintViolationException) {
                 // A parallel request already stored this like
             }
         }
+    }
+
+    /**
+     * The pages display the likes counter: the cached ones must be rendered again.
+     */
+    private function invalidateLikes(int $pid): void
+    {
+        $this->cacheTagManager->invalidateTags([AudioTrack::getLikesCacheTag($pid)]);
     }
 
     private function updateSession(int $pid, float $currentTime, float $volume, bool $markAsComplete): void

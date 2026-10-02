@@ -376,6 +376,7 @@ abstract class ModuleController extends AbstractFrontendModuleController
         // here, the page can be cached: the player gets it from the StateController. The
         // likes counter is the same for everybody.
         $arrData['nbLikes'] = $this->getLikes((int) $objItem->id);
+        $this->tagResponse(AudioTrack::getLikesCacheTag((int) $objItem->id));
 
         // Let template know if we can download the item
         $arrData['canDownload'] = (bool) $this->model->wemaudiotracks_canDownload;
