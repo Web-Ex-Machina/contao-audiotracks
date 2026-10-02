@@ -60,8 +60,8 @@
 			    <target>Voir le détail</target>
 			</trans-unit>
 			<trans-unit id="WEM.AUDIOTRACKS.play">
-			    <source>Play / pause</source>
-			    <target>Lecture / pause</target>
+			    <source>Play</source>
+			    <target>Lecture</target>
 			</trans-unit>
 			<trans-unit id="WEM.AUDIOTRACKS.previous">
 			    <source>Previous track</source>
@@ -130,6 +130,18 @@
 			<trans-unit id="WEM.AUDIOTRACKS.tooManyRequests">
 			    <source>Too many requests, please try again in a moment</source>
 			    <target>Trop de requêtes, veuillez réessayer dans un instant</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.pause">
+			    <source>Pause</source>
+			    <target>Pause</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.nowPlaying">
+			    <source>Now playing: %title%</source>
+			    <target>Lecture en cours : %title%</target>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.seekValue">
+			    <source>%current% of %duration%</source>
+			    <target>%current% sur %duration%</target>
 			</trans-unit>
 		</body>
 	</file>

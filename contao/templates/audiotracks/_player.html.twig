@@ -1,6 +1,7 @@
 {% trans_default_domain 'contao_default' %}
 
-<div class="audioPlayer" data-audiotracks-player data-url-state="{{ path('wem_audiotracks_state') }}" data-url-feedback="{{ path('wem_audiotracks_ajax', {action: 'feedback'}) }}" data-url-sync-session="{{ path('wem_audiotracks_ajax', {action: 'syncSession'}) }}">
+<div class="audioPlayer" data-audiotracks-player data-url-state="{{ path('wem_audiotracks_state') }}" data-url-feedback="{{ path('wem_audiotracks_ajax', {action: 'feedback'}) }}" data-url-sync-session="{{ path('wem_audiotracks_ajax', {action: 'syncSession'}) }}" data-label-play="{{ 'WEM.AUDIOTRACKS.play'|trans }}" data-label-pause="{{ 'WEM.AUDIOTRACKS.pause'|trans }}" data-label-now-playing="{{ 'WEM.AUDIOTRACKS.nowPlaying'|trans }}" data-label-seek-value="{{ 'WEM.AUDIOTRACKS.seekValue'|trans }}">
+    <div class="audioPlayer__status" role="status" aria-live="polite" aria-atomic="true"></div>
     <div class="container audioPlayer__wrapper">
         <div class="audioPlayer__nowplaying">
             <img class="audioPlayer__cover" src="" alt="" hidden>
@@ -23,7 +24,7 @@
         </div>
         <div class="audioPlayer__volumecontrols">
             <input type="range" class="audioPlayer__volume" min="0" max="1" value="1" step="0.01" aria-label="{{ 'WEM.AUDIOTRACKS.volume'|trans }}">
-            <button type="button" class="audioPlayer__mute audioPlayer__button" aria-label="{{ 'WEM.AUDIOTRACKS.mute'|trans }}">
+            <button type="button" class="audioPlayer__mute audioPlayer__button" aria-pressed="false" aria-label="{{ 'WEM.AUDIOTRACKS.mute'|trans }}">
                 <i class="fas fa-volume-high"></i>
                 <i class="fas fa-volume-xmark"></i>
             </button>

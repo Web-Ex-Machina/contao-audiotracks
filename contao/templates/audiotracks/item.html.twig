@@ -47,7 +47,7 @@
             </a>
         {% endif %}
 
-        <button type="button" class="audiotrack__likes audiotrack__button" data-id="{{ id }}" aria-label="{{ 'WEM.AUDIOTRACKS.like'|trans }}">
+        <button type="button" class="audiotrack__likes audiotrack__button" data-id="{{ id }}" aria-pressed="false" aria-label="{{ 'WEM.AUDIOTRACKS.like'|trans }}">
             <i class="fas fa-heart empty"></i>
             <i class="fas fa-heart full"></i>
             <span class="count">{{ nbLikes ?: '' }}</span>

@@ -44,7 +44,7 @@
             {% if canDownload|default %}
                 <a class="audiotrack__download audiotrack__button" href="{{ audio }}" title="{{ 'WEM.AUDIOTRACKS.download'|trans }}" target="_blank" rel="noopener" download><i class="fas fa-download"></i></a>
             {% endif %}
-            <button type="button" class="audiotrack__likes audiotrack__button" data-id="{{ id }}" aria-label="{{ 'WEM.AUDIOTRACKS.like'|trans }}">
+            <button type="button" class="audiotrack__likes audiotrack__button" data-id="{{ id }}" aria-pressed="false" aria-label="{{ 'WEM.AUDIOTRACKS.like'|trans }}">
                 <i class="far fa-heart empty"></i>
                 <i class="fas fa-heart full"></i>
                 <span class="count">{{ nbLikes ?: '' }}</span>

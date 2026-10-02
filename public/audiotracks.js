@@ -37,8 +37,9 @@
             return '00:00';
         }
 
-        const minutes = Math.floor(seconds / 60);
-        const rest = Math.round(seconds % 60);
+        const total = Math.floor(seconds);
+        const minutes = Math.floor(total / 60);
+        const rest = total % 60;
 
         return `${String(minutes).padStart(2, '0')}:${String(rest).padStart(2, '0')}`;
     };
@@ -119,6 +120,7 @@
     const applyTrackState = (id, state) => {
         document.querySelectorAll(`.audiotrack__likes[data-id="${id}"]`).forEach((button) => {
             button.classList.toggle('liked', !!state.liked);
+            button.setAttribute('aria-pressed', state.liked ? 'true' : 'false');
 
             const count = button.querySelector('.count');
 
@@ -236,6 +238,8 @@
         const coverEl = playerEl.querySelector('.audioPlayer__cover');
         const currentEl = playerEl.querySelector('.audioPlayer__current');
         const durationEl = playerEl.querySelector('.audioPlayer__duration');
+        const statusEl = playerEl.querySelector('.audioPlayer__status');
+        const labels = playerEl.dataset;
 
         const audio = new Audio();
         let currentTrack = null;
@@ -322,6 +326,23 @@
             }
 
             playerEl.classList.toggle('playing', playing);
+
+            // The label says what the button does now
+            const label = playing ? labels.labelPause : labels.labelPlay;
+
+            if (label) {
+                [playButton, ...playButtons.filter((b) => !playing || b.dataset.id === id)].forEach((b) => b.setAttribute('aria-label', label));
+                playButtons.filter((b) => playing && b.dataset.id !== id).forEach((b) => b.setAttribute('aria-label', labels.labelPlay));
+            }
+        };
+
+        // Screen readers are told which episode starts, not at each resume
+        let announcedId = null;
+        const announce = () => {
+            if (statusEl && labels.labelNowPlaying && announcedId !== currentTrack.id) {
+                announcedId = currentTrack.id;
+                statusEl.textContent = labels.labelNowPlaying.replace('%title%', [currentTrack.title, currentTrack.subtitle].filter(Boolean).join(', '));
+            }
         };
 
         // Track buttons in the list
@@ -368,10 +389,29 @@
         muteButton.addEventListener('click', () => {
             muteButton.classList.toggle('mute');
             audio.muted = muteButton.classList.contains('mute');
+            muteButton.setAttribute('aria-pressed', audio.muted ? 'true' : 'false');
         });
+
+        // "1:20 of 57:56" instead of a number of seconds, only updated when the displayed time changes
+        let seekText = '';
+        const updateSeekText = () => {
+            if (!labels.labelSeekValue || !Number.isFinite(audio.duration)) {
+                return;
+            }
+
+            const text = labels.labelSeekValue.replace('%current%', formatTime(audio.currentTime)).replace('%duration%', formatTime(audio.duration));
+
+            if (text !== seekText) {
+                seekText = text;
+                trackBar.setAttribute('aria-valuetext', text);
+            }
+        };
+        const updateVolumeText = () => volumeBar.setAttribute('aria-valuetext', `${Math.round(audio.volume * 100)} %`);
+        updateVolumeText();
 
         // Audio events
         audio.addEventListener('volumechange', () => {
+            updateVolumeText();
             clearTimeout(volumeTimer);
             volumeTimer = setTimeout(safeSync, 500);
         });
@@ -381,6 +421,7 @@
             titleEl.title = currentTrack.title;
             titleEl.textContent = currentTrack.title;
             subtitleEl.textContent = currentTrack.subtitle;
+            announce();
 
             if (currentTrack.picture) {
                 coverEl.src = currentTrack.picture;
@@ -409,6 +450,7 @@
             trackBar.max = audio.duration;
             trackBar.style.cssText = `--min: 0; --max: ${Math.floor(audio.duration)}; --val: ${Math.floor(audio.currentTime)}`;
             durationEl.textContent = formatTime(audio.duration);
+            updateSeekText();
         });
 
         audio.addEventListener('timeupdate', () => {
@@ -418,6 +460,7 @@
             }
 
             currentEl.textContent = formatTime(audio.currentTime);
+            updateSeekText();
         });
 
         // Media Session: title and cover on the lock screen / notifications, headphones and keyboard media keys
@@ -588,6 +631,7 @@
                     });
 
                     button.classList.toggle('liked', liked);
+                    button.setAttribute('aria-pressed', liked ? 'true' : 'false');
 
                     const count = button.querySelector('.count');
 
