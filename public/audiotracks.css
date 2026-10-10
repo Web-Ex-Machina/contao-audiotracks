@@ -1,0 +1,9 @@
+/* Neutralize the browser default <button> look, any theme rule still wins (zero specificity) */
+:where(button.audiotrack__button, button.audiotrack__likes, button.audioPlayer__button) {
+    appearance: none;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+}

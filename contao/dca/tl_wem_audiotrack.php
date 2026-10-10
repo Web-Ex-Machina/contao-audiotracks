@@ -1,0 +1,261 @@
+<?php
+
+declare(strict_types=1);
+
+use Contao\Config;
+use Contao\DataContainer;
+use Contao\DC_Table;
+
+$GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
+    // Config
+    'config' => [
+        'dataContainer' => DC_Table::class,
+        'ptable' => 'tl_wem_audiotrack_category',
+        'ctable' => ['tl_wem_audiotrack_feedback', 'tl_wem_audiotrack_tag', 'tl_wem_audiotrack_session'],
+        'switchToEdit' => true,
+        'enableVersioning' => true,
+        'sql' => [
+            'keys' => [
+                'id' => 'primary',
+                'pid' => 'index',
+            ],
+        ],
+    ],
+
+    // List
+    'list' => [
+        'label' => [
+            'fields' => ['title'],
+            'format' => '%s',
+        ],
+        'sorting' => [
+            'mode' => DataContainer::MODE_PARENT,
+            'fields' => ['date ASC'],
+            'headerFields' => ['title', 'tags'],
+            'panelLayout' => 'filter;sort,search,limit',
+        ],
+        'global_operations' => [
+            'all',
+        ],
+        'operations' => [
+            'edit',
+            'copy',
+            'delete',
+            'show',
+            'toggle',
+            'feedbacks' => [
+                'href' => 'table=tl_wem_audiotrack_feedback',
+                'icon' => 'member.svg',
+            ],
+            'sessions' => [
+                'href' => 'table=tl_wem_audiotrack_session',
+                'icon' => 'su.svg',
+            ],
+        ],
+    ],
+
+    // Palettes
+    'palettes' => [
+        'default' => '
+            {title_legend},title,alias,date,season,episode,audio,type,duration;
+            {content_legend},description,explicit,tags;
+            {picture_legend},picture,picture_mobile,pictureText;
+            {author_legend},authors;
+            {publish_legend},published,start,stop
+        ',
+        // Tracks of a remote category: no local files, only the urls (the palette is selected in AudiotrackContainer::updatePalettes)
+        'remote' => '
+            {title_legend},title,alias,date,season,episode,audioRemoteUrl,type,duration;
+            {content_legend},description,explicit,tags;
+            {picture_legend},pictureRemoteUrl,pictureText;
+            {author_legend},authors;
+            {publish_legend},published,start,stop
+        ',
+    ],
+
+    // Fields
+    'fields' => [
+        'id' => [
+            'sql' => 'int(10) unsigned NOT NULL auto_increment',
+        ],
+        'uuid' => [
+            'sql' => "varchar(255) NOT NULL default ''",
+        ],
+        'tstamp' => [
+            'sql' => "int(10) unsigned NOT NULL default '0'",
+        ],
+        'pid' => [
+            'foreignKey' => 'tl_wem_audiotrack_category.title',
+            'sql' => "int(10) unsigned NOT NULL default '0'",
+            'relation' => ['type' => 'belongsTo', 'load' => 'eager'],
+        ],
+        'createdAt' => [
+            'default' => time(),
+            'flag' => DataContainer::SORT_MONTH_DESC,
+            'sql' => "int(10) unsigned NOT NULL default '0'",
+        ],
+        'title' => [
+            'exclude' => true,
+            'sorting' => true,
+            'search' => true,
+            'flag' => DataContainer::SORT_INITIAL_LETTERS_BOTH,
+            'inputType' => 'text',
+            'eval' => ['mandatory' => true, 'tl_class' => 'w50', 'maxlength' => 255],
+            'sql' => "varchar(255) NOT NULL default ''",
+        ],
+        'alias' => [
+            'exclude' => true,
+            'inputType' => 'text',
+            'search' => true,
+            'eval' => ['rgxp' => 'alias', 'doNotCopy' => true, 'maxlength' => 255, 'tl_class' => 'w50'],
+            'sql' => "varchar(255) BINARY NOT NULL default ''",
+        ],
+        'date' => [
+            'exclude' => true,
+            'inputType' => 'text',
+            'filter' => true,
+            'sorting' => true,
+            'flag' => DataContainer::SORT_MONTH_DESC,
+            'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
+            'sql' => "int(10) unsigned NOT NULL default '0'",
+        ],
+        'season' => [
+            'exclude' => true,
+            'filter' => true,
+            'sorting' => true,
+            'flag' => DataContainer::SORT_INITIAL_LETTERS_BOTH,
+            'inputType' => 'text',
+            'eval' => ['mandatory' => true, 'tl_class' => 'w50', 'maxlength' => 255],
+            'sql' => "varchar(16) NOT NULL default ''",
+        ],
+        'episode' => [
+            'exclude' => true,
+            'filter' => true,
+            'inputType' => 'text',
+            'eval' => ['mandatory' => true, 'tl_class' => 'w50', 'maxlength' => 255],
+            'sql' => "varchar(16) NOT NULL default ''",
+        ],
+        'audio' => [
+            'exclude' => true,
+            'inputType' => 'fileTree',
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => 'mp3,ogg,wav', 'mandatory'=>true],
+            'sql' => 'binary(16) NULL',
+        ],
+        'audioRemoteUrl' => [
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => ['rgxp' => 'url', 'mandatory' => true, 'tl_class' => 'clr'],
+            'sql' => "varchar(255) NOT NULL default ''"
+        ],
+        'type' => [
+            'exclude' => true,
+            'filter' => true,
+            'inputType' => 'select',
+            'eval'=> array('tl_class'=>'w50', 'mandatory' => true),
+            'options' => ['full', 'trailer', 'bonus'],
+            'reference' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['type'],
+            'sql' => "varchar(16) NOT NULL default ''"
+        ],
+        'duration' => [
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => ['tl_class' => 'w50', 'rgxp' => 'digit'],
+            'sql' => "int(10) unsigned NOT NULL default '0'",
+        ],
+        'description' => [
+            'exclude' => true,
+            'search' => true,
+            'inputType' => 'textarea',
+            'eval' => ['mandatory' => true, 'rte' => 'tinyMCE', 'helpwizard' => true, 'tl_class' => 'clr'],
+            'explanation' => 'insertTags',
+            'sql' => 'mediumtext NULL',
+        ],
+        'explicit' => [
+            'exclude' => true,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
+            'inputType' => 'checkbox',
+            'eval' => ['doNotCopy' => true],
+            'sql' => "char(1) NOT NULL default ''",
+        ],
+        'tags' => [
+            'exclude' => true,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
+            'inputType' => 'select',
+            'eval' => ['doNotCopy' => true, 'chosen' => true, 'includeBlankOption' => true, 'multiple' => true, 'tl_class' => 'w50', 'isAvailableForFilters'=>true],
+            'sql' => "blob NULL",
+        ],
+        'picture' => [
+            'exclude' => true,
+            'inputType' => 'fileTree',
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => '%contao.image.valid_extensions%'],
+            'sql' => 'binary(16) NULL',
+        ],
+        'picture_mobile' => [
+            'exclude' => true,
+            'inputType' => 'fileTree',
+            'eval' => ['filesOnly' => true, 'fieldType' => 'radio', 'tl_class' => 'clr', 'extensions' => '%contao.image.valid_extensions%'],
+            'sql' => 'binary(16) NULL',
+        ],
+        'pictureRemoteUrl' => [
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => ['rgxp' => 'url', 'mandatory' => true, 'tl_class' => 'clr'],
+            'sql' => "varchar(255) NOT NULL default ''"
+        ],
+        'pictureText' => [
+            'exclude' => true,
+            'search' => true,
+            'inputType' => 'textarea',
+            'eval' => ['rte' => 'tinyMCE', 'helpwizard' => true, 'tl_class' => 'clr'],
+            'explanation' => 'insertTags',
+            'sql' => 'mediumtext NULL',
+        ],
+        'authors' => [
+            'exclude' => true,
+            'inputType' => 'multiColumnWizard',
+            'eval' => [
+                'columnFields' => [
+                    'name' => [
+                        'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['authors']['name'],
+                        'exclude' => true,
+                        'inputType' => 'text',
+                        'eval' => ['mandatory' => true],
+                    ],
+                    'email' => [
+                        'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['authors']['email'],
+                        'exclude' => true,
+                        'inputType' => 'text',
+                        'eval' => ['rgxp' => 'email'],
+                    ],
+                    'uri' => [
+                        'label' => &$GLOBALS['TL_LANG']['tl_wem_audiotrack']['authors']['uri'],
+                        'exclude' => true,
+                        'inputType' => 'text',
+                        'eval' => ['rgxp' => 'url'],
+                    ],
+                ]
+            ],
+            'sql' => 'blob NULL',
+        ],
+        'published' => [
+            'exclude' => true,
+            'filter' => true,
+            'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
+            'inputType' => 'checkbox',
+            'eval' => ['doNotCopy' => true],
+            'sql' => "char(1) NOT NULL default ''",
+        ],
+        'start' => [
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
+            'sql' => "varchar(10) NOT NULL default ''",
+        ],
+        'stop' => [
+            'exclude' => true,
+            'inputType' => 'text',
+            'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
+            'sql' => "varchar(10) NOT NULL default ''",
+        ],
+    ],
+];

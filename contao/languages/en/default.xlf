@@ -1,0 +1,142 @@
+<?xml version="1.0" ?>
+<xliff version="1.1">
+	<file datatype="php" original="system/modules/core/languages/en/default.php" source-language="en">
+		<body>
+			<trans-unit id="WEM.AUDIOTRACKS.unknownAjaxAction">
+			    <source>Unknown AJAX action</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.empty">
+			    <source>There is no audiotracks yet.</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.search">
+			    <source>Search</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.searchPlaceholder">
+			    <source>Search</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.listened">
+			    <source>Listened</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.download">
+			    <source>Download</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.theme">
+			    <source>Theme</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.themes">
+			    <source>Themes</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.FILE_USAGE.tableName">
+			    <source>Podcasts</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.links.rss">
+			    <source>RSS Feed</source>			    
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.colTitle">
+			    <source>Title</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.colDuration">
+			    <source>Duration</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.colDate">
+			    <source>Publication date</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.jumpTo">
+			    <source>Read more</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.play">
+			    <source>Play</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.previous">
+			    <source>Previous track</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.next">
+			    <source>Next track</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.seek">
+			    <source>Seek</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.volume">
+			    <source>Volume</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.mute">
+			    <source>Mute</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.like">
+			    <source>Like</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.colEpisode">
+			    <source>Episode</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.seasonShort">
+			    <source>S</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.episodeShort">
+			    <source>E</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.season">
+			    <source>Season</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssSaved">
+			    <source>RSS Feed saved</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssImported">
+			    <source>RSS Feed imported</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssLocation">
+			    <source>RSS Feed is located at: %s</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssGoTo">
+			    <source>Go to RSS Feed</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssNoTracks">
+			    <source>No tracks found, no RSS generated</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.audioCompressed">
+			    <source>The audio file was compressed: %s → %s</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.audioCompressError">
+			    <source>The audio file could not be compressed (the original is kept): %s</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.noAudiotrack">
+			    <source>No audiotrack provided</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.tooManyRequests">
+			    <source>Too many requests, please try again in a moment</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.pause">
+			    <source>Pause</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.nowPlaying">
+			    <source>Now playing: %title%</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.seekValue">
+			    <source>%current% of %duration%</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssImportError">
+			    <source>The remote feed could not be imported: %s</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssAllGenerated">
+			    <source>%d RSS feed(s) written, %d already up to date, %d without published track</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.rssGenerateError">
+			    <source>RSS feed of the category %d: %s</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.retentionNone">
+			    <source>Retention: not limited, the listening sessions and the likes are kept (audio_tracks.retention_months is 0 in config/config.yaml).</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.retentionMonths">
+			    <source>Retention: every day, the listening sessions not updated for %d month(s) are deleted, and the older likes are detached from their visitor (the counters do not change). See audio_tracks.retention_months in config/config.yaml.</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.identifierEncryption">
+			    <source>The visitors are stored as an encrypted IP address (it can be decrypted with the key of the website). See audio_tracks.identifier.</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.identifierHmac">
+			    <source>The visitors are stored as a one-way hash of their IP address: it cannot be turned back into an IP address. See audio_tracks.identifier.</source>
+			</trans-unit>
+			<trans-unit id="WEM.AUDIOTRACKS.stopBeforeStart">
+			    <source>The stop date must be after the start date.</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

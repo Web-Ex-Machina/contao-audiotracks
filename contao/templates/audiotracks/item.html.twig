@@ -1,0 +1,56 @@
+{% trans_default_domain 'contao_default' %}
+
+{% set episode_label %}{% if season %}{{ 'WEM.AUDIOTRACKS.seasonShort'|trans }}{{ season }}{% endif %}{% if season and episode %} · {% endif %}{% if episode %}{{ 'WEM.AUDIOTRACKS.episodeShort'|trans }}{{ episode }}{% endif %}{% endset %}
+
+<tr class="audiotrack audiotrack_default{{ class|default('') }}"
+    data-id="{{ id }}"
+    data-audiotrack="{{ id }}">
+    <td data-name="picture">
+        {% if picture %}
+            <img src="{{ picture }}" alt="" width="75" height="75" loading="lazy">
+        {% endif %}
+    </td>
+    <td data-name="title">
+        {% if jumpTo|default %}<a href="{{ jumpTo }}" title="{{ 'WEM.AUDIOTRACKS.jumpTo'|trans }}">{% endif %}
+            <span>{{ title }}</span>
+        {% if jumpTo|default %}</a>{% endif %}
+
+        <div class="audiotrack__listened">
+            <i class="fas fa-circle-check ft-success ft-1-3-em"></i>
+            <span>{{ 'WEM.AUDIOTRACKS.listened'|trans }}</span>
+        </div>
+    </td>
+    <td data-name="episode">
+        {% if season or episode %}
+            <span class="audiotrack__episode">{{ episode_label|trim }}</span>
+        {% endif %}
+    </td>
+    <td data-name="duration">{{ duration }}</td>
+    <td data-name="date">{{ date }}</td>
+    <td class="actions" data-name="actions">
+        <button type="button" class="audiotrack__play audiotrack__button"
+            data-id="{{ id }}"
+            data-title="{{ title }}"
+            data-subtitle="{{ episode_label|trim }}"
+            data-picture="{{ picture }}"
+            data-src="{{ audio }}"
+            data-complete="0"
+            data-current-time="0"
+            data-volume="1"
+            aria-label="{{ 'WEM.AUDIOTRACKS.play'|trans }}">
+            <i class="fas fa-play"></i><i class="fas fa-pause"></i>
+        </button>
+
+        {% if canDownload|default %}
+            <a class="audiotrack__download audiotrack__button" href="{{ audio }}" title="{{ 'WEM.AUDIOTRACKS.download'|trans }}" target="_blank" rel="noopener" download>
+                <i class="fas fa-download"></i>
+            </a>
+        {% endif %}
+
+        <button type="button" class="audiotrack__likes audiotrack__button" data-id="{{ id }}" aria-pressed="false" aria-label="{{ 'WEM.AUDIOTRACKS.like'|trans }}">
+            <i class="fas fa-heart empty"></i>
+            <i class="fas fa-heart full"></i>
+            <span class="count">{{ nbLikes ?: '' }}</span>
+        </button>
+    </td>
+</tr>

@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<xliff version="1.1">
+	<file datatype="php" original="system/modules/core/languages/en/tl_wem_audiotrack_feedback.php" source-language="en" target-language="fr">
+		<body>
+			<trans-unit id="tl_wem_audiotrack_feedback.createdAt.0">
+				<source>Created at</source>
+				<target>Créé le</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_feedback.createdAt.1">
+				<source>Creation date of the feedback</source>
+				<target>Date de création du retour</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_feedback.ip.0">
+				<source>IP</source>
+				<target>IP</target>
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_feedback.ip.1">
+				<source>Enter the feedback IP.</source>
+				<target>Saisissez l'IP du retour.</target>
+			</trans-unit>
+
+			<trans-unit id="tl_wem_audiotrack_feedback.title_legend">
+				<source>Global settings</source>
+				<target>Paramètres généraux</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

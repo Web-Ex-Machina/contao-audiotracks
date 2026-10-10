@@ -1,0 +1,48 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+    
+    WEM\AudioTracksBundle\:
+        resource: ../src/
+        exclude: ../src/{ContaoManager,DependencyInjection,Model,Util,Classes/RequestRateLimiter.php}
+
+
+    wem.audiotracks.rss_feed:
+        class: WEM\AudioTracksBundle\Classes\RssFeed
+        arguments:
+            $framework: '@contao.framework'
+        public: true
+
+    WEM\AudioTracksBundle\Classes\ClientIdentifier:
+        arguments:
+            $mode: '%wem_audiotracks.identifier%'
+            $key: '%wem_contao_encryption.encryption_key%'
+
+    WEM\AudioTracksBundle\EventListener\DataContainer\TrackingDataNoticeContainer:
+        arguments:
+            $retentionMonths: '%wem_audiotracks.retention_months%'
+            $identifierMode: '%wem_audiotracks.identifier%'
+
+    WEM\AudioTracksBundle\Cron\PurgeTrackingDataCron:
+        arguments:
+            $retentionMonths: '%wem_audiotracks.retention_months%'
+
+    WEM\AudioTracksBundle\Migration\DurationMigration:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    WEM\AudioTracksBundle\Classes\Mp3Compressor:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $ffmpeg: '%wem_audiotracks.compression.ffmpeg%'
+            $bitrate: '%wem_audiotracks.compression.bitrate%'
+            $channels: '%wem_audiotracks.compression.channels%'
+            $keepOriginal: '%wem_audiotracks.compression.keep_original%'
+            $timeout: '%wem_audiotracks.compression.timeout%'
+
+    WEM\AudioTracksBundle\Classes\AudioOptimizer:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $enabled: '%wem_audiotracks.compression.enabled%'

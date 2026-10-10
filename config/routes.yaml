@@ -1,0 +1,3 @@
+wem.audiotracks.controller:
+  resource: '../src/Controller'
+  type: attribute

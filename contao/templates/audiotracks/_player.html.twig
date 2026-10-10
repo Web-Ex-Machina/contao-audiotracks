@@ -1,0 +1,33 @@
+{% trans_default_domain 'contao_default' %}
+
+<div class="audioPlayer" data-audiotracks-player data-url-state="{{ path('wem_audiotracks_state') }}" data-url-feedback="{{ path('wem_audiotracks_ajax', {action: 'feedback'}) }}" data-url-sync-session="{{ path('wem_audiotracks_ajax', {action: 'syncSession'}) }}" data-label-play="{{ 'WEM.AUDIOTRACKS.play'|trans }}" data-label-pause="{{ 'WEM.AUDIOTRACKS.pause'|trans }}" data-label-now-playing="{{ 'WEM.AUDIOTRACKS.nowPlaying'|trans }}" data-label-seek-value="{{ 'WEM.AUDIOTRACKS.seekValue'|trans }}">
+    <div class="audioPlayer__status" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div class="container audioPlayer__wrapper">
+        <div class="audioPlayer__nowplaying">
+            <img class="audioPlayer__cover" src="" alt="" hidden>
+            <div class="audioPlayer__info">
+                <div class="audioPlayer__title ellipsis" title="-"> - </div>
+                <div class="audioPlayer__subtitle ellipsis"></div>
+            </div>
+        </div>
+        <div class="audioPlayer__controls">
+            <div class="audioPlayer__buttons">
+                <button type="button" class="audioPlayer__button prev" aria-label="{{ 'WEM.AUDIOTRACKS.previous'|trans }}"><i class="fas fa-step-backward"></i></button>
+                <button type="button" class="audioPlayer__button play" aria-label="{{ 'WEM.AUDIOTRACKS.play'|trans }}"><i class="fas fa-play"></i><i class="fas fa-pause"></i></button>
+                <button type="button" class="audioPlayer__button next" aria-label="{{ 'WEM.AUDIOTRACKS.next'|trans }}"><i class="fas fa-step-forward"></i></button>
+            </div>
+            <div class="audioPlayer__timecontrols">
+                <div class="audioPlayer__current"></div>
+                <input type="range" class="audioPlayer__track" value="0" aria-label="{{ 'WEM.AUDIOTRACKS.seek'|trans }}">
+                <div class="audioPlayer__duration"></div>
+            </div>
+        </div>
+        <div class="audioPlayer__volumecontrols">
+            <input type="range" class="audioPlayer__volume" min="0" max="1" value="1" step="0.01" aria-label="{{ 'WEM.AUDIOTRACKS.volume'|trans }}">
+            <button type="button" class="audioPlayer__mute audioPlayer__button" aria-pressed="false" aria-label="{{ 'WEM.AUDIOTRACKS.mute'|trans }}">
+                <i class="fas fa-volume-high"></i>
+                <i class="fas fa-volume-xmark"></i>
+            </button>
+        </div>
+    </div>
+</div>

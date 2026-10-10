@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<xliff version="1.1">
+	<file datatype="php" original="system/modules/core/languages/en/tl_wem_audiotrack_session.php" source-language="en">
+		<body>
+			<trans-unit id="tl_wem_audiotrack_session.createdAt.0">
+				<source>Created at</source>				
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.createdAt.1">
+				<source>Creation date of the session</source>				
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.ip.0">
+				<source>IP</source>				
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.ip.1">
+				<source>Enter the session IP.</source>				
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.volume.0">
+				<source>Volume</source>				
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.volume.1">
+				<source>Enter the session volume.</source>				
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.currentTime.0">
+				<source>Current timee</source>				
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.currentTime.1">
+				<source>Enter the session current time.</source>				
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.complete.0">
+				<source>Complete</source>				
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.complete.1">
+				<source>Check to mark this session as complete.</source>				
+			</trans-unit>
+			<trans-unit id="tl_wem_audiotrack_session.title_legend">
+				<source>Global settings</source>				
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

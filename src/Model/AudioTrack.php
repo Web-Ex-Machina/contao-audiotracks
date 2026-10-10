@@ -2,12 +2,24 @@
 
 declare(strict_types=1);
 
+/**
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
+ *
+ * @category ContaoBundle
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ */
+
 namespace WEM\AudioTracksBundle\Model;
+
+use Contao\Model\Collection;
+use Contao\System;
+use WEM\UtilsBundle\Model\Model;
 
 /**
  * Reads and writes items.
  */
-class AudioTrack extends \WEM\UtilsBundle\Model\Model
+class AudioTrack extends Model
 {
     /**
      * Table name.
@@ -15,4 +27,132 @@ class AudioTrack extends \WEM\UtilsBundle\Model\Model
      * @var string
      */
     protected static $strTable = 'tl_wem_audiotrack';
+
+    /**
+     * Cache tag of the pages displaying the likes counter of a track: the pages are
+     * tagged with it, and it is invalidated when a like is added or removed.
+     */
+    public static function getLikesCacheTag(int $id): string
+    {
+        return 'wem.audiotracks.likes.'.$id;
+    }
+
+    /**
+     * Find items, depends on the arguments.
+     *
+     * @param array $arrConfig  Request Config
+     * @param int   $intLimit   Query Limit
+     * @param int   $intOffset  Query Offset
+     * @param array $arrOptions Query Options
+     *
+     * @throws \Exception
+     */
+    public static function findItems(array $arrConfig = [], int $intLimit = 0, int $intOffset = 0, array $arrOptions = []): Collection|null
+    {
+        $t = static::$strTable;
+        // Catch sorting by subtable
+        if (!empty($arrOptions['order']) && str_contains($arrOptions['order'], 'mostLiked')) {
+            $arrOptions['select'] = $t.'.*, COUNT(twaf.id) AS nbLikes';
+            $arrOptions['join'][] = \sprintf('LEFT JOIN tl_wem_audiotrack_feedback twaf on %s.id = twaf.pid', $t);
+            $arrOptions['group'] = $t.'.id';
+
+            $arrOptions['order'] = 'DESC' === substr($arrOptions['order'], -4, 4) ? 'nbLikes DESC' : 'nbLikes ASC';
+        }
+
+        return parent::findItems($arrConfig, $intLimit, $intOffset, $arrOptions);
+    }
+
+    /**
+     * Generic statements format.
+     *
+     * @param string $strField    [Column to format]
+     * @param mixed  $varValue    [Value to use]
+     * @param string $strOperator [Operator to use, default "="]
+     */
+    public static function formatStatement(string $strField, $varValue, string $strOperator = '='): array
+    {
+        $arrColumns = [];
+        $t = static::$strTable;
+
+        switch ($strField) {
+            case 'pid':
+                if (!$varValue || !\is_array($varValue)) {
+                    $varValue = [$varValue];
+                }
+
+                $arrColumns[] = \sprintf('%s.pid IN(%s)', $t, implode(',', array_map('intval', $varValue)));
+                break;
+
+            // Respect the publication state and the start / stop dates (not in preview mode)
+            case 'published':
+                if (!$varValue || static::inPreviewMode()) {
+                    break;
+                }
+
+                $time = time();
+                $arrColumns[] = \sprintf("(%s.published = '1' AND (%s.start = '' OR %s.start <= %d) AND (%s.stop = '' OR %s.stop > %d))", $t, $t, $t, $time, $t, $t, $time);
+                break;
+
+            case 'tags':
+                $arrColumns[] = \sprintf('%s.id IN(SELECT twat.pid FROM tl_wem_audiotrack_tag twat WHERE twat.tag IN(%s))', $t, static::quoteList((array) $varValue));
+                break;
+
+            case 'search':
+                // The keywords come from the visitor: they are searched as text (no regular
+                // expression), and quoted
+                $keywords = array_filter(array_map(static fn ($k): string => preg_quote(trim((string) $k)), (array) $varValue), static fn (string $k): bool => '' !== $k);
+
+                if ([] === $keywords) {
+                    break;
+                }
+
+                $regexp = static::quote(implode('|', $keywords));
+                $arrColumns[] = \sprintf('(%s.title REGEXP %s OR %s.description REGEXP %s)', $t, $regexp, $t, $regexp);
+                break;
+
+            // Load parent
+            default:
+                $arrColumns = array_merge($arrColumns, parent::formatStatement($strField, $varValue, $strOperator));
+        }
+
+        return $arrColumns;
+    }
+
+    /**
+     * Check if the item can be displayed in the frontend (published and within its
+     * start / stop dates).
+     */
+    public function isPublished(): bool
+    {
+        if (static::inPreviewMode()) {
+            return true;
+        }
+
+        $time = time();
+
+        return '1' === (string) $this->published
+            && (!$this->start || (int) $this->start <= $time)
+            && (!$this->stop || (int) $this->stop > $time);
+    }
+
+    /**
+     * Quote a value to use it in a statement.
+     */
+    protected static function quote(mixed $value): string
+    {
+        return System::getContainer()->get('database_connection')->quote((string) $value);
+    }
+
+    /**
+     * Quote a list of values: 'a','b'.
+     */
+    protected static function quoteList(array $values): string
+    {
+        return implode(',', array_map(static fn ($v): string => static::quote($v), $values)) ?: "''";
+    }
+
+    protected static function inPreviewMode(): bool
+    {
+        return System::getContainer()->get('contao.security.token_checker')->isPreviewMode();
+    }
 }

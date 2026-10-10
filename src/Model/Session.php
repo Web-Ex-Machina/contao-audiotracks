@@ -1,0 +1,28 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Audiotracks for Contao Open Source CMS Copyright (c) 2023 Web ex Machina.
+ *
+ * @category ContaoBundle
+ *
+ * @see     https://github.com/Web-Ex-Machina/contao-audiotracks/
+ */
+
+namespace WEM\AudioTracksBundle\Model;
+
+use WEM\UtilsBundle\Model\Model;
+
+/**
+ * Reads and writes items.
+ */
+class Session extends Model
+{
+    /**
+     * Table name.
+     *
+     * @var string
+     */
+    protected static $strTable = 'tl_wem_audiotrack_session';
+}

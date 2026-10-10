@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<xliff version="1.1">
+	<file datatype="php" original="system/modules/core/languages/en/tl_module.php" source-language="en">
+		<body>
+			<trans-unit id="tl_module.list_legend">
+				<source>List configuration</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_categories.0">
+				<source>Categories</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_categories.1">
+				<source>Select audiotracks categories to display</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_addFilters.0">
+				<source>Add filters</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_addFilters.1">
+				<source>Check to configure filters</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_template.0">
+				<source>Audiotrack template</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_template.1">
+				<source>Select the template to use in list</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_filters.0">
+				<source>Filters</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_filters.1">
+				<source>Select the filters you want to use</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_addSearch.0">
+				<source>Add fulltext search</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_addSearch.1">
+				<source>Check to add a fulltext search inside the list</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_canDownload.0">
+				<source>Can download</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_canDownload.1">
+				<source>Check to add a button to download the audio file</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_links.0">
+				<source>Links</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_links.1">
+				<source>Select links to display</source>				
+			</trans-unit>
+			<trans-unit id="tl_module.wemaudiotracks_links.rss">
+				<source>RSS</source>				
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
