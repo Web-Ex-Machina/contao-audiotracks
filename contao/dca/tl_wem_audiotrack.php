@@ -96,7 +96,9 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         ],
         'title' => [
             'exclude' => true,
+            'sorting' => true,
             'search' => true,
+            'flag' => DataContainer::SORT_INITIAL_LETTERS_BOTH,
             'inputType' => 'text',
             'eval' => ['mandatory' => true, 'tl_class' => 'w50', 'maxlength' => 255],
             'sql' => "varchar(255) NOT NULL default ''",
@@ -111,20 +113,24 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         'date' => [
             'exclude' => true,
             'inputType' => 'text',
+            'filter' => true,
+            'sorting' => true,
             'flag' => DataContainer::SORT_MONTH_DESC,
             'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
             'sql' => "int(10) unsigned NOT NULL default '0'",
         ],
         'season' => [
             'exclude' => true,
-            'search' => true,
+            'filter' => true,
+            'sorting' => true,
+            'flag' => DataContainer::SORT_INITIAL_LETTERS_BOTH,
             'inputType' => 'text',
             'eval' => ['mandatory' => true, 'tl_class' => 'w50', 'maxlength' => 255],
             'sql' => "varchar(16) NOT NULL default ''",
         ],
         'episode' => [
             'exclude' => true,
-            'search' => true,
+            'filter' => true,
             'inputType' => 'text',
             'eval' => ['mandatory' => true, 'tl_class' => 'w50', 'maxlength' => 255],
             'sql' => "varchar(16) NOT NULL default ''",
@@ -143,6 +149,7 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         ],
         'type' => [
             'exclude' => true,
+            'filter' => true,
             'inputType' => 'select',
             'eval'=> array('tl_class'=>'w50', 'mandatory' => true),
             'options' => ['full', 'trailer', 'bonus'],
@@ -151,7 +158,6 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         ],
         'duration' => [
             'exclude' => true,
-            'search' => true,
             'inputType' => 'text',
             'eval' => ['tl_class' => 'w50', 'rgxp' => 'digit'],
             'sql' => "int(10) unsigned NOT NULL default '0'",
@@ -166,7 +172,6 @@ $GLOBALS['TL_DCA']['tl_wem_audiotrack'] = [
         ],
         'explicit' => [
             'exclude' => true,
-            'filter' => true,
             'flag' => DataContainer::SORT_INITIAL_LETTER_ASC,
             'inputType' => 'checkbox',
             'eval' => ['doNotCopy' => true],
